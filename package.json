@@ -1,0 +1,27 @@
+{
+  "name": "cloudvault",
+  "version": "1.0.0",
+  "description": "CloudVault - Private cloud storage web application designed for shared university laboratory computers",
+  "private": true,
+  "scripts": {
+    "server": "npm run dev --prefix server",
+    "client": "npm run dev --prefix client",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "install:all": "npm install && npm install --prefix server && npm install --prefix client",
+    "build:client": "npm run build --prefix client",
+    "test:server": "npm test --prefix server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.4"
+  },
+  "keywords": [
+    "cloud-storage",
+    "private-cloud",
+    "university-lab",
+    "secure-storage",
+    "r2",
+    "s3"
+  ],
+  "author": "CloudVault Team",
+  "license": "ISC"
+}
