@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  cloudvault:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cloudvault_app
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://mongo:27017/cloudvault
+      - SESSION_SECRET=cloudvault-super-secure-production-session-secret-change-me
+      - STORAGE_PROVIDER=local
+      - LOCAL_STORAGE_PATH=/data/uploads
+      - DEFAULT_STORAGE_LIMIT=524288000
+      - MAX_FILE_SIZE=26214400
+      - SESSION_MAX_AGE=1800000
+    volumes:
+      - cloudvault_uploads:/data/uploads
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:7-jammy
+    container_name: cloudvault_mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  cloudvault_uploads:
+  mongo_data:
