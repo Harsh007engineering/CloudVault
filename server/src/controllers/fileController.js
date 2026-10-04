@@ -104,10 +104,14 @@ const uploadFiles = async (req, res, next) => {
  */
 const getFiles = async (req, res, next) => {
   try {
-    const { search, sort = 'date_desc' } = req.query;
+    const { search, sort = 'date_desc', starred } = req.query;
 
     // Strict ownership filter: strictly authenticated user's ID
     const filter = { userId: req.user._id };
+
+    if (starred === 'true') {
+      filter.isStarred = true;
+    }
 
     if (search && search.trim()) {
       filter.originalName = { $regex: search.trim(), $options: 'i' };
@@ -166,6 +170,7 @@ const getFile = async (req, res, next) => {
 
 /**
  * Download a file securely with strict ownership check and Cache-Control headers
+ * Supports inline viewing for in-app previews (images, pdfs, text)
  */
 const downloadFile = async (req, res, next) => {
   try {
@@ -182,7 +187,12 @@ const downloadFile = async (req, res, next) => {
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, private');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
-    res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(file.originalName)}"`);
+
+    // Support inline viewing for previewing files in browser without forced download
+    const isInline = req.query.inline === 'true' || req.query.view === 'true';
+    const dispositionType = isInline ? 'inline' : 'attachment';
+
+    res.setHeader('Content-Disposition', `${dispositionType}; filename="${encodeURIComponent(file.originalName)}"`);
     res.setHeader('Content-Type', file.mimeType || 'application/octet-stream');
     res.setHeader('Content-Length', file.size);
 
@@ -278,11 +288,140 @@ const deleteFile = async (req, res, next) => {
   }
 };
 
+/**
+ * Toggle favorite/starred status of a file
+ */
+const toggleStar = async (req, res, next) => {
+  try {
+    const file = await File.findOne({
+      _id: req.params.id,
+      userId: req.user._id
+    });
+
+    if (!file) {
+      return sendError(res, 'File not found.', 404);
+    }
+
+    file.isStarred = !file.isStarred;
+    await file.save();
+
+    return sendSuccess(res, { file }, file.isStarred ? 'File marked as starred.' : 'File unstarred.');
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Batch delete multiple files in a single atomic transaction
+ */
+const batchDelete = async (req, res, next) => {
+  try {
+    const { fileIds } = req.body;
+
+    if (!Array.isArray(fileIds) || fileIds.length === 0) {
+      return sendError(res, 'No file IDs provided for deletion.', 400);
+    }
+
+    const files = await File.find({
+      _id: { $in: fileIds },
+      userId: req.user._id
+    });
+
+    if (files.length === 0) {
+      return sendError(res, 'No matching files found.', 404);
+    }
+
+    let totalReclaimedBytes = 0;
+    for (const file of files) {
+      await storageService.delete(file.storageKey);
+      totalReclaimedBytes += file.size;
+    }
+
+    await File.deleteMany({ _id: { $in: files.map(f => f._id) } });
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user._id,
+      { $inc: { storageUsed: -totalReclaimedBytes } },
+      { new: true }
+    );
+
+    if (updatedUser.storageUsed < 0) {
+      updatedUser.storageUsed = 0;
+      await updatedUser.save();
+    }
+
+    return sendSuccess(res, {
+      deletedCount: files.length,
+      deletedIds: files.map(f => f._id),
+      storageUsed: updatedUser.storageUsed,
+      storageLimit: updatedUser.storageLimit
+    }, `Successfully deleted ${files.length} file(s).`);
+
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Get storage breakdown by academic category
+ */
+const getStorageStats = async (req, res, next) => {
+  try {
+    const files = await File.find({ userId: req.user._id });
+
+    const breakdown = {
+      documents: { count: 0, bytes: 0, label: 'Documents' },
+      images: { count: 0, bytes: 0, label: 'Images' },
+      spreadsheets: { count: 0, bytes: 0, label: 'Spreadsheets' },
+      presentations: { count: 0, bytes: 0, label: 'Presentations' },
+      archives: { count: 0, bytes: 0, label: 'Archives' },
+      other: { count: 0, bytes: 0, label: 'Other' }
+    };
+
+    for (const file of files) {
+      const ext = path.extname(file.originalName).toLowerCase();
+      if (['.pdf', '.doc', '.docx', '.txt'].includes(ext)) {
+        breakdown.documents.count += 1;
+        breakdown.documents.bytes += file.size;
+      } else if (['.jpg', '.jpeg', '.png'].includes(ext)) {
+        breakdown.images.count += 1;
+        breakdown.images.bytes += file.size;
+      } else if (['.xls', '.xlsx'].includes(ext)) {
+        breakdown.spreadsheets.count += 1;
+        breakdown.spreadsheets.bytes += file.size;
+      } else if (['.ppt', '.pptx'].includes(ext)) {
+        breakdown.presentations.count += 1;
+        breakdown.presentations.bytes += file.size;
+      } else if (['.zip', '.rar', '.7z'].includes(ext)) {
+        breakdown.archives.count += 1;
+        breakdown.archives.bytes += file.size;
+      } else {
+        breakdown.other.count += 1;
+        breakdown.other.bytes += file.size;
+      }
+    }
+
+    const freshUser = await User.findById(req.user._id);
+
+    return sendSuccess(res, {
+      breakdown,
+      storageUsed: freshUser.storageUsed,
+      storageLimit: freshUser.storageLimit,
+      totalFiles: files.length
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   uploadFiles,
   getFiles,
   getFile,
   downloadFile,
   renameFile,
-  deleteFile
+  deleteFile,
+  toggleStar,
+  batchDelete,
+  getStorageStats
 };

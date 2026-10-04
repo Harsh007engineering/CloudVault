@@ -11,9 +11,12 @@ router.use(checkForcePasswordChange);
 
 // File management routes
 router.post('/upload', upload.array('files', 10), fileController.uploadFiles);
+router.post('/batch-delete', fileController.batchDelete);
+router.get('/stats', fileController.getStorageStats);
 router.get('/', fileController.getFiles);
 router.get('/:id', fileController.getFile);
 router.get('/:id/download', fileController.downloadFile);
+router.patch('/:id/star', fileController.toggleStar);
 router.patch('/:id', fileController.renameFile);
 router.delete('/:id', fileController.deleteFile);
 
