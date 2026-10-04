@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { 
   UploadCloud, 
   Search, 
@@ -12,7 +12,14 @@ import {
   LayoutGrid, 
   List as ListIcon, 
   FolderPlus, 
-  AlertCircle 
+  AlertCircle,
+  Star,
+  Eye,
+  CheckSquare,
+  Square,
+  Sparkles,
+  Command,
+  X
 } from 'lucide-react';
 import api from '../services/api';
 import Navbar from '../components/layout/Navbar';
@@ -21,6 +28,10 @@ import FileUploadModal from '../components/modals/FileUploadModal';
 import RenameModal from '../components/modals/RenameModal';
 import DeleteModal from '../components/modals/DeleteModal';
 import ForcePasswordModal from '../components/modals/ForcePasswordModal';
+import FilePreviewModal from '../components/modals/FilePreviewModal';
+import GlobalDropzone from '../components/files/GlobalDropzone';
+import BatchActionBar from '../components/files/BatchActionBar';
+import StorageBreakdownWidget from '../components/storage/StorageBreakdownWidget';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { formatBytes, formatDate, getFileTypeMeta } from '../utils/formatters';
@@ -30,77 +41,204 @@ export default function DashboardPage() {
   const { success, error: toastError } = useToast();
 
   const [files, setFiles] = useState([]);
+  const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState('date_desc');
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState('all'); // 'all', 'starred', 'document', 'image', 'spreadsheet', 'presentation', 'archive'
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'grid'
+
+  // Multi-select state
+  const [selectedFileIds, setSelectedFileIds] = useState([]);
 
   // Modals state
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [fileToRename, setFileToRename] = useState(null);
   const [fileToDelete, setFileToDelete] = useState(null);
+  const [fileToPreview, setFileToPreview] = useState(null);
+  const [isBatchDeleting, setIsBatchDeleting] = useState(false);
 
+  const searchInputRef = useRef(null);
+
+  // Fetch files and storage stats
   const fetchFiles = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await api.get('/files', {
-        params: {
-          search: searchQuery || undefined,
-          sort: sortOption
-        }
-      });
-      if (res.success) {
-        setFiles(res.data.files);
-        updateStorage(res.data.storageUsed, res.data.storageLimit);
+      const [filesRes, statsRes] = await Promise.all([
+        api.get('/files', {
+          params: {
+            search: searchQuery || undefined,
+            sort: sortOption,
+            starred: selectedCategory === 'starred' ? 'true' : undefined
+          }
+        }),
+        api.get('/files/stats')
+      ]);
+
+      if (filesRes.success) {
+        setFiles(filesRes.data.files);
+        updateStorage(filesRes.data.storageUsed, filesRes.data.storageLimit);
+      }
+      if (statsRes.success) {
+        setStats(statsRes.data);
       }
     } catch (err) {
-      toastError(err.message || 'Failed to fetch files');
+      toastError(err.message || 'Failed to fetch vault files');
     } finally {
       setLoading(false);
     }
-  }, [searchQuery, sortOption, updateStorage, toastError]);
+  }, [searchQuery, sortOption, selectedCategory, updateStorage, toastError]);
 
   useEffect(() => {
     fetchFiles();
   }, [fetchFiles]);
 
+  // Global Keyboard Shortcuts (Ctrl+K or / for search)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      } else if (e.key === '/' && document.activeElement !== searchInputRef.current) {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      } else if (e.key === 'Escape' && document.activeElement === searchInputRef.current) {
+        setSearchQuery('');
+        searchInputRef.current?.blur();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   const handleDownload = (file) => {
-    // Directly navigate or trigger download from the authenticated endpoint
     window.location.href = `/api/files/${file._id}/download`;
+  };
+
+  const handleToggleStar = async (file) => {
+    // Optimistic UI update
+    setFiles((prev) =>
+      prev.map((f) => (f._id === file._id ? { ...f, isStarred: !f.isStarred } : f))
+    );
+    if (fileToPreview && fileToPreview._id === file._id) {
+      setFileToPreview((prev) => ({ ...prev, isStarred: !prev.isStarred }));
+    }
+
+    try {
+      const res = await api.patch(`/files/${file._id}/star`);
+      if (res.success) {
+        success(res.message);
+      }
+    } catch (err) {
+      // Revert on error
+      setFiles((prev) =>
+        prev.map((f) => (f._id === file._id ? { ...f, isStarred: file.isStarred } : f))
+      );
+      toastError('Failed to update star');
+    }
   };
 
   const onFileRenamed = (updatedFile) => {
     setFiles((prev) => prev.map((f) => (f._id === updatedFile._id ? updatedFile : f)));
+    if (fileToPreview && fileToPreview._id === updatedFile._id) {
+      setFileToPreview(updatedFile);
+    }
   };
 
   const onFileDeleted = (deletedId) => {
     setFiles((prev) => prev.filter((f) => f._id !== deletedId));
+    setSelectedFileIds((prev) => prev.filter((id) => id !== deletedId));
+    if (fileToPreview && fileToPreview._id === deletedId) {
+      setFileToPreview(null);
+    }
+    // Refresh stats
+    api.get('/files/stats').then((res) => res.success && setStats(res.data)).catch(() => {});
+  };
+
+  // Multi-select handlers
+  const handleSelectToggle = (id) => {
+    setSelectedFileIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectedFileIds.length === filteredFiles.length) {
+      setSelectedFileIds([]);
+    } else {
+      setSelectedFileIds(filteredFiles.map((f) => f._id));
+    }
+  };
+
+  // Batch download
+  const handleDownloadBatch = () => {
+    selectedFileIds.forEach((id, idx) => {
+      setTimeout(() => {
+        const link = document.createElement('a');
+        link.href = `/api/files/${id}/download`;
+        link.setAttribute('download', '');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }, idx * 400); // Stagger downloads slightly to prevent browser blocking
+    });
+    success(`Downloading ${selectedFileIds.length} files...`);
+  };
+
+  // Batch delete
+  const handleBatchDelete = async () => {
+    if (selectedFileIds.length === 0) return;
+    if (!window.confirm(`Permanently delete all ${selectedFileIds.length} selected files?`)) return;
+
+    setIsBatchDeleting(true);
+    try {
+      const res = await api.post('/api/files/batch-delete', { fileIds: selectedFileIds });
+      if (res.success) {
+        success(`Successfully deleted ${res.data.deletedCount} files.`);
+        updateStorage(res.data.storageUsed, res.data.storageLimit);
+        setFiles((prev) => prev.filter((f) => !selectedFileIds.includes(f._id)));
+        setSelectedFileIds([]);
+        // Refresh stats
+        api.get('/files/stats').then((s) => s.success && setStats(s.data)).catch(() => {});
+      }
+    } catch (err) {
+      toastError(err.message || 'Batch delete failed');
+    } finally {
+      setIsBatchDeleting(false);
+    }
+  };
+
+  // Handle files dropped via GlobalDropzone
+  const handleFilesDropped = (droppedFileList) => {
+    setIsUploadOpen(true);
+    // You can pass the dropped files to FileUploadModal if desired, or let the modal handle
   };
 
   // Filter files by category tabs
   const filteredFiles = files.filter((file) => {
     if (selectedCategory === 'all') return true;
+    if (selectedCategory === 'starred') return file.isStarred;
     const meta = getFileTypeMeta(file.originalName, file.mimeType);
     return meta.category === selectedCategory;
   });
 
-  const percentUsed = user?.storageLimit 
-    ? Math.min(100, Math.round((user.storageUsed / user.storageLimit) * 100)) 
-    : 0;
+  const allSelected = filteredFiles.length > 0 && selectedFileIds.length === filteredFiles.length;
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
-      {/* Public Computer Banner */}
+    <div className="min-h-screen bg-slate-50 flex flex-col antialiased">
+      {/* Global Window Drag & Drop Overlay */}
+      <GlobalDropzone onFilesDropped={handleFilesDropped} />
+
+      {/* Lab Security Reminder Banner */}
       <LabReminderBanner />
 
-      {/* Top Navbar */}
+      {/* Modern Top Navbar */}
       <Navbar />
 
       {/* Mandatory password change modal if flagged by admin */}
       <ForcePasswordModal isOpen={!!user?.forcePasswordChange} />
 
-      {/* Upload, Rename, Delete Modals */}
+      {/* File Modals */}
       <FileUploadModal
         isOpen={isUploadOpen}
         onClose={() => setIsUploadOpen(false)}
@@ -121,16 +259,38 @@ export default function DashboardPage() {
         onDeleted={onFileDeleted}
       />
 
-      {/* Main Content Area */}
+      <FilePreviewModal
+        file={fileToPreview}
+        isOpen={!!fileToPreview}
+        onClose={() => setFileToPreview(null)}
+        onToggleStar={handleToggleStar}
+        onRenameRequest={setFileToRename}
+        onDeleteRequest={setFileToDelete}
+      />
+
+      {/* Floating Batch Action Bar */}
+      <BatchActionBar
+        selectedCount={selectedFileIds.length}
+        onDownloadBatch={handleDownloadBatch}
+        onDeleteBatch={handleBatchDelete}
+        onClearSelection={() => setSelectedFileIds([])}
+      />
+
+      {/* Main Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header bar: Title, Storage summary, and Upload action */}
+        {/* Header Action Bar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200">
           <div>
-            <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-              My Academic Vault
-            </h1>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Securely stored in your personal private vault
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+                Academic Cloud Vault
+              </h1>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-brand-100 text-brand-700 border border-brand-200/80">
+                Encrypted & Private
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 mt-1">
+              Store, preview, and organize your coursework securely across university computers
             </p>
           </div>
 
@@ -146,94 +306,72 @@ export default function DashboardPage() {
 
             <button
               onClick={() => setIsUploadOpen(true)}
-              className="bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-md shadow-brand-600/20 transition-all flex items-center gap-2"
+              className="bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-700 hover:to-indigo-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-md shadow-brand-600/20 transition-all flex items-center gap-2"
             >
               <UploadCloud className="w-4 h-4" />
-              Upload Files
+              Upload Coursework
             </button>
           </div>
         </div>
 
-        {/* Storage Bar Widget */}
-        <div className="mt-6 bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2.5">
-            <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
-              <HardDrive className="w-4 h-4 text-brand-600" />
-              <span>Storage Usage</span>
-            </div>
-            <div className="text-xs font-medium text-slate-500">
-              <strong className="text-slate-900 font-bold">
-                {formatBytes(user?.storageUsed || 0)}
-              </strong>{' '}
-              used of{' '}
-              <strong className="text-slate-900 font-bold">
-                {formatBytes(user?.storageLimit || 524288000)}
-              </strong>{' '}
-              ({percentUsed}%)
-            </div>
-          </div>
-
-          <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/60">
-            <div
-              className={`h-full rounded-full transition-all duration-500 ${
-                percentUsed > 90
-                  ? 'bg-rose-500'
-                  : percentUsed > 75
-                  ? 'bg-amber-500'
-                  : 'bg-gradient-to-r from-brand-500 to-brand-600'
-              }`}
-              style={{ width: `${Math.max(percentUsed, 1)}%` }}
-            />
-          </div>
-
-          {percentUsed > 90 && (
-            <div className="mt-2.5 flex items-center gap-1.5 text-xs text-rose-600 font-medium">
-              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-              <span>Vault is nearly full. Delete old assignments to reclaim space.</span>
-            </div>
-          )}
+        {/* Visual Storage Breakdown Analytics Widget */}
+        <div className="mt-6">
+          <StorageBreakdownWidget stats={stats} user={user} />
         </div>
 
-        {/* Controls: Search, Sort, Category Filter, and View Mode */}
-        <div className="mt-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        {/* Filter Navigation, Search Bar & View Modes */}
+        <div className="mt-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
           {/* Category Tabs */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
             {[
               { id: 'all', label: 'All Files' },
+              { id: 'starred', label: 'Starred', icon: Star },
               { id: 'document', label: 'Documents' },
               { id: 'image', label: 'Images' },
               { id: 'spreadsheet', label: 'Sheets' },
               { id: 'presentation', label: 'Slides' },
               { id: 'archive', label: 'Archives' }
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setSelectedCategory(tab.id)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors ${
-                  selectedCategory === tab.id
-                    ? 'bg-brand-600 text-white shadow-sm shadow-brand-600/20'
-                    : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
+            ].map((tab) => {
+              const TabIcon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setSelectedCategory(tab.id)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 ${
+                    selectedCategory === tab.id
+                      ? 'bg-slate-900 text-white shadow-sm'
+                      : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                  }`}
+                >
+                  {TabIcon && (
+                    <TabIcon className={`w-3.5 h-3.5 ${selectedCategory === tab.id ? 'fill-amber-400 text-amber-400' : 'text-slate-400'}`} />
+                  )}
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
           </div>
 
-          {/* Search and Sort */}
+          {/* Search and Sort Toolbar */}
           <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
-            {/* Search Input */}
+            {/* Search Input with Hotkey Tooltip */}
             <div className="relative flex-1 sm:w-64">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                 <Search className="w-3.5 h-3.5" />
               </div>
               <input
+                ref={searchInputRef}
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search files..."
-                className="w-full pl-9 pr-3 py-1.5 text-xs bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 shadow-sm"
+                className="w-full pl-9 pr-12 py-1.5 text-xs bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 shadow-sm transition-all"
               />
+              <div className="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
+                <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[9px] font-mono text-slate-400 bg-slate-100 border border-slate-200 rounded">
+                  /
+                </kbd>
+              </div>
             </div>
 
             {/* Sort Dropdown */}
@@ -282,24 +420,46 @@ export default function DashboardPage() {
         {/* File Content Area */}
         <div className="mt-6">
           {loading && files.length === 0 ? (
-            <div className="py-20 flex flex-col items-center justify-center text-slate-400">
-              <RefreshCw className="w-8 h-8 animate-spin text-brand-500 mb-2.5" />
-              <span className="text-sm font-medium">Loading your files...</span>
+            /* Skeleton Loading State */
+            <div className="bg-white border border-slate-200/80 rounded-2xl shadow-sm p-4 divide-y divide-slate-100">
+              {[1, 2, 3, 4, 5].map((idx) => (
+                <div key={idx} className="py-3 flex items-center justify-between animate-pulse">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-xl bg-slate-200"></div>
+                    <div className="space-y-1.5">
+                      <div className="h-3 w-48 bg-slate-200 rounded"></div>
+                      <div className="h-2 w-24 bg-slate-100 rounded"></div>
+                    </div>
+                  </div>
+                  <div className="h-3 w-16 bg-slate-100 rounded"></div>
+                </div>
+              ))}
             </div>
           ) : filteredFiles.length === 0 ? (
-            <div className="bg-white border border-dashed border-slate-300 rounded-2xl p-12 text-center">
-              <div className="w-14 h-14 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-center mx-auto text-slate-400 mb-3.5">
-                <FolderPlus className="w-7 h-7" />
+            /* Premium Empty State */
+            <div className="bg-white border border-dashed border-slate-300 rounded-3xl p-14 text-center">
+              <div className="w-16 h-16 bg-slate-50 border border-slate-200/80 rounded-2xl flex items-center justify-center mx-auto text-slate-400 mb-4 shadow-sm">
+                {selectedCategory === 'starred' ? (
+                  <Star className="w-8 h-8 text-amber-400" />
+                ) : (
+                  <FolderPlus className="w-8 h-8 text-brand-500" />
+                )}
               </div>
               <h3 className="text-base font-bold text-slate-800">
-                {searchQuery ? 'No matching files found' : 'No files in vault yet'}
+                {searchQuery
+                  ? 'No matching files found'
+                  : selectedCategory === 'starred'
+                  ? 'No starred files yet'
+                  : 'Your academic vault is empty'}
               </h3>
               <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1 leading-relaxed">
                 {searchQuery
-                  ? `No files matched "${searchQuery}". Try a different keyword.`
-                  : 'Upload your lab assignments, code archives, or study materials to access them safely on any PC.'}
+                  ? `No files matched "${searchQuery}". Press Esc to clear search.`
+                  : selectedCategory === 'starred'
+                  ? 'Click the star icon on any document or assignment to keep it pinned here for quick access.'
+                  : 'Drag & drop your files anywhere onto this page or click below to upload.'}
               </p>
-              {!searchQuery && (
+              {!searchQuery && selectedCategory !== 'starred' && (
                 <button
                   onClick={() => setIsUploadOpen(true)}
                   className="mt-5 inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-md transition-all"
@@ -316,8 +476,22 @@ export default function DashboardPage() {
                 <table className="min-w-full divide-y divide-slate-100 text-left text-xs">
                   <thead className="bg-slate-50/80 text-slate-500 font-semibold uppercase tracking-wider">
                     <tr>
+                      <th className="py-3 px-4 w-10">
+                        <button
+                          type="button"
+                          onClick={handleSelectAll}
+                          className="p-1 rounded text-slate-400 hover:text-slate-600"
+                          title={allSelected ? 'Deselect all' : 'Select all'}
+                        >
+                          {allSelected ? (
+                            <CheckSquare className="w-4 h-4 text-brand-600" />
+                          ) : (
+                            <Square className="w-4 h-4" />
+                          )}
+                        </button>
+                      </th>
                       <th className="py-3 px-4">Name</th>
-                      <th className="py-3 px-4">Type</th>
+                      <th className="py-3 px-4">Category</th>
                       <th className="py-3 px-4">Size</th>
                       <th className="py-3 px-4">Uploaded</th>
                       <th className="py-3 px-4 text-right">Actions</th>
@@ -327,17 +501,48 @@ export default function DashboardPage() {
                     {filteredFiles.map((file) => {
                       const meta = getFileTypeMeta(file.originalName, file.mimeType);
                       const Icon = meta.icon;
+                      const isSelected = selectedFileIds.includes(file._id);
 
                       return (
-                        <tr key={file._id} className="hover:bg-slate-50/70 transition-colors group">
+                        <tr
+                          key={file._id}
+                          className={`hover:bg-slate-50/80 transition-colors group ${
+                            isSelected ? 'bg-brand-50/40' : ''
+                          }`}
+                        >
+                          <td className="py-3 px-4">
+                            <button
+                              type="button"
+                              onClick={() => handleSelectToggle(file._id)}
+                              className="p-1 rounded text-slate-400 hover:text-brand-600"
+                            >
+                              {isSelected ? (
+                                <CheckSquare className="w-4 h-4 text-brand-600" />
+                              ) : (
+                                <Square className="w-4 h-4" />
+                              )}
+                            </button>
+                          </td>
                           <td className="py-3 px-4">
                             <div className="flex items-center gap-3">
+                              <button
+                                onClick={() => handleToggleStar(file)}
+                                className="p-1 text-slate-300 hover:text-amber-400 transition-colors"
+                                title={file.isStarred ? 'Unstar file' : 'Star file'}
+                              >
+                                <Star
+                                  className={`w-3.5 h-3.5 ${
+                                    file.isStarred ? 'fill-amber-400 text-amber-500' : ''
+                                  }`}
+                                />
+                              </button>
+
                               <div className={`p-2 rounded-xl border ${meta.color} shrink-0`}>
                                 <Icon className="w-4 h-4" />
                               </div>
                               <span
-                                className="font-semibold text-slate-800 hover:text-brand-600 truncate max-w-xs sm:max-w-md cursor-pointer"
-                                onClick={() => handleDownload(file)}
+                                className="font-semibold text-slate-800 hover:text-brand-600 truncate max-w-xs sm:max-w-md cursor-pointer select-none"
+                                onClick={() => setFileToPreview(file)}
                                 title={file.originalName}
                               >
                                 {file.originalName}
@@ -356,24 +561,31 @@ export default function DashboardPage() {
                             {formatDate(file.createdAt)}
                           </td>
                           <td className="py-3 px-4 text-right">
-                            <div className="flex items-center justify-end gap-1.5">
+                            <div className="flex items-center justify-end gap-1">
+                              <button
+                                onClick={() => setFileToPreview(file)}
+                                className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+                                title="Quick Preview"
+                              >
+                                <Eye className="w-4 h-4" />
+                              </button>
                               <button
                                 onClick={() => handleDownload(file)}
-                                className="p-1.5 text-slate-500 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-colors"
+                                className="p-1.5 text-slate-400 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-colors"
                                 title="Download"
                               >
                                 <Download className="w-4 h-4" />
                               </button>
                               <button
                                 onClick={() => setFileToRename(file)}
-                                className="p-1.5 text-slate-500 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+                                className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
                                 title="Rename"
                               >
                                 <Edit3 className="w-4 h-4" />
                               </button>
                               <button
                                 onClick={() => setFileToDelete(file)}
-                                className="p-1.5 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                                className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
                                 title="Delete"
                               >
                                 <Trash2 className="w-4 h-4" />
@@ -393,25 +605,55 @@ export default function DashboardPage() {
               {filteredFiles.map((file) => {
                 const meta = getFileTypeMeta(file.originalName, file.mimeType);
                 const Icon = meta.icon;
+                const isSelected = selectedFileIds.includes(file._id);
 
                 return (
                   <div
                     key={file._id}
-                    className="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group"
+                    className={`bg-white border rounded-2xl p-4 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group ${
+                      isSelected ? 'border-brand-500 ring-2 ring-brand-500/20' : 'border-slate-200/80'
+                    }`}
                   >
                     <div>
                       <div className="flex items-start justify-between gap-2 mb-3">
-                        <div className={`p-2.5 rounded-xl border ${meta.color}`}>
-                          <Icon className="w-5 h-5" />
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleSelectToggle(file._id)}
+                            className="p-1 rounded text-slate-400 hover:text-brand-600"
+                          >
+                            {isSelected ? (
+                              <CheckSquare className="w-4 h-4 text-brand-600" />
+                            ) : (
+                              <Square className="w-4 h-4" />
+                            )}
+                          </button>
+                          <div className={`p-2.5 rounded-xl border ${meta.color}`}>
+                            <Icon className="w-5 h-5" />
+                          </div>
                         </div>
-                        <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${meta.badge}`}>
-                          {meta.type}
-                        </span>
+
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            onClick={() => handleToggleStar(file)}
+                            className="p-1 text-slate-300 hover:text-amber-400 transition-colors"
+                            title={file.isStarred ? 'Unstar file' : 'Star file'}
+                          >
+                            <Star
+                              className={`w-3.5 h-3.5 ${
+                                file.isStarred ? 'fill-amber-400 text-amber-500' : ''
+                              }`}
+                            />
+                          </button>
+                          <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${meta.badge}`}>
+                            {meta.type}
+                          </span>
+                        </div>
                       </div>
 
                       <h4
                         className="text-xs font-bold text-slate-800 truncate hover:text-brand-600 cursor-pointer"
-                        onClick={() => handleDownload(file)}
+                        onClick={() => setFileToPreview(file)}
                         title={file.originalName}
                       >
                         {file.originalName}
@@ -423,14 +665,21 @@ export default function DashboardPage() {
 
                     <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
                       <button
-                        onClick={() => handleDownload(file)}
+                        onClick={() => setFileToPreview(file)}
                         className="text-xs font-semibold text-brand-600 hover:text-brand-700 flex items-center gap-1"
                       >
-                        <Download className="w-3.5 h-3.5" />
-                        Download
+                        <Eye className="w-3.5 h-3.5" />
+                        Preview
                       </button>
 
                       <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => handleDownload(file)}
+                          className="p-1 text-slate-400 hover:text-brand-600 rounded transition-colors"
+                          title="Download"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                        </button>
                         <button
                           onClick={() => setFileToRename(file)}
                           className="p-1 text-slate-400 hover:text-amber-600 rounded transition-colors"
