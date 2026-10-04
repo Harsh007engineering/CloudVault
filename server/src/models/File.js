@@ -26,6 +26,11 @@ const fileSchema = new mongoose.Schema({
     type: Number,
     required: [true, 'File size is required'],
     min: [0, 'File size cannot be negative']
+  },
+  isStarred: {
+    type: Boolean,
+    default: false,
+    index: true
   }
 }, {
   timestamps: true
@@ -34,6 +39,7 @@ const fileSchema = new mongoose.Schema({
 // Compound indexes for fast scoped user queries
 fileSchema.index({ userId: 1, createdAt: -1 });
 fileSchema.index({ userId: 1, originalName: 1 });
+fileSchema.index({ userId: 1, isStarred: 1 });
 
 const File = mongoose.model('File', fileSchema);
 
