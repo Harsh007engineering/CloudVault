@@ -14,6 +14,7 @@ const config = {
   defaultStorageLimit: parseInt(process.env.DEFAULT_STORAGE_LIMIT, 10) || 524288000, // 500 MiB
   maxFileSize: parseInt(process.env.MAX_FILE_SIZE, 10) || 26214400, // 25 MiB
   storageProvider: process.env.STORAGE_PROVIDER || 'local',
+  localStoragePath: process.env.LOCAL_STORAGE_PATH ? path.resolve(process.env.LOCAL_STORAGE_PATH) : path.resolve(__dirname, '../../../uploads'),
   r2: {
     endpoint: process.env.R2_ENDPOINT || '',
     bucket: process.env.R2_BUCKET || '',

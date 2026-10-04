@@ -16,8 +16,8 @@ const getStorageProvider = () => {
     if (config.storageProvider === 'r2') {
       console.warn('[StorageService] R2 credentials not fully specified in .env, falling back to LocalStorageProvider');
     }
-    console.log('[StorageService] Initializing Local Disk Storage Provider');
-    instance = new LocalStorageProvider();
+    console.log(`[StorageService] Initializing Local Disk Storage Provider at: ${config.localStoragePath}`);
+    instance = new LocalStorageProvider(config.localStoragePath);
   }
 
   return instance;
