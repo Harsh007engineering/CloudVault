@@ -5,13 +5,14 @@ const tests = [
   'health.test.js',
   'auth.test.js',
   'files_security.test.js',
-  'admin.test.js'
+  'admin.test.js',
+  'features_upgrade.test.js'
 ];
 
 async function runTest(file) {
   return new Promise((resolve, reject) => {
     console.log(`\n▶ Running ${file}...`);
-    const proc = spawn('node', [path.join(__dirname, file)], {
+    const proc = spawn('node', [`"${path.join(__dirname, file)}"`], {
       stdio: 'inherit',
       shell: true
     });
