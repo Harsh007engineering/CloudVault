@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const compression = require('compression');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const path = require('path');
@@ -10,6 +11,9 @@ const routes = require('./routes');
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 
 const app = express();
+
+// HTTP Response Compression (Gzip / Brotli)
+app.use(compression());
 
 // Trust reverse proxy (useful for production deployment e.g. Render, Railway)
 if (config.isProduction) {
@@ -62,7 +66,20 @@ app.use('/api', (req, res, next) => {
 // 7. Mount API Routes
 app.use('/api', routes);
 
-// 8. Error Handlers
+// 8. Serve built Client in Production (Unified single-port deployment)
+if (config.isProduction) {
+  const clientDistPath = path.resolve(__dirname, '../../client/dist');
+  app.use(express.static(clientDistPath));
+
+  app.get('*', (req, res, next) => {
+    if (req.originalUrl.startsWith('/api')) {
+      return next();
+    }
+    res.sendFile(path.join(clientDistPath, 'index.html'));
+  });
+}
+
+// 9. Error Handlers
 app.use('/api/*', notFoundHandler);
 app.use(errorHandler);
 
