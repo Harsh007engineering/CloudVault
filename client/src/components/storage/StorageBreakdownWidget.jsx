@@ -93,10 +93,19 @@ export default function StorageBreakdownWidget({ stats, user }) {
         {categories.map((cat) => (
           <div key={cat.key} className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-slate-500/5 transition-colors">
             <span className={`w-2.5 h-2.5 rounded-full ${cat.dot} shrink-0`} />
-            <div className="truncate">
-              <span className={`text-[11px] block truncate font-medium ${
-                isDark ? 'text-slate-400' : 'text-slate-500'
-              }`}>{cat.label}</span>
+            <div className="truncate min-w-0">
+              <div className="flex items-center gap-1">
+                <span className={`text-[11px] block truncate font-medium ${
+                  isDark ? 'text-slate-400' : 'text-slate-500'
+                }`}>{cat.label}</span>
+                {cat.count > 0 && (
+                  <span className={`text-[9px] font-mono px-1 rounded ${
+                    isDark ? 'bg-slate-800 text-slate-400' : 'bg-slate-100 text-slate-500'
+                  }`}>
+                    {cat.count}
+                  </span>
+                )}
+              </div>
               <span className={`font-bold font-mono text-[11px] block ${
                 isDark ? 'text-slate-200' : 'text-slate-800'
               }`}>{formatBytes(cat.bytes)}</span>

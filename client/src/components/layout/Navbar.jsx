@@ -78,20 +78,21 @@ export default function Navbar({ onToggleMobileSidebar }) {
             </div>
 
             {/* User Controls & Actions */}
-            <div className="flex items-center gap-2 sm:gap-3.5">
-              {/* Lab PC Safe Mode Status Indicator */}
+            <div className="flex items-center gap-1.5 sm:gap-3.5">
+              {/* Lab PC Safe Mode Status Indicator (Responsive on all screen widths) */}
               <Link
                 to="/security"
-                className={`hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold backdrop-blur-sm transition-all group ${
+                className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl border text-xs font-semibold backdrop-blur-sm transition-all group ${
                   isDark 
                     ? 'bg-emerald-950/40 border-emerald-800/60 text-emerald-300 hover:bg-emerald-900/40' 
                     : 'bg-emerald-50 border-emerald-200 text-emerald-800 hover:bg-emerald-100 shadow-sm'
                 }`}
                 title="Lab PC Safe Mode Active: Session stored in HTTP-only cookies, browser cache disabled"
+                aria-label="Lab PC Safe Mode: Protected"
               >
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
                 <span className="hidden xl:inline">🛡 Lab PC Safe Mode:</span>
-                <span className="font-bold">Protected</span>
+                <span className="font-bold text-[11px] sm:text-xs">Protected</span>
               </Link>
 
               {/* Storage quick status pill */}

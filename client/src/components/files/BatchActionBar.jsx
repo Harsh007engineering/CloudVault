@@ -12,8 +12,8 @@ export default function BatchActionBar({
   if (selectedCount === 0) return null;
 
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 animate-slide-up">
-      <div className={`flex items-center gap-3 px-5 py-3 rounded-2xl shadow-2xl backdrop-blur-2xl border transition-all ${
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 animate-slide-up max-w-[95vw]" role="region" aria-label="Batch actions toolbar">
+      <div className={`flex items-center gap-2 sm:gap-3 px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl shadow-2xl backdrop-blur-2xl border transition-all ${
         isDark 
           ? 'bg-slate-900/90 text-white border-slate-700/80 shadow-black/50' 
           : 'bg-white/95 text-slate-900 border-slate-200/90 shadow-slate-300/50 ring-1 ring-slate-900/5'

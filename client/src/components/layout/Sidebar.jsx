@@ -74,9 +74,9 @@ export default function Sidebar({
 
   const content = (
     <div className="flex flex-col h-full justify-between p-4 select-none">
-      <div className="space-y-6">
-        {/* Brand / Logo (Header on Mobile) */}
-        <div className="flex items-center justify-between px-2 pt-1">
+      <div className="flex-1 flex flex-col min-h-0 space-y-4">
+        {/* Brand / Logo (Header on Mobile Drawer only) */}
+        <div className="flex lg:hidden items-center justify-between px-1 pb-1">
           <Link to="/dashboard" className="flex items-center gap-2.5 group">
             <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-600 flex items-center justify-center shadow-md shadow-brand-500/25 text-white transition-all group-hover:scale-105">
               <Cloud className="w-4 h-4" />
@@ -97,7 +97,7 @@ export default function Sidebar({
           {onClose && (
             <button
               onClick={onClose}
-              className={`lg:hidden p-1.5 rounded-xl border transition-colors ${
+              className={`p-1.5 rounded-xl border transition-colors ${
                 isDark 
                   ? 'border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800' 
                   : 'border-slate-200 text-slate-500 hover:text-slate-900 hover:bg-slate-100'
@@ -111,13 +111,14 @@ export default function Sidebar({
 
         {/* Primary Action Button: + Upload */}
         {onOpenUpload && (
-          <div className="px-1">
+          <div className="px-0.5 pt-1 lg:pt-0">
             <button
               onClick={() => {
                 onOpenUpload();
                 if (onClose) onClose();
               }}
-              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-brand-600 via-indigo-600 to-brand-600 hover:from-brand-500 hover:to-indigo-500 text-white font-semibold text-xs py-2.5 px-4 rounded-xl shadow-lg shadow-brand-600/20 hover:shadow-brand-600/30 transition-all active:translate-y-0.5 group"
+              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-brand-600 via-indigo-600 to-brand-600 hover:from-brand-500 hover:to-indigo-500 text-white font-semibold text-xs py-2.5 px-4 rounded-xl shadow-lg shadow-brand-600/20 hover:shadow-brand-600/30 transition-all active:translate-y-0.5 group focus:outline-none focus:ring-2 focus:ring-brand-500/50"
+              aria-label="Upload coursework files"
             >
               <UploadCloud className="w-4 h-4 transition-transform group-hover:-translate-y-0.5" />
               <span>+ Upload Coursework</span>
@@ -126,7 +127,7 @@ export default function Sidebar({
         )}
 
         {/* Navigation Sections */}
-        <div className="space-y-5 overflow-y-auto max-h-[calc(100vh-280px)] pr-1">
+        <div className="flex-1 overflow-y-auto space-y-4 pr-1 py-1 custom-scrollbar">
           {/* MAIN */}
           <div>
             <div className={`px-2.5 text-[10px] font-bold uppercase tracking-wider mb-1.5 ${

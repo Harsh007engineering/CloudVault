@@ -109,7 +109,7 @@ export default function FileUploadModal({ isOpen, onClose, onUploadSuccess }) {
   const totalSelectedSize = selectedFiles.reduce((sum, f) => sum + f.size, 0);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-fade-in" role="dialog" aria-modal="true" aria-labelledby="upload-modal-title">
       <div className={`rounded-3xl shadow-2xl max-w-lg w-full p-6 sm:p-7 border transition-all animate-scale-in backdrop-blur-2xl ${
         isDark ? 'bg-slate-900/90 border-slate-800' : 'bg-white/95 border-slate-200 shadow-slate-300/50'
       }`}>
@@ -124,7 +124,7 @@ export default function FileUploadModal({ isOpen, onClose, onUploadSuccess }) {
               <UploadCloud className="w-5 h-5" />
             </div>
             <div>
-              <h3 className={`text-base font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>Upload Files</h3>
+              <h3 id="upload-modal-title" className={`text-base font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>Upload Files</h3>
               <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                 Available space: {formatBytes(remainingQuota)} remaining
               </p>
@@ -136,6 +136,7 @@ export default function FileUploadModal({ isOpen, onClose, onUploadSuccess }) {
             className={`p-1.5 rounded-xl ${
               isDark ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'
             }`}
+            aria-label="Close dialog"
           >
             <X className="w-5 h-5" />
           </button>

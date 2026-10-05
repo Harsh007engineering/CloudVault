@@ -263,6 +263,62 @@ export default function DashboardPage() {
 
   const allSelected = filteredFiles.length > 0 && selectedFileIds.length === filteredFiles.length;
 
+  // Context-aware view title and subtitle based on active category
+  const getCategoryHeader = () => {
+    switch (selectedCategory) {
+      case 'starred':
+        return {
+          title: 'Starred Coursework',
+          badge: 'Quick Access',
+          subtitle: 'Pinned assignments, lab guides, and reference documents'
+        };
+      case 'code':
+        return {
+          title: 'Source Code Files',
+          badge: 'Developer Files',
+          subtitle: 'Python, C++, Java, and algorithmic scripts stored securely'
+        };
+      case 'document':
+        return {
+          title: 'Documents & Reports',
+          badge: 'Coursework',
+          subtitle: 'Lab manuals, PDF reports, and written coursework'
+        };
+      case 'image':
+        return {
+          title: 'Lab Images & Diagrams',
+          badge: 'Visual Assets',
+          subtitle: 'Circuit diagrams, experiment graphs, and oscilloscope screenshots'
+        };
+      case 'spreadsheet':
+        return {
+          title: 'Spreadsheets & Datasets',
+          badge: 'Analysis',
+          subtitle: 'CSV data tables, experimental readings, and calculations'
+        };
+      case 'presentation':
+        return {
+          title: 'Presentations & Slides',
+          badge: 'Seminar Slides',
+          subtitle: 'Presentation slide decks for seminars and project reviews'
+        };
+      case 'archive':
+        return {
+          title: 'Archives & Bundles',
+          badge: 'Compressed',
+          subtitle: 'Zipped assignment packages and project submissions'
+        };
+      default:
+        return {
+          title: 'Academic Cloud Vault',
+          badge: 'Encrypted & Private',
+          subtitle: 'Store, preview, and organize your coursework securely across university computers'
+        };
+    }
+  };
+
+  const categoryHeader = getCategoryHeader();
+
   return (
     <div className={`min-h-screen ${
       isDark ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'
@@ -343,22 +399,27 @@ export default function DashboardPage() {
           isDark ? 'border-slate-800' : 'border-slate-200/90'
         }`}>
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2.5 flex-wrap">
               <h1 className={`text-2xl font-extrabold tracking-tight ${
                 isDark ? 'text-white' : 'text-slate-900'
               }`}>
-                Academic Cloud Vault
+                {categoryHeader.title}
               </h1>
               <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border backdrop-blur-sm ${
                 isDark 
                   ? 'bg-brand-950/60 text-brand-300 border-brand-800/80' 
                   : 'bg-brand-50 text-brand-700 border-brand-200 shadow-sm'
               }`}>
-                Encrypted &amp; Private
+                {categoryHeader.badge}
+              </span>
+              <span className={`text-[11px] font-mono font-medium px-2 py-0.5 rounded-full border ${
+                isDark ? 'bg-slate-900 border-slate-800 text-slate-400' : 'bg-slate-100 border-slate-200 text-slate-600'
+              }`}>
+                {filteredFiles.length} {filteredFiles.length === 1 ? 'file' : 'files'}
               </span>
             </div>
             <p className={`text-xs mt-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-              Store, preview, and organize your coursework securely across university computers
+              {categoryHeader.subtitle}
             </p>
           </div>
 
@@ -372,13 +433,15 @@ export default function DashboardPage() {
                   : 'bg-white/90 border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-50'
               }`}
               title="Refresh files"
+              aria-label="Refresh files list"
             >
               <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-brand-600' : ''}`} />
             </button>
 
             <button
               onClick={() => setIsUploadOpen(true)}
-              className="bg-gradient-to-r from-brand-600 via-indigo-600 to-brand-600 hover:from-brand-500 hover:to-indigo-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-lg shadow-brand-600/25 transition-all flex items-center gap-2 group active:translate-y-0.5"
+              className="bg-gradient-to-r from-brand-600 via-indigo-600 to-brand-600 hover:from-brand-500 hover:to-indigo-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-lg shadow-brand-600/25 transition-all flex items-center gap-2 group active:translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-brand-500/50"
+              aria-label="Upload coursework"
             >
               <UploadCloud className="w-4 h-4 transition-transform group-hover:-translate-y-0.5" />
               <span>Upload Coursework</span>
@@ -393,8 +456,8 @@ export default function DashboardPage() {
 
         {/* Filter Navigation, Search Bar & View Modes */}
         <div className="mt-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          {/* Category Tabs */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+          {/* Category Tabs (Rendered on mobile & tablet where sidebar is collapsed) */}
+          <div className="flex lg:hidden items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
             {[
               { id: 'all', label: 'All Files' },
               { id: 'starred', label: 'Starred', icon: Star },
@@ -418,6 +481,7 @@ export default function DashboardPage() {
                         ? 'bg-slate-900/80 border border-slate-800 text-slate-300 hover:bg-slate-800 hover:text-white'
                         : 'bg-white/90 border border-slate-200/90 text-slate-700 hover:bg-white hover:text-slate-900 shadow-sm'
                   }`}
+                  aria-pressed={isSelected}
                 >
                   {TabIcon && (
                     <TabIcon className={`w-3.5 h-3.5 ${isSelected ? 'fill-amber-400 text-amber-400' : 'text-slate-400'}`} />
@@ -429,8 +493,8 @@ export default function DashboardPage() {
           </div>
 
           {/* Search and Sort Toolbar */}
-          <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
-            {/* Search Input with Hotkey Tooltip */}
+          <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap w-full md:w-auto">
+            {/* Search Input with Hotkey Tooltip and Instant Clear button */}
             <div className="relative flex-1 sm:w-64">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                 <Search className="w-3.5 h-3.5" />
@@ -441,18 +505,36 @@ export default function DashboardPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search files..."
-                className={`w-full pl-9 pr-12 py-1.5 text-xs rounded-xl transition-all focus:outline-none ${
+                aria-label="Search files"
+                className={`w-full pl-9 pr-10 py-1.5 text-xs rounded-xl transition-all focus:outline-none ${
                   isDark 
                     ? 'bg-slate-900/90 border border-slate-800 text-white placeholder-slate-500 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/50 shadow-sm' 
                     : 'bg-white/95 border border-slate-300/90 text-slate-900 placeholder-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/15 shadow-sm'
                 }`}
               />
-              <div className="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
-                <kbd className={`hidden sm:inline-block px-1.5 py-0.5 text-[9px] font-mono border rounded ${
-                  isDark ? 'text-slate-400 bg-slate-800 border-slate-700' : 'text-slate-500 bg-slate-100 border-slate-200'
-                }`}>
-                  /
-                </kbd>
+              <div className="absolute inset-y-0 right-0 pr-2 flex items-center">
+                {searchQuery ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchQuery('');
+                      searchInputRef.current?.focus();
+                    }}
+                    className={`p-1 rounded-md transition-colors ${
+                      isDark ? 'text-slate-400 hover:text-white hover:bg-slate-800' : 'text-slate-400 hover:text-slate-700 hover:bg-slate-100'
+                    }`}
+                    title="Clear search"
+                    aria-label="Clear search"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                ) : (
+                  <kbd className={`hidden sm:inline-block px-1.5 py-0.5 text-[9px] font-mono border rounded ${
+                    isDark ? 'text-slate-400 bg-slate-800 border-slate-700' : 'text-slate-500 bg-slate-100 border-slate-200'
+                  }`}>
+                    /
+                  </kbd>
+                )}
               </div>
             </div>
 
@@ -558,6 +640,8 @@ export default function DashboardPage() {
                   ? 'No matching files found'
                   : selectedCategory === 'starred'
                   ? 'No starred files yet'
+                  : files.length > 0 && selectedCategory !== 'all'
+                  ? `No ${selectedCategory} files found`
                   : 'Your vault is empty'}
               </h3>
               <p className={`text-xs max-w-sm mx-auto mt-1 leading-relaxed ${
@@ -567,13 +651,15 @@ export default function DashboardPage() {
                   ? `No files matched "${searchQuery}". Press Esc to clear search.`
                   : selectedCategory === 'starred'
                   ? 'Click the star icon on any document or assignment to keep it pinned here for quick access.'
+                  : files.length > 0 && selectedCategory !== 'all'
+                  ? `You haven't uploaded any files in the ${selectedCategory} category yet.`
                   : 'Upload your first assignment, project, or lab file.'}
               </p>
               {!searchQuery && selectedCategory !== 'starred' && (
                 <div className="mt-5 space-y-3">
                   <button
                     onClick={() => setIsUploadOpen(true)}
-                    className="inline-flex items-center gap-2 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white text-xs font-semibold px-5 py-2.5 rounded-xl shadow-md transition-all active:translate-y-0.5"
+                    className="inline-flex items-center gap-2 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white text-xs font-semibold px-5 py-2.5 rounded-xl shadow-md transition-all active:translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-brand-500/50"
                   >
                     <UploadCloud className="w-4 h-4" />
                     <span>+ Upload Files</span>
@@ -601,8 +687,9 @@ export default function DashboardPage() {
                         <button
                           type="button"
                           onClick={handleSelectAll}
-                          className="p-1 rounded text-slate-400 hover:text-slate-600"
+                          className="p-1 rounded text-slate-400 hover:text-slate-600 focus:outline-none focus:ring-1 focus:ring-brand-500"
                           title={allSelected ? 'Deselect all' : 'Select all'}
+                          aria-label={allSelected ? 'Deselect all files' : 'Select all files'}
                         >
                           {allSelected ? (
                             <CheckSquare className="w-4 h-4 text-brand-600" />
@@ -612,18 +699,19 @@ export default function DashboardPage() {
                         </button>
                       </th>
                       <th className="py-3 px-4">Name</th>
-                      <th className="py-3 px-4">Category</th>
-                      <th className="py-3 px-4">Size</th>
-                      <th className="py-3 px-4">Uploaded</th>
+                      <th className="hidden sm:table-cell py-3 px-4">Category</th>
+                      <th className="hidden md:table-cell py-3 px-4">Size</th>
+                      <th className="hidden lg:table-cell py-3 px-4">Uploaded</th>
                       <th className="py-3 px-4 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className={`divide-y ${isDark ? 'divide-slate-800/80' : 'divide-slate-100'}`}>
-                    {filteredFiles.map((file) => {
+                    {filteredFiles.map((file, idx) => {
                       const meta = getFileTypeMeta(file.originalName, file.mimeType);
                       const Icon = meta.icon;
                       const isSelected = selectedFileIds.includes(file._id);
                       const isMenuOpen = activeMenuFileId === file._id;
+                      const isNearBottom = idx >= filteredFiles.length - 2 || filteredFiles.length <= 3;
 
                       return (
                         <tr
@@ -638,7 +726,8 @@ export default function DashboardPage() {
                             <button
                               type="button"
                               onClick={() => handleSelectToggle(file._id)}
-                              className="p-1 rounded text-slate-400 hover:text-brand-600"
+                              className="p-1 rounded text-slate-400 hover:text-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                              aria-label={isSelected ? `Deselect ${file.originalName}` : `Select ${file.originalName}`}
                             >
                               {isSelected ? (
                                 <CheckSquare className="w-4 h-4 text-brand-600" />
@@ -651,8 +740,9 @@ export default function DashboardPage() {
                             <div className="flex items-center gap-3">
                               <button
                                 onClick={() => handleToggleStar(file)}
-                                className="p-1 text-slate-300 hover:text-amber-400 transition-colors shrink-0"
+                                className="p-1 text-slate-300 hover:text-amber-400 transition-colors shrink-0 focus:outline-none"
                                 title={file.isStarred ? 'Unstar file' : 'Star file'}
+                                aria-label={file.isStarred ? 'Unstar file' : 'Star file'}
                               >
                                 <Star
                                   className={`w-3.5 h-3.5 ${
@@ -674,21 +764,28 @@ export default function DashboardPage() {
                                 >
                                   {file.originalName}
                                 </span>
-                                <span className={`text-[11px] block mt-0.5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                                {/* Responsive subtitle: on mobile (<sm) shows Type • Size • Date. On tablet (<md) shows Size • Date. On laptop (<lg) shows Date. */}
+                                <span className={`text-[11px] block mt-0.5 sm:hidden ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                                   {meta.type} &bull; {formatBytes(file.size)} &bull; {formatDate(file.createdAt)}
+                                </span>
+                                <span className={`text-[11px] mt-0.5 hidden sm:block md:hidden ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                                  {formatBytes(file.size)} &bull; {formatDate(file.createdAt)}
+                                </span>
+                                <span className={`text-[11px] mt-0.5 hidden md:block lg:hidden ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                                  {formatDate(file.createdAt)}
                                 </span>
                               </div>
                             </div>
                           </td>
-                          <td className="py-3 px-4">
+                          <td className="hidden sm:table-cell py-3 px-4">
                             <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${meta.badge}`}>
                               {meta.type}
                             </span>
                           </td>
-                          <td className={`py-3 px-4 font-mono ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                          <td className={`hidden md:table-cell py-3 px-4 font-mono ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                             {formatBytes(file.size)}
                           </td>
-                          <td className={`py-3 px-4 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                          <td className={`hidden lg:table-cell py-3 px-4 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                             {formatDate(file.createdAt)}
                           </td>
                           <td className="py-3 px-4 text-right">
@@ -728,6 +825,8 @@ export default function DashboardPage() {
                                   }`}
                                   title="More actions"
                                   aria-label="More actions"
+                                  aria-haspopup="true"
+                                  aria-expanded={isMenuOpen}
                                 >
                                   <MoreVertical className="w-4 h-4" />
                                 </button>
@@ -735,13 +834,17 @@ export default function DashboardPage() {
                                 {isMenuOpen && (
                                   <div
                                     onClick={(e) => e.stopPropagation()}
-                                    className={`absolute right-0 top-full mt-1 w-44 rounded-2xl shadow-xl z-30 border backdrop-blur-xl py-1.5 text-left text-xs ${
+                                    role="menu"
+                                    className={`absolute right-0 ${
+                                      isNearBottom ? 'bottom-full mb-1.5' : 'top-full mt-1.5'
+                                    } w-44 rounded-2xl shadow-xl z-30 border backdrop-blur-xl py-1.5 text-left text-xs ${
                                       isDark 
                                         ? 'bg-slate-900/95 border-slate-700/80 text-slate-200 shadow-black/60' 
                                         : 'bg-white/95 border-slate-200/90 text-slate-700 shadow-slate-200/70'
                                     }`}
                                   >
                                     <button
+                                      role="menuitem"
                                       onClick={() => {
                                         setFileToPreview(file);
                                         setActiveMenuFileId(null);
@@ -754,6 +857,7 @@ export default function DashboardPage() {
                                       <span>Preview</span>
                                     </button>
                                     <button
+                                      role="menuitem"
                                       onClick={() => {
                                         handleDownload(file);
                                         setActiveMenuFileId(null);
@@ -766,6 +870,7 @@ export default function DashboardPage() {
                                       <span>Download</span>
                                     </button>
                                     <button
+                                      role="menuitem"
                                       onClick={() => {
                                         setFileToRename(file);
                                         setActiveMenuFileId(null);

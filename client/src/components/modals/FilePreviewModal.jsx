@@ -84,7 +84,7 @@ export default function FilePreviewModal({
   const textLines = textContent ? textContent.split('\n') : [];
 
   return (
-    <div className={`fixed inset-0 z-50 flex items-center justify-center ${isFullscreen ? 'p-0' : 'p-3 sm:p-6'} bg-slate-950/80 backdrop-blur-md animate-fade-in`}>
+    <div className={`fixed inset-0 z-50 flex items-center justify-center ${isFullscreen ? 'p-0' : 'p-3 sm:p-6'} bg-slate-950/80 backdrop-blur-md animate-fade-in`} role="dialog" aria-modal="true" aria-label={`Preview: ${file.originalName}`}>
       <div className={`shadow-2xl border flex flex-col md:flex-row overflow-hidden transition-all backdrop-blur-2xl ${
         isFullscreen ? 'w-screen h-screen rounded-none border-0' : 'rounded-3xl max-w-5xl w-full h-[85vh] animate-scale-in'
       } ${isDark ? 'bg-slate-900/95 border-slate-800' : 'bg-white border-slate-200 shadow-slate-300/50'}`}>
@@ -190,17 +190,34 @@ export default function FilePreviewModal({
                   Loading code preview...
                 </div>
               ) : (
-                <div className="w-full h-full flex overflow-auto font-mono text-xs bg-slate-950 rounded-xl border border-slate-800">
-                  {/* Line Numbers Column */}
-                  <div className="select-none py-3 px-3 text-right text-slate-600 bg-slate-950/80 border-r border-slate-800/80 font-mono text-[11px] leading-relaxed">
-                    {textLines.map((_, i) => (
-                      <div key={i} className="h-5">{i + 1}</div>
-                    ))}
+                <div className="w-full h-full flex flex-col bg-slate-950 rounded-2xl border border-slate-800/90 overflow-hidden shadow-2xl">
+                  {/* Code Viewer Titlebar */}
+                  <div className="px-4 py-2 bg-slate-900/90 border-b border-slate-800/80 flex items-center justify-between text-xs select-none">
+                    <div className="flex items-center gap-2 text-slate-400">
+                      <FileCode className="w-3.5 h-3.5 text-brand-400" />
+                      <span className="font-mono text-slate-300 font-semibold">{file.originalName}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-[11px] text-slate-500">{textLines.length} lines</span>
+                      <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-800 text-brand-300 border border-slate-700">
+                        {ext.replace('.', '').toUpperCase() || 'TXT'}
+                      </span>
+                    </div>
                   </div>
-                  {/* Code / Text Contents */}
-                  <pre className="flex-1 p-3 overflow-auto text-slate-200 leading-relaxed whitespace-pre font-mono text-xs select-text">
-                    {textContent}
-                  </pre>
+
+                  {/* Code Body with Synchronized Line Numbers */}
+                  <div className="flex-1 flex overflow-auto font-mono text-xs">
+                    {/* Line Numbers Column */}
+                    <div className="select-none py-3 px-3.5 text-right text-slate-600 bg-slate-950 border-r border-slate-800/80 font-mono text-[11px] leading-5 shrink-0">
+                      {textLines.map((_, i) => (
+                        <div key={i} className="leading-5 h-5">{i + 1}</div>
+                      ))}
+                    </div>
+                    {/* Code / Text Contents */}
+                    <pre className="flex-1 p-3 overflow-auto text-slate-200 leading-5 whitespace-pre font-mono text-xs select-text">
+                      {textContent}
+                    </pre>
+                  </div>
                 </div>
               )
             ) : (
