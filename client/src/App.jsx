@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
+import { ThemeProvider } from './context/ThemeContext';
 
 // Pages
 import LandingPage from './pages/LandingPage';
@@ -18,8 +19,11 @@ function RequireAuth({ children }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 text-slate-500 text-xs">
-        Verifying secure session...
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-[#090d16] text-slate-500 dark:text-slate-400 text-xs">
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-brand-500 animate-ping" />
+          Verifying secure session...
+        </div>
       </div>
     );
   }
@@ -37,8 +41,11 @@ function RequireAdmin({ children }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 text-slate-500 text-xs">
-        Checking admin permissions...
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-[#090d16] text-slate-500 dark:text-slate-400 text-xs">
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-purple-500 animate-ping" />
+          Checking admin permissions...
+        </div>
       </div>
     );
   }
@@ -56,8 +63,11 @@ function PublicOnly({ children }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 text-slate-500 text-xs">
-        Loading...
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-[#090d16] text-slate-500 dark:text-slate-400 text-xs">
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-brand-500 animate-ping" />
+          Loading...
+        </div>
       </div>
     );
   }
@@ -72,8 +82,9 @@ function PublicOnly({ children }) {
 export default function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <ToastProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <ToastProvider>
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<LandingPage />} />
@@ -135,6 +146,7 @@ export default function App() {
           </Routes>
         </ToastProvider>
       </AuthProvider>
-    </BrowserRouter>
-  );
+    </ThemeProvider>
+  </BrowserRouter>
+);
 }
