@@ -23,9 +23,11 @@ export function ThemeProvider({ children }) {
 
     if (theme === 'dark') {
       root.classList.add('dark');
+      document.body.classList.add('dark');
       if (metaColorScheme) metaColorScheme.content = 'dark';
     } else {
       root.classList.remove('dark');
+      document.body.classList.remove('dark');
       if (metaColorScheme) metaColorScheme.content = 'light';
     }
 
