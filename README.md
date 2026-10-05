@@ -174,27 +174,37 @@ npm test
 
 ---
 
+### 4. Modern SaaS UI/UX & Native Dark Mode
+- **Dual-Theme Engine**: Full light and dark mode toggle with smooth animated transitions.
+- **Anti-FOUC Architecture**: Zero-flash inline script and `color-scheme: light dark` native browser syncing.
+- **High-Aesthetic Micro-Interactions**: Ambient radial glowing accents, frosted glass panels (`backdrop-blur`), interactive Bento grid, and simulated desktop vault preview.
+- **Shared Lab Hygiene Reminder**: In-app banner and automatic modal checklist upon signout reminding students to purge local workstation download caches.
+
+---
+
 ## Production Deployment (₹0/month Free Tier)
 
-CloudVault is engineered to run at **₹0/month** for university lab environments:
+CloudVault is engineered to run at **₹0/month** for university lab environments. For an in-depth walkthrough, see the [Vercel & Production Deployment Guide](VERCEL_DEPLOYMENT.md).
 
 ### 1. Database: MongoDB Atlas (M0 Free Tier)
-- 512 MB storage free forever.
+- 512 MB storage free forever (metadata only — binary blobs are never stored in MongoDB).
 - Go to [MongoDB Atlas](https://www.mongodb.com/cloud/atlas), create a free M0 cluster, and obtain the connection string `mongodb+srv://...`.
 
 ### 2. Object Storage: Cloudflare R2
-- 10 GB free storage per month.
+- 10 GB free storage per month with **Zero egress bandwidth fees** (unlike AWS S3).
 - 10 million Class B (read) operations free per month.
-- **Zero egress bandwidth fees** (unlike AWS S3).
-- Create a bucket `cloudvault-files`, create an API token with read/write access, and set `STORAGE_PROVIDER=r2` in production environment variables.
+- Set `STORAGE_PROVIDER=r2` with your bucket and access keys in production environment variables.
 
 ### 3. Backend Hosting: Render / Railway Free Tier
-- Deploy `server/` to Render Web Service or Railway.
-- Set environment variables: `NODE_ENV=production`, `MONGODB_URI`, `SESSION_SECRET`, `R2_*`.
+- Deploy `server/` as a Node web service.
+- Handles full multipart streaming uploads without serverless payload size limitations.
+- Set environment variables: `NODE_ENV=production`, `MONGODB_URI`, `SESSION_SECRET`, `CLIENT_URL`, `R2_*`.
 
-### 4. Frontend Hosting: Cloudflare Pages / Vercel
-- Deploy `client/` to Cloudflare Pages or Vercel.
-- Configure redirect proxy from `/api/*` to your hosted backend service.
+### 4. Frontend Hosting: Vercel (Edge CDN)
+- Deploy `client/` to **Vercel** with one click.
+- Pre-configured `vercel.json` ensures full SPA deep-route handling (`/dashboard`, `/login`, `/settings`) without 404 errors.
+- Set `VITE_API_URL=https://your-backend.onrender.com/api` in Vercel Environment Variables.
+- Automatic cross-origin HTTP-only cookie negotiation (`sameSite: 'none'`, `secure: true`, `credentials: true`).
 
 ---
 
