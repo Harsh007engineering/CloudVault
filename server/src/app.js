@@ -29,11 +29,17 @@ app.use(helmet({
 // 2. CORS setup for credentials (session cookie transmission)
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, curl, server-to-server) or matching clientUrl
-    if (!origin || origin === config.clientUrl || origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) {
+    // Allow requests with no origin (mobile apps, curl, server-to-server), matching clientUrl, local dev, or Vercel
+    if (
+      !origin ||
+      origin === config.clientUrl ||
+      origin.startsWith('http://localhost:') ||
+      origin.startsWith('http://127.0.0.1:') ||
+      origin.endsWith('.vercel.app')
+    ) {
       callback(null, true);
     } else {
-      callback(new Error('Blocked by CORS policy'));
+      callback(new Error(`Blocked by CORS policy for origin: ${origin}`));
     }
   },
   credentials: true,
