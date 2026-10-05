@@ -85,7 +85,7 @@ const DEMO_FILES = [
 
 export default function LandingPage() {
   const { isAuthenticated } = useAuth();
-  const { isDark } = useTheme();
+  const { isDark, isXP } = useTheme();
   const [health, setHealth] = useState(null);
   const [demoFilter, setDemoFilter] = useState('all');
   const [demoSearch, setDemoSearch] = useState('');
@@ -152,6 +152,538 @@ export default function LandingPage() {
       a: "Yes, 100% free. CloudVault is engineered with zero-cost modern cloud architecture: MongoDB Atlas free tier for metadata, Cloudflare R2 for zero-egress object storage, and Vercel/Render for frontend/backend hosting. There are no credit cards, hidden trials, or subscriptions."
     }
   ];
+
+  // Windows XP Professional Welcome & Tour Experience
+  if (isXP) {
+    return (
+      <div className="min-h-screen bg-[#004e98] p-2 sm:p-4 flex flex-col font-sans select-none">
+        {/* Top IE Information Bar */}
+        {!bannerDismissed && (
+          <div className="bg-[#ffffe1] border-b border-[#808080] px-3 py-1 text-[11px] font-sans text-black flex items-center justify-between shadow-sm mb-2 select-none">
+            <div className="flex items-center gap-2">
+              <span className="text-xs">🛡️</span>
+              <span>
+                <strong>Shared Lab PC Notice:</strong> CloudVault uses HTTP-only session cookies. No personal Google accounts, phone numbers, or passwords left on public browsers.
+              </span>
+            </div>
+            <button
+              onClick={() => setBannerDismissed(true)}
+              className="xp-button px-1.5 py-0.5 text-[10px] font-bold text-slate-700 hover:text-black ml-2"
+              title="Dismiss notice"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
+        {/* Top Bar with Brand & Theme Toggle */}
+        <div className="flex items-center justify-between pb-2">
+          <div className="flex items-center gap-2 text-white text-xs font-bold">
+            <span className="text-base">☁️</span>
+            <span>CloudVault Professional — Academic Cloud Storage</span>
+          </div>
+          <ThemeToggle />
+        </div>
+
+        {/* Main Welcome Window */}
+        <div className="xp-window flex-1 flex flex-col shadow-2xl overflow-hidden max-w-6xl w-full mx-auto">
+          {/* XP Titlebar */}
+          <div className="xp-titlebar">
+            <div className="xp-titlebar-text">
+              <span className="text-sm">☁️</span>
+              <span>Welcome to CloudVault Professional - [Tour and Overview]</span>
+            </div>
+            <div className="xp-window-controls">
+              <button
+                type="button"
+                className="xp-btn-control xp-btn-close"
+                title="Close"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+
+          {/* XP Menu Bar */}
+          <div className="bg-[#ece9d8] border-b border-[#7f9db9] px-2 py-0.5 flex items-center gap-3 text-xs">
+            <Link to={isAuthenticated ? "/dashboard" : "/login"} className="hover:bg-[#316ac5] hover:text-white px-1.5 py-0.5">
+              <u>F</u>ile
+            </Link>
+            <button type="button" className="hover:bg-[#316ac5] hover:text-white px-1.5 py-0.5">
+              <u>E</u>dit
+            </button>
+            <button type="button" className="hover:bg-[#316ac5] hover:text-white px-1.5 py-0.5">
+              <u>V</u>iew
+            </button>
+            <button type="button" className="hover:bg-[#316ac5] hover:text-white px-1.5 py-0.5">
+              <u>T</u>ools
+            </button>
+            <button type="button" className="hover:bg-[#316ac5] hover:text-white px-1.5 py-0.5">
+              <u>H</u>elp
+            </button>
+          </div>
+
+          {/* XP Address Bar */}
+          <div className="bg-[#ece9d8] border-b border-[#7f9db9] px-2 py-1 flex items-center gap-2 text-xs">
+            <span className="text-slate-600 font-bold">Address:</span>
+            <div className="xp-input flex-1 px-2 py-0.5 text-xs bg-white flex items-center gap-1 font-mono">
+              <span>🌐</span>
+              <span>https://cloudvault.local/welcome</span>
+            </div>
+            <button
+              type="button"
+              className="xp-button px-2 py-0.5 text-xs font-bold text-emerald-800"
+            >
+              Go
+            </button>
+          </div>
+
+          {/* Main Two-Column Layout */}
+          <div className="flex-1 flex overflow-hidden bg-white">
+            {/* Left Luna Task Pane */}
+            <div className="hidden md:flex w-64 bg-[#6375d6] p-2 flex-col gap-2.5 text-white font-sans text-xs overflow-y-auto select-none">
+              {/* Task Section 1 */}
+              <div className="bg-white rounded-t-sm overflow-hidden shadow-sm">
+                <div className="bg-gradient-to-r from-[#215dc6] to-[#3a75e3] px-2.5 py-1 font-bold text-white flex items-center justify-between text-xs">
+                  <span>Getting Started</span>
+                  <span className="text-[10px]">▼</span>
+                </div>
+                <div className="p-2 space-y-1 text-slate-800 text-[11px] bg-[#d3e5fa]">
+                  {isAuthenticated ? (
+                    <Link
+                      to="/dashboard"
+                      className="flex items-center gap-1.5 p-1 hover:underline text-blue-900 font-bold"
+                    >
+                      <span>📁</span>
+                      <span>Open My Vault</span>
+                    </Link>
+                  ) : (
+                    <>
+                      <Link
+                        to="/login"
+                        className="flex items-center gap-1.5 p-1 hover:underline text-blue-900 font-bold"
+                      >
+                        <span>🔑</span>
+                        <span>Log On to CloudVault</span>
+                      </Link>
+                      <Link
+                        to="/signup"
+                        className="flex items-center gap-1.5 p-1 hover:underline text-blue-900"
+                      >
+                        <span>📝</span>
+                        <span>Account Setup Wizard</span>
+                      </Link>
+                    </>
+                  )}
+                  <a
+                    href="#demo-section"
+                    className="flex items-center gap-1.5 p-1 hover:underline text-blue-900"
+                  >
+                    <span>📂</span>
+                    <span>Explore Virtual Vault</span>
+                  </a>
+                </div>
+              </div>
+
+              {/* Task Section 2 */}
+              <div className="bg-white rounded-t-sm overflow-hidden shadow-sm">
+                <div className="bg-gradient-to-r from-[#215dc6] to-[#3a75e3] px-2.5 py-1 font-bold text-white flex items-center justify-between text-xs">
+                  <span>Lab Computer Security</span>
+                  <span className="text-[10px]">▼</span>
+                </div>
+                <div className="p-2 space-y-1.5 text-slate-800 text-[11px] bg-[#d3e5fa]">
+                  <div className="flex items-center gap-1.5 text-slate-700">
+                    <span>🛡️</span>
+                    <span>Lab PC Safe Mode: <b>ACTIVE</b></span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-slate-700">
+                    <span>🍪</span>
+                    <span>HTTP-Only Cookies: <b>ENABLED</b></span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-slate-700">
+                    <span>🔑</span>
+                    <span>Recovery Codes: <b>5 CRYPTO</b></span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-slate-700">
+                    <span>💾</span>
+                    <span>Quota: <b>500 MiB Free</b></span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Task Section 3 */}
+              <div className="bg-white rounded-t-sm overflow-hidden shadow-sm">
+                <div className="bg-gradient-to-r from-[#215dc6] to-[#3a75e3] px-2.5 py-1 font-bold text-white flex items-center justify-between text-xs">
+                  <span>System Telemetry</span>
+                  <span className="text-[10px]">▼</span>
+                </div>
+                <div className="p-2 space-y-1 text-slate-800 text-[11px] bg-[#d3e5fa]">
+                  <div className="flex items-center gap-1 text-slate-700">
+                    <span>🟢</span>
+                    <span>API Server: <b>{health?.status || 'Online'}</b></span>
+                  </div>
+                  <div className="flex items-center gap-1 text-slate-700">
+                    <span>☁️</span>
+                    <span>Storage: <b>Cloudflare R2</b></span>
+                  </div>
+                  <div className="flex items-center gap-1 text-slate-700">
+                    <span>🗄️</span>
+                    <span>Database: <b>MongoDB Atlas</b></span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Task Section 4 */}
+              <div className="bg-white rounded-t-sm overflow-hidden shadow-sm">
+                <div className="bg-gradient-to-r from-[#215dc6] to-[#3a75e3] px-2.5 py-1 font-bold text-white flex items-center justify-between text-xs">
+                  <span>Display Theme</span>
+                  <span className="text-[10px]">▼</span>
+                </div>
+                <div className="p-2 flex justify-center bg-[#d3e5fa]">
+                  <ThemeToggle />
+                </div>
+              </div>
+            </div>
+
+            {/* Right Pane: Content */}
+            <div className="flex-1 bg-white p-3 sm:p-5 overflow-y-auto space-y-6 text-slate-900 font-sans">
+              {/* Luna Welcome Header Banner */}
+              <div className="p-4 sm:p-6 bg-gradient-to-r from-[#003c74] via-[#124b8f] to-[#003c74] text-white border border-[#0a2f85] shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                  <div className="text-xl sm:text-2xl font-bold tracking-tight">
+                    Welcome to CloudVault Professional
+                  </div>
+                  <div className="text-xs text-blue-200 mt-1 max-w-xl">
+                    Private academic cloud storage engineered specifically for university shared computer laboratories. No personal accounts, no phone numbers, zero trace left on public workstations.
+                  </div>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-2 shrink-0">
+                  {isAuthenticated ? (
+                    <Link
+                      to="/dashboard"
+                      className="xp-button font-bold text-xs px-4 py-2 flex items-center gap-1.5 shadow"
+                    >
+                      <span>📁</span>
+                      <span>Go to My Vault</span>
+                    </Link>
+                  ) : (
+                    <>
+                      <Link
+                        to="/login"
+                        className="xp-button font-bold text-xs px-4 py-2 flex items-center gap-1.5 shadow"
+                      >
+                        <span>🔑</span>
+                        <span>Log On...</span>
+                      </Link>
+                      <Link
+                        to="/signup"
+                        className="xp-button font-bold text-xs px-4 py-2 flex items-center gap-1.5 bg-[#e3e8f8] shadow"
+                      >
+                        <span>📝</span>
+                        <span>Account Wizard...</span>
+                      </Link>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* 4 Feature Callouts in Sunken Panels */}
+              <div>
+                <div className="text-xs font-bold text-slate-800 uppercase tracking-wider pb-1 mb-2 border-b border-slate-200">
+                  Core Security Architecture
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="xp-sunken p-3 bg-[#f9f8f4] space-y-1">
+                    <div className="flex items-center gap-1.5 font-bold text-slate-900 text-xs">
+                      <span>🛡️</span>
+                      <span>Zero Trace on Shared PCs</span>
+                    </div>
+                    <p className="text-[11px] text-slate-600 leading-normal">
+                      No Google, Microsoft, or Apple account logins. Browser autofill, saved passwords, and history are never populated.
+                    </p>
+                  </div>
+
+                  <div className="xp-sunken p-3 bg-[#f9f8f4] space-y-1">
+                    <div className="flex items-center gap-1.5 font-bold text-slate-900 text-xs">
+                      <span>⚡</span>
+                      <span>500 MiB Free Academic Quota</span>
+                    </div>
+                    <p className="text-[11px] text-slate-600 leading-normal">
+                      Cloudflare R2 zero-egress object storage with instant upload/download speeds for PDFs, code files, slides, and sheets.
+                    </p>
+                  </div>
+
+                  <div className="xp-sunken p-3 bg-[#f9f8f4] space-y-1">
+                    <div className="flex items-center gap-1.5 font-bold text-slate-900 text-xs">
+                      <span>📑</span>
+                      <span>In-Browser File Previews</span>
+                    </div>
+                    <p className="text-[11px] text-slate-600 leading-normal">
+                      Inspect PDF lab manuals, Python scripts, SQL files, and images directly in the browser without downloading copies to public hard drives.
+                    </p>
+                  </div>
+
+                  <div className="xp-sunken p-3 bg-[#f9f8f4] space-y-1">
+                    <div className="flex items-center gap-1.5 font-bold text-slate-900 text-xs">
+                      <span>🔑</span>
+                      <span>Cryptographic Recovery Codes</span>
+                    </div>
+                    <p className="text-[11px] text-slate-600 leading-normal">
+                      5 single-use emergency recovery codes issued upon registration. Reset passwords without requiring a personal email inbox or phone number.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Interactive Live Vault Demo */}
+              <div id="demo-section">
+                <div className="text-xs font-bold text-slate-800 uppercase tracking-wider pb-1 mb-2 border-b border-slate-200 flex items-center justify-between">
+                  <span>Interactive Vault Explorer Demo</span>
+                  <span className="text-[10px] text-slate-500 lowercase">live simulation</span>
+                </div>
+
+                {/* Filter and Search Bar */}
+                <div className="p-1.5 bg-[#ece9d8] border border-[#7f9db9] flex flex-wrap items-center justify-between gap-2 text-xs mb-2">
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => setDemoFilter('all')}
+                      className={`xp-button px-2 py-0.5 text-xs ${demoFilter === 'all' ? 'font-bold bg-[#d4d0c8]' : ''}`}
+                    >
+                      All Files
+                    </button>
+                    <button
+                      onClick={() => setDemoFilter('starred')}
+                      className={`xp-button px-2 py-0.5 text-xs ${demoFilter === 'starred' ? 'font-bold bg-[#d4d0c8]' : ''}`}
+                    >
+                      ★ Starred
+                    </button>
+                    <button
+                      onClick={() => setDemoFilter('documents')}
+                      className={`xp-button px-2 py-0.5 text-xs ${demoFilter === 'documents' ? 'font-bold bg-[#d4d0c8]' : ''}`}
+                    >
+                      📄 Documents
+                    </button>
+                    <button
+                      onClick={() => setDemoFilter('code')}
+                      className={`xp-button px-2 py-0.5 text-xs ${demoFilter === 'code' ? 'font-bold bg-[#d4d0c8]' : ''}`}
+                    >
+                      💻 Code
+                    </button>
+                  </div>
+
+                  <div className="flex items-center gap-1">
+                    <span className="text-slate-600 font-bold">Search:</span>
+                    <input
+                      type="text"
+                      value={demoSearch}
+                      onChange={(e) => setDemoSearch(e.target.value)}
+                      placeholder="Filter files..."
+                      className="xp-input px-2 py-0.5 text-xs w-36 sm:w-48"
+                    />
+                  </div>
+                </div>
+
+                {/* Beveled Demo Table */}
+                <div className="overflow-x-auto border border-[#7f9db9]">
+                  <table className="xp-table w-full text-left text-xs">
+                    <thead>
+                      <tr>
+                        <th className="px-2 py-1 text-left">Name</th>
+                        <th className="px-2 py-1 text-left">Type</th>
+                        <th className="px-2 py-1 text-right">Size</th>
+                        <th className="px-2 py-1 text-left">Date Modified</th>
+                        <th className="px-2 py-1 text-center">Favorite</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredDemoFiles.length === 0 ? (
+                        <tr>
+                          <td colSpan={5} className="text-center py-6 text-slate-500">
+                            No files match the demo search query.
+                          </td>
+                        </tr>
+                      ) : (
+                        filteredDemoFiles.map((file) => {
+                          const Icon = file.icon;
+                          return (
+                            <tr key={file.id} className="hover:bg-[#e8f1ff] border-b border-slate-100">
+                              <td className="px-2 py-1.5 font-bold text-slate-900">
+                                <div className="flex items-center gap-2">
+                                  <Icon className="w-4 h-4 text-blue-600 shrink-0" />
+                                  <span>{file.name}</span>
+                                </div>
+                              </td>
+                              <td className="px-2 py-1.5 text-slate-600 uppercase font-mono text-[11px]">
+                                {file.type}
+                              </td>
+                              <td className="px-2 py-1.5 font-mono text-right text-slate-700">
+                                {file.size}
+                              </td>
+                              <td className="px-2 py-1.5 text-slate-600">
+                                {file.date}
+                              </td>
+                              <td className="px-2 py-1.5 text-center">
+                                <button
+                                  type="button"
+                                  onClick={() => toggleDemoStar(file.id)}
+                                  className="text-amber-500 hover:scale-110 transition-transform text-sm"
+                                  title="Toggle star"
+                                >
+                                  {file.starred ? '★' : '☆'}
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Comparison Table */}
+              <div>
+                <div className="text-xs font-bold text-slate-800 uppercase tracking-wider pb-1 mb-2 border-b border-slate-200">
+                  CloudVault vs Personal Drives on Lab PCs
+                </div>
+                <div className="overflow-x-auto border border-[#7f9db9]">
+                  <table className="xp-table w-full text-left text-xs">
+                    <thead>
+                      <tr>
+                        <th className="px-2 py-1 text-left">Security Feature</th>
+                        <th className="px-2 py-1 text-left">CloudVault Professional</th>
+                        <th className="px-2 py-1 text-left">Personal Google Drive / OneDrive</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="border-b border-slate-100">
+                        <td className="px-2 py-1.5 font-bold">Public PC Safe Mode</td>
+                        <td className="px-2 py-1.5 text-emerald-800 font-bold bg-emerald-50/50">
+                          ✓ Native HTTP-only sessions
+                        </td>
+                        <td className="px-2 py-1.5 text-rose-800">
+                          ✕ Account remains logged in on public PC
+                        </td>
+                      </tr>
+                      <tr className="border-b border-slate-100">
+                        <td className="px-2 py-1.5 font-bold">Email / Phone Requirement</td>
+                        <td className="px-2 py-1.5 text-emerald-800 font-bold bg-emerald-50/50">
+                          ✓ None (Private Username)
+                        </td>
+                        <td className="px-2 py-1.5 text-rose-800">
+                          ✕ Personal email, phone, and 2FA linked
+                        </td>
+                      </tr>
+                      <tr className="border-b border-slate-100">
+                        <td className="px-2 py-1.5 font-bold">Account Recovery</td>
+                        <td className="px-2 py-1.5 text-emerald-800 font-bold bg-emerald-50/50">
+                          ✓ Single-use cryptographic codes
+                        </td>
+                        <td className="px-2 py-1.5 text-rose-800">
+                          ✕ Exposes personal email or SMS OTP
+                        </td>
+                      </tr>
+                      <tr className="border-b border-slate-100">
+                        <td className="px-2 py-1.5 font-bold">In-Browser File Previews</td>
+                        <td className="px-2 py-1.5 text-emerald-800 font-bold bg-emerald-50/50">
+                          ✓ Built-in (PDF, Code, Images)
+                        </td>
+                        <td className="px-2 py-1.5 text-slate-700">
+                          ⚠️ Frequently prompts to download locally
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="px-2 py-1.5 font-bold">Pricing for Students</td>
+                        <td className="px-2 py-1.5 text-emerald-800 font-bold bg-emerald-50/50">
+                          ✓ ₹0 / 100% Free forever
+                        </td>
+                        <td className="px-2 py-1.5 text-slate-700">
+                          ⚠️ Aggressive storage subscription upsells
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Frequently Asked Questions */}
+              <div>
+                <div className="text-xs font-bold text-slate-800 uppercase tracking-wider pb-1 mb-2 border-b border-slate-200">
+                  Help &amp; Support Topics (FAQ)
+                </div>
+                <div className="space-y-1.5">
+                  {faqs.map((faq, i) => {
+                    const isOpen = expandedFaq === i;
+                    return (
+                      <div key={i} className="border border-[#7f9db9] bg-[#f9f8f4]">
+                        <button
+                          type="button"
+                          onClick={() => setExpandedFaq(isOpen ? null : i)}
+                          className="w-full px-2.5 py-1.5 text-left text-xs font-bold text-slate-900 flex items-center justify-between hover:bg-[#ece9d8]"
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono text-blue-800 font-bold">{isOpen ? '[-]' : '[+]'}</span>
+                            <span>{faq.q}</span>
+                          </div>
+                        </button>
+                        {isOpen && (
+                          <div className="px-3 py-2 text-[11px] text-slate-700 bg-[#ffffe1] border-t border-[#d4d0c8] leading-relaxed">
+                            {faq.a}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Bottom CTA */}
+              <div className="p-4 bg-[#ece9d8] border border-[#7f9db9] flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+                <div>
+                  <div className="font-bold text-xs text-slate-900">
+                    Ready to secure your lab coursework?
+                  </div>
+                  <div className="text-[11px] text-slate-600">
+                    Create your private vault in 30 seconds. No email required.
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Link
+                    to="/signup"
+                    className="xp-button font-bold text-xs px-4 py-1.5"
+                  >
+                    📝 Create Free Vault
+                  </Link>
+                  <Link
+                    to="/login"
+                    className="xp-button text-xs px-3 py-1.5"
+                  >
+                    🔑 Log On
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* XP Status Bar */}
+          <div className="xp-statusbar">
+            <div className="xp-status-pane flex-1">
+              Ready
+            </div>
+            <div className="xp-status-pane">
+              Zone: Trusted Lab Workstation
+            </div>
+            <div className="xp-status-pane">
+              Object Store: Cloudflare R2
+            </div>
+            <div className="xp-status-pane">
+              CloudVault Professional v2.4.0
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`min-h-screen ${isDark ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'} flex flex-col transition-colors selection:bg-brand-500 selection:text-white relative`}>

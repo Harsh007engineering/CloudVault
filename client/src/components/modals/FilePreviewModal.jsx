@@ -30,7 +30,7 @@ export default function FilePreviewModal({
   onDeleteRequest 
 }) {
   const { success, error: toastError } = useToast();
-  const { isDark } = useTheme();
+  const { isDark, isXP } = useTheme();
   const [textContent, setTextContent] = useState(null);
   const [textLoading, setTextLoading] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -82,6 +82,198 @@ export default function FilePreviewModal({
   };
 
   const textLines = textContent ? textContent.split('\n') : [];
+
+  if (isXP) {
+    const viewerTitle = isImage 
+      ? `Windows Picture and Fax Viewer - ${file.originalName}`
+      : isCode
+        ? `${file.originalName} - Notepad`
+        : `CloudVault Document Viewer - ${file.originalName}`;
+
+    return (
+      <div 
+        className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/50" 
+        role="dialog" 
+        aria-modal="true" 
+        aria-label={`Preview: ${file.originalName}`}
+      >
+        <div className={`xp-window-dialog flex flex-col overflow-hidden w-full ${isFullscreen ? 'fixed inset-0 z-50 rounded-none border-0' : 'max-w-4xl h-[85vh]'} select-none animate-scale-in`}>
+          {/* XP Titlebar */}
+          <div className="xp-titlebar">
+            <div className="xp-titlebar-text">
+              <span>{viewerTitle}</span>
+            </div>
+            <div className="xp-window-controls">
+              <button
+                type="button"
+                onClick={() => setIsFullscreen(!isFullscreen)}
+                className="xp-btn-control xp-btn-max"
+                title={isFullscreen ? "Restore" : "Maximize"}
+              >
+                <span>{isFullscreen ? "❐" : "□"}</span>
+              </button>
+              <button
+                type="button"
+                onClick={onClose}
+                className="xp-btn-control xp-btn-close"
+                title="Close"
+              >
+                <span>✕</span>
+              </button>
+            </div>
+          </div>
+
+          {/* XP Toolbar */}
+          <div className="xp-toolbar">
+            <button
+              type="button"
+              onClick={handleDownload}
+              className="xp-toolbar-btn"
+              title="Download to PC"
+            >
+              <Download className="w-3.5 h-3.5 text-blue-700" />
+              <span>Download</span>
+            </button>
+
+            {isImage && (
+              <>
+                <div className="xp-toolbar-divider" />
+                <button
+                  type="button"
+                  onClick={() => setZoomLevel((z) => Math.max(0.25, +(z - 0.25).toFixed(2)))}
+                  className="xp-toolbar-btn"
+                  title="Zoom Out"
+                >
+                  <ZoomOut className="w-3.5 h-3.5 text-slate-700" />
+                  <span>Zoom Out</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setZoomLevel(1)}
+                  className="xp-toolbar-btn"
+                  title="Actual Size"
+                >
+                  <span>100%</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setZoomLevel((z) => Math.min(3, +(z + 0.25).toFixed(2)))}
+                  className="xp-toolbar-btn"
+                  title="Zoom In"
+                >
+                  <ZoomIn className="w-3.5 h-3.5 text-slate-700" />
+                  <span>Zoom In</span>
+                </button>
+              </>
+            )}
+
+            {isText && textContent && (
+              <>
+                <div className="xp-toolbar-divider" />
+                <button
+                  type="button"
+                  onClick={handleCopyText}
+                  className="xp-toolbar-btn"
+                  title="Copy text"
+                >
+                  <Copy className="w-3.5 h-3.5 text-slate-700" />
+                  <span>{copied ? 'Copied!' : 'Copy'}</span>
+                </button>
+              </>
+            )}
+
+            <div className="xp-toolbar-divider" />
+            <button
+              type="button"
+              onClick={() => onToggleStar && onToggleStar(file)}
+              className="xp-toolbar-btn"
+              title="Toggle Star"
+            >
+              <Star className={`w-3.5 h-3.5 ${file.isStarred ? 'fill-amber-500 text-amber-500' : 'text-slate-500'}`} />
+              <span>{file.isStarred ? 'Starred' : 'Star'}</span>
+            </button>
+
+            {onDeleteRequest && (
+              <button
+                type="button"
+                onClick={() => { onClose(); onDeleteRequest(file); }}
+                className="xp-toolbar-btn text-red-700 ml-auto"
+                title="Delete file"
+              >
+                <Trash2 className="w-3.5 h-3.5 text-red-600" />
+                <span>Delete</span>
+              </button>
+            )}
+          </div>
+
+          {/* XP Content Canvas */}
+          <div className="flex-1 bg-white p-2 overflow-auto flex items-center justify-center border-t border-[#7f9db9] relative">
+            {isImage && (
+              <div className="w-full h-full flex items-center justify-center overflow-auto">
+                <img
+                  src={fileUrl}
+                  alt={file.originalName}
+                  style={{ transform: `scale(${zoomLevel})`, transformOrigin: 'center center' }}
+                  className="max-h-full object-contain transition-transform"
+                />
+              </div>
+            )}
+
+            {isPdf && (
+              <iframe
+                src={`${fileUrl}#toolbar=1`}
+                title={file.originalName}
+                className="w-full h-full border-0"
+              />
+            )}
+
+            {isText && (
+              textLoading ? (
+                <div className="flex items-center gap-2 text-slate-600 font-mono text-xs">
+                  <span>Loading text...</span>
+                </div>
+              ) : (
+                <div className="w-full h-full font-mono text-xs text-black whitespace-pre overflow-auto p-3 bg-white border border-[#7f9db9]">
+                  {textContent}
+                </div>
+              )
+            )}
+
+            {!isImage && !isPdf && !isText && (
+              <div className="text-center p-6 space-y-3">
+                <div className="text-4xl">📄</div>
+                <div className="font-bold text-slate-800">{file.originalName}</div>
+                <div className="text-xs text-slate-600">No preview available for this file type.</div>
+                <button
+                  type="button"
+                  onClick={handleDownload}
+                  className="xp-btn xp-btn-primary"
+                >
+                  Download File ({formatBytes(file.size)})
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* XP Status Bar */}
+          <div className="xp-statusbar">
+            <div className="xp-status-pane flex-1 truncate">
+              <span>{file.originalName}</span>
+            </div>
+            <div className="xp-status-pane">
+              <span>{formatBytes(file.size)}</span>
+            </div>
+            <div className="xp-status-pane">
+              <span>{meta.category.toUpperCase()}</span>
+            </div>
+            <div className="xp-status-pane text-emerald-800 font-bold">
+              <span>🔒 Lab Safe</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`fixed inset-0 z-50 flex items-center justify-center ${isFullscreen ? 'p-0' : 'p-3 sm:p-6'} bg-slate-950/80 backdrop-blur-md animate-fade-in`} role="dialog" aria-modal="true" aria-label={`Preview: ${file.originalName}`}>

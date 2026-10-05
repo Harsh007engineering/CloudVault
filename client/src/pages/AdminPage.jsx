@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { 
   ShieldCheck, 
   Users, 
@@ -19,13 +20,15 @@ import api from '../services/api';
 import Navbar from '../components/layout/Navbar';
 import LabReminderBanner from '../components/layout/LabReminderBanner';
 import AmbientBackground from '../components/common/AmbientBackground';
+import ThemeToggle from '../components/common/ThemeToggle';
 import { useToast } from '../context/ToastContext';
 import { useTheme } from '../context/useTheme';
 import { formatBytes } from '../utils/formatters';
 
 export default function AdminPage() {
   const { success, error: toastError } = useToast();
-  const { isDark } = useTheme();
+  const { isDark, isXP } = useTheme();
+  const navigate = useNavigate();
 
   const [metrics, setMetrics] = useState(null);
   const [users, setUsers] = useState([]);
@@ -134,6 +137,476 @@ export default function AdminPage() {
       setTimeout(() => setCopiedPassword(false), 2000);
     }
   };
+
+  // Windows XP Professional Computer Management Console (MMC)
+  if (isXP) {
+    return (
+      <div className="min-h-screen bg-[#004e98] p-2 sm:p-4 flex flex-col font-sans select-none">
+        {/* Top bar with ThemeToggle and quick jump */}
+        <div className="flex items-center justify-between pb-2">
+          <div className="flex items-center gap-2 text-white text-xs font-bold">
+            <span>🖥️</span>
+            <span>CloudVault Professional — Administrator Mode</span>
+          </div>
+          <ThemeToggle />
+        </div>
+
+        {/* Temporary Password Display Modal */}
+        {tempPasswordModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in font-sans select-none">
+            <div className="xp-window-dialog w-full max-w-sm animate-scale-in">
+              <div className="xp-titlebar">
+                <div className="xp-titlebar-text">
+                  <span className="text-sm">🔑</span>
+                  <span>Temporary Password Generated</span>
+                </div>
+                <div className="xp-window-controls">
+                  <button
+                    type="button"
+                    onClick={() => setTempPasswordModal(null)}
+                    className="xp-btn-control xp-btn-close"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-3 bg-gradient-to-r from-[#003c74] via-[#124b8f] to-[#003c74] text-white flex items-center justify-between border-b border-[#0a2f85]">
+                <div>
+                  <div className="text-sm font-bold">Credential Recovery</div>
+                  <div className="text-[10px] text-blue-200">Student: {tempPasswordModal.username}</div>
+                </div>
+                <span className="text-2xl">🔐</span>
+              </div>
+
+              <div className="p-4 bg-[#ece9d8] text-[11px] text-slate-900 space-y-3">
+                <p>
+                  A temporary access password has been generated for <b>{tempPasswordModal.username}</b>:
+                </p>
+
+                <div className="xp-input p-2 font-mono text-center text-sm font-bold bg-white text-purple-900 tracking-wider">
+                  {tempPasswordModal.temporaryPassword}
+                </div>
+
+                <div className="p-2 bg-[#ffffe1] border border-[#d4d0c8] text-[10px] text-slate-700">
+                  ⚠️ The student must set a permanent password upon their next login.
+                </div>
+
+                <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#d4d0c8]">
+                  <button
+                    type="button"
+                    onClick={copyTempPassword}
+                    className="xp-button px-3 py-1 font-bold text-xs flex items-center gap-1"
+                  >
+                    {copiedPassword ? '✓ Copied' : '📋 Copy Password'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTempPasswordModal(null)}
+                    className="xp-button px-3 py-1 text-xs"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Quota Adjustment Modal */}
+        {editingQuotaUser && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in font-sans select-none">
+            <div className="xp-window-dialog w-full max-w-sm animate-scale-in">
+              <div className="xp-titlebar">
+                <div className="xp-titlebar-text">
+                  <span className="text-sm">💾</span>
+                  <span>Storage Quota Properties - {editingQuotaUser.username}</span>
+                </div>
+                <div className="xp-window-controls">
+                  <button
+                    type="button"
+                    onClick={() => setEditingQuotaUser(null)}
+                    className="xp-btn-control xp-btn-close"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-3 bg-gradient-to-r from-[#003c74] via-[#124b8f] to-[#003c74] text-white flex items-center justify-between border-b border-[#0a2f85]">
+                <div>
+                  <div className="text-sm font-bold">Quota Allocation</div>
+                  <div className="text-[10px] text-blue-200">Adjust disk storage limit</div>
+                </div>
+                <span className="text-2xl">⚙️</span>
+              </div>
+
+              <form onSubmit={handleSaveQuota} className="p-4 bg-[#ece9d8] text-[11px] text-slate-900 space-y-3">
+                <div className="p-2 border border-[#7f9db9] bg-white space-y-2">
+                  <div className="font-bold text-slate-800">Storage Volume Settings</div>
+                  <div className="flex items-center gap-2">
+                    <label className="text-[11px]"><u>L</u>imit disk space to:</label>
+                    <input
+                      type="number"
+                      min="10"
+                      max="51200"
+                      value={newQuotaMiB}
+                      onChange={(e) => setNewQuotaMiB(e.target.value)}
+                      className="xp-input w-24 text-xs font-mono"
+                    />
+                    <span className="text-xs font-bold">MiB</span>
+                  </div>
+                  <div className="text-[10px] text-slate-500">
+                    500 MiB (Default) &bull; 1024 MiB = 1 GiB
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#d4d0c8]">
+                  <button
+                    type="submit"
+                    className="xp-button px-4 py-1.5 font-bold text-xs"
+                  >
+                    OK
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditingQuotaUser(null)}
+                    className="xp-button px-4 py-1.5 text-xs"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Main Computer Management Window */}
+        <div className="xp-window flex-1 flex flex-col shadow-2xl overflow-hidden min-h-[600px]">
+          {/* XP Titlebar */}
+          <div className="xp-titlebar">
+            <div className="xp-titlebar-text">
+              <span className="text-sm">🖥️</span>
+              <span>Computer Management (Local) - [Administrator Console\Local Users &amp; Quotas]</span>
+            </div>
+            <div className="xp-window-controls">
+              <button
+                type="button"
+                onClick={() => navigate('/dashboard')}
+                className="xp-btn-control xp-btn-close"
+                title="Return to Vault"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+
+          {/* XP Menu Bar */}
+          <div className="bg-[#ece9d8] border-b border-[#7f9db9] px-2 py-0.5 flex items-center gap-3 text-xs">
+            <button type="button" onClick={() => navigate('/dashboard')} className="hover:bg-[#316ac5] hover:text-white px-1.5 py-0.5">
+              <u>F</u>ile
+            </button>
+            <button type="button" onClick={() => fetchAdminData(true)} className="hover:bg-[#316ac5] hover:text-white px-1.5 py-0.5">
+              <u>A</u>ction
+            </button>
+            <button type="button" className="hover:bg-[#316ac5] hover:text-white px-1.5 py-0.5">
+              <u>V</u>iew
+            </button>
+            <button type="button" className="hover:bg-[#316ac5] hover:text-white px-1.5 py-0.5">
+              <u>H</u>elp
+            </button>
+          </div>
+
+          {/* XP Toolbar */}
+          <div className="bg-[#ece9d8] border-b border-[#7f9db9] px-2 py-1 flex items-center gap-1 text-xs">
+            <button
+              onClick={() => fetchAdminData(true)}
+              disabled={isRefreshing}
+              className="xp-button px-2 py-1 text-xs flex items-center gap-1 font-bold"
+              title="Refresh (F5)"
+            >
+              <span className={isRefreshing ? 'animate-spin inline-block' : ''}>🗘</span>
+              <span>Refresh</span>
+            </button>
+
+            <div className="h-4 w-px bg-[#7f9db9] mx-1" />
+
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="xp-button px-2 py-1 text-xs flex items-center gap-1"
+              title="Return to File Manager"
+            >
+              <span>📁</span>
+              <span>My Vault</span>
+            </button>
+
+            <button
+              onClick={() => navigate('/security')}
+              className="xp-button px-2 py-1 text-xs flex items-center gap-1"
+              title="Open Security Center"
+            >
+              <span>🛡️</span>
+              <span>Security Center</span>
+            </button>
+
+            <button
+              onClick={() => navigate('/settings')}
+              className="xp-button px-2 py-1 text-xs flex items-center gap-1"
+              title="Open System Properties"
+            >
+              <span>⚙️</span>
+              <span>Properties</span>
+            </button>
+          </div>
+
+          {/* Address Bar */}
+          <div className="bg-[#ece9d8] border-b border-[#7f9db9] px-2 py-1 flex items-center gap-2 text-xs">
+            <span className="text-slate-600 font-bold">Address:</span>
+            <div className="xp-input flex-1 px-2 py-0.5 text-xs bg-white flex items-center gap-1 font-mono">
+              <span>🖥️</span>
+              <span>CloudVault Management\System Tools\Local Users &amp; Quotas</span>
+            </div>
+            <button
+              onClick={() => fetchAdminData(true)}
+              className="xp-button px-2 py-0.5 text-xs font-bold text-emerald-800"
+            >
+              Go
+            </button>
+          </div>
+
+          {/* Two-Pane MMC Split */}
+          <div className="flex-1 flex overflow-hidden bg-white">
+            {/* Left Console Treeview */}
+            <div className="hidden md:flex w-60 bg-white border-r border-[#7f9db9] p-2 flex-col text-xs font-sans overflow-y-auto select-none">
+              <div className="font-bold text-slate-800 pb-1 mb-1 border-b border-slate-200">
+                Console Root
+              </div>
+              <div className="space-y-1 pl-1">
+                <div className="flex items-center gap-1.5 py-0.5 text-slate-900 font-semibold cursor-pointer">
+                  <span>🖥️</span>
+                  <span>Computer Management</span>
+                </div>
+                <div className="pl-4 space-y-1">
+                  <div className="flex items-center gap-1.5 py-0.5 text-slate-800 font-semibold">
+                    <span>📁</span>
+                    <span>System Tools</span>
+                  </div>
+                  <div className="pl-4 space-y-1">
+                    <div className="flex items-center gap-1.5 px-1 py-0.5 bg-[#0a246a] text-white font-bold rounded-sm">
+                      <span>👥</span>
+                      <span>Local Users &amp; Quotas</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 px-1 py-0.5 text-slate-600 hover:bg-slate-100 cursor-pointer">
+                      <span>📊</span>
+                      <span>Storage Telemetry</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5 py-0.5 text-slate-800 font-semibold">
+                    <span>📁</span>
+                    <span>Storage</span>
+                  </div>
+                  <div className="pl-4">
+                    <div className="flex items-center gap-1.5 px-1 py-0.5 text-slate-600 hover:bg-slate-100 cursor-pointer">
+                      <span>☁️</span>
+                      <span>Cloudflare R2 Bucket</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5 py-0.5 text-slate-800 font-semibold">
+                    <span>📁</span>
+                    <span>Services &amp; Security</span>
+                  </div>
+                  <div className="pl-4">
+                    <div className="flex items-center gap-1.5 px-1 py-0.5 text-slate-600 hover:bg-slate-100 cursor-pointer">
+                      <span>🛡️</span>
+                      <span>Lab PC Policy</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Pane: Content */}
+            <div className="flex-1 bg-white p-2 sm:p-3 flex flex-col overflow-y-auto">
+              {/* Sunken System Metrics Strip */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-3">
+                <div className="xp-sunken p-2 bg-[#f9f8f4] flex items-center justify-between">
+                  <div>
+                    <div className="text-[10px] text-slate-500 font-bold uppercase">Total Accounts</div>
+                    <div className="text-lg font-bold text-slate-900">{metrics ? metrics.totalUsers : '-'}</div>
+                  </div>
+                  <span className="text-xl">👥</span>
+                </div>
+
+                <div className="xp-sunken p-2 bg-[#f9f8f4] flex items-center justify-between">
+                  <div>
+                    <div className="text-[10px] text-slate-500 font-bold uppercase">Stored Files</div>
+                    <div className="text-lg font-bold text-slate-900">{metrics ? metrics.totalFiles : '-'}</div>
+                  </div>
+                  <span className="text-xl">📁</span>
+                </div>
+
+                <div className="xp-sunken p-2 bg-[#f9f8f4] flex items-center justify-between">
+                  <div>
+                    <div className="text-[10px] text-slate-500 font-bold uppercase">Object Storage Used</div>
+                    <div className="text-lg font-bold text-slate-900">{metrics ? formatBytes(metrics.totalStorageUsed) : '-'}</div>
+                  </div>
+                  <span className="text-xl">💾</span>
+                </div>
+              </div>
+
+              {/* Filter Strip */}
+              <div className="flex items-center justify-between gap-2 mb-2 p-1.5 bg-[#ece9d8] border border-[#7f9db9] text-xs">
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-slate-800">Filter Users:</span>
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search by username..."
+                    className="xp-input px-2 py-0.5 text-xs w-48 sm:w-64"
+                  />
+                  {searchQuery && (
+                    <button onClick={() => setSearchQuery('')} className="xp-button px-1.5 py-0.5 text-[10px]">
+                      Clear
+                    </button>
+                  )}
+                </div>
+
+                <div className="text-[11px] text-slate-600 font-mono">
+                  {users.length} enrolled student(s)
+                </div>
+              </div>
+
+              {/* Classic XP Table */}
+              <div className="flex-1 overflow-x-auto border border-[#7f9db9]">
+                <table className="xp-table w-full text-left text-xs">
+                  <thead>
+                    <tr>
+                      <th className="px-2 py-1 text-left">User Name</th>
+                      <th className="px-2 py-1 text-left">Type</th>
+                      <th className="px-2 py-1 text-left">Status</th>
+                      <th className="px-2 py-1 text-right">Files</th>
+                      <th className="px-2 py-1 text-right">Disk Usage</th>
+                      <th className="px-2 py-1 text-right">Quota Limit</th>
+                      <th className="px-2 py-1 text-center">Administrator Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {loading ? (
+                      <tr>
+                        <td colSpan={7} className="text-center py-8 text-slate-500">
+                          Loading local user accounts...
+                        </td>
+                      </tr>
+                    ) : users.length === 0 ? (
+                      <tr>
+                        <td colSpan={7} className="text-center py-8 text-slate-500">
+                          No student accounts match the filter criteria.
+                        </td>
+                      </tr>
+                    ) : (
+                      users.map((u) => {
+                        const percent = Math.min(100, Math.round((u.storageUsed / u.storageLimit) * 100));
+
+                        return (
+                          <tr key={u._id} className="hover:bg-[#e8f1ff] border-b border-slate-100">
+                            <td className="px-2 py-1.5 font-bold text-slate-900">
+                              <div className="flex items-center gap-1.5">
+                                <span>👤</span>
+                                <span>{u.username}</span>
+                                {u.role === 'admin' && (
+                                  <span className="px-1 py-0.2 bg-purple-100 text-purple-800 text-[9px] font-bold border border-purple-300">
+                                    ADMIN
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+                            <td className="px-2 py-1.5 text-slate-600">
+                              {u.role === 'admin' ? 'Administrator' : 'Student Account'}
+                            </td>
+                            <td className="px-2 py-1.5">
+                              <span
+                                className={`px-1.5 py-0.5 text-[10px] font-bold border ${
+                                  u.accountStatus === 'active'
+                                    ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                                    : 'bg-rose-50 text-rose-800 border-rose-300'
+                                }`}
+                              >
+                                {u.accountStatus === 'active' ? '✓ Active' : '✕ Disabled'}
+                              </span>
+                            </td>
+                            <td className="px-2 py-1.5 font-mono text-right text-slate-700">
+                              {u.fileCount || 0}
+                            </td>
+                            <td className="px-2 py-1.5 font-mono text-right text-slate-700">
+                              {formatBytes(u.storageUsed)} ({percent}%)
+                            </td>
+                            <td className="px-2 py-1.5 font-mono text-right text-slate-700">
+                              {formatBytes(u.storageLimit)}
+                            </td>
+                            <td className="px-2 py-1.5 text-center">
+                              <div className="flex items-center justify-center gap-1">
+                                <button
+                                  onClick={() => {
+                                    setEditingQuotaUser(u);
+                                    setNewQuotaMiB(Math.round(u.storageLimit / (1024 * 1024)));
+                                  }}
+                                  className="xp-button px-2 py-0.5 text-[10px] flex items-center gap-0.5"
+                                  title="Adjust Storage Quota"
+                                >
+                                  <span>⚙️</span>
+                                  <span>Quota</span>
+                                </button>
+
+                                <button
+                                  onClick={() => handleGenerateTempPassword(u)}
+                                  className="xp-button px-2 py-0.5 text-[10px] flex items-center gap-0.5 text-purple-900"
+                                  title="Generate Temporary Password"
+                                >
+                                  <span>🔑</span>
+                                  <span>Reset Pwd</span>
+                                </button>
+
+                                <button
+                                  onClick={() => handleToggleStatus(u)}
+                                  className={`xp-button px-2 py-0.5 text-[10px] ${
+                                    u.accountStatus === 'active' ? 'text-rose-900' : 'text-emerald-900'
+                                  }`}
+                                  title={u.accountStatus === 'active' ? 'Disable Account' : 'Enable Account'}
+                                >
+                                  {u.accountStatus === 'active' ? 'Disable' : 'Enable'}
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          {/* XP Status Bar */}
+          <div className="xp-statusbar">
+            <div className="xp-status-pane flex-1">
+              Ready
+            </div>
+            <div className="xp-status-pane">
+              {users.length} user(s)
+            </div>
+            <div className="xp-status-pane">
+              Quota: 500 MiB Default
+            </div>
+            <div className="xp-status-pane">
+              Database: MongoDB Atlas
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`min-h-screen ${

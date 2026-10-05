@@ -44,11 +44,35 @@ import { useToast } from '../context/ToastContext';
 import { useTheme } from '../context/useTheme';
 import { formatBytes, formatDate, getFileTypeMeta } from '../utils/formatters';
 
+// Windows XP Components
+import XPWindow from '../components/xp/XPWindow';
+import XPMenuBar from '../components/xp/XPMenuBar';
+import XPToolbar from '../components/xp/XPToolbar';
+import XPAddressBar from '../components/xp/XPAddressBar';
+import XPExplorerSidebar from '../components/xp/XPExplorerSidebar';
+import XPStatusBar from '../components/xp/XPStatusBar';
+import XPContextMenu from '../components/xp/XPContextMenu';
+import XPFilePropertiesModal from '../components/xp/XPFilePropertiesModal';
+import XPAboutModal from '../components/xp/XPAboutModal';
+import { 
+  XPFolderIcon, 
+  XPDocumentIcon, 
+  XPPdfIcon, 
+  XPImageIcon, 
+  XPCodeIcon, 
+  XPArchiveIcon 
+} from '../components/xp/XPIcons';
+import ThemeToggle from '../components/common/ThemeToggle';
+
 export default function DashboardPage() {
   const { user, updateStorage } = useAuth();
   const { success, error: toastError } = useToast();
-  const { isDark } = useTheme();
+  const { isDark, isXP } = useTheme();
   const navigate = useNavigate();
+
+  const [contextMenu, setContextMenu] = useState(null);
+  const [fileForProperties, setFileForProperties] = useState(null);
+  const [showAbout, setShowAbout] = useState(false);
 
   const [files, setFiles] = useState([]);
   const [stats, setStats] = useState(null);
@@ -318,6 +342,306 @@ export default function DashboardPage() {
   };
 
   const categoryHeader = getCategoryHeader();
+
+  const getXpFileIcon = (file) => {
+    const meta = getFileTypeMeta(file.originalName, file.mimeType);
+    switch (meta.category) {
+      case 'code': return XPCodeIcon;
+      case 'image': return XPImageIcon;
+      case 'archive': return XPArchiveIcon;
+      case 'document':
+        if (file.originalName.toLowerCase().endsWith('.pdf')) return XPPdfIcon;
+        return XPDocumentIcon;
+      default: return XPDocumentIcon;
+    }
+  };
+
+  const handleRowContextMenu = (e, file) => {
+    e.preventDefault();
+    setContextMenu({ x: e.clientX, y: e.clientY, file });
+  };
+
+  const handleRowDoubleClick = (file) => {
+    setFileToPreview(file);
+  };
+
+  // Windows XP Professional Explorer Desktop Mode
+  if (isXP) {
+    return (
+      <div className="min-h-screen bg-[#004e98] p-2 sm:p-4 flex flex-col font-sans select-none">
+        {/* Modals & Overlays */}
+        <ForcePasswordModal isOpen={!!user?.forcePasswordChange} />
+        <FileUploadModal
+          isOpen={isUploadOpen}
+          onClose={() => setIsUploadOpen(false)}
+          onUploadSuccess={fetchFiles}
+        />
+        <RenameModal
+          file={fileToRename}
+          isOpen={!!fileToRename}
+          onClose={() => setFileToRename(null)}
+          onRenamed={onFileRenamed}
+        />
+        <DeleteModal
+          file={fileToDelete}
+          isOpen={!!fileToDelete}
+          onClose={() => setFileToDelete(null)}
+          onDeleted={onFileDeleted}
+        />
+        <FilePreviewModal
+          file={fileToPreview}
+          isOpen={!!fileToPreview}
+          onClose={() => setFileToPreview(null)}
+          onToggleStar={handleToggleStar}
+          onRenameRequest={setFileToRename}
+          onDeleteRequest={setFileToDelete}
+        />
+        <XPFilePropertiesModal
+          file={fileForProperties}
+          isOpen={!!fileForProperties}
+          onClose={() => setFileForProperties(null)}
+        />
+        <XPAboutModal
+          isOpen={showAbout}
+          onClose={() => setShowAbout(false)}
+          user={user}
+        />
+        {contextMenu && (
+          <XPContextMenu
+            x={contextMenu.x}
+            y={contextMenu.y}
+            file={contextMenu.file}
+            onClose={() => setContextMenu(null)}
+            onPreview={(f) => setFileToPreview(f)}
+            onDownload={(f) => handleDownload(f)}
+            onRename={(f) => setFileToRename(f)}
+            onToggleStar={(f) => handleToggleStar(f)}
+            onDelete={(f) => setFileToDelete(f)}
+            onProperties={(f) => setFileForProperties(f)}
+          />
+        )}
+
+        {/* Master XP Explorer Window */}
+        <XPWindow
+          title={`CloudVault - ${categoryHeader.title}`}
+          icon={XPFolderIcon}
+          onClose={() => navigate('/login')}
+          menuBar={
+            <XPMenuBar
+              onOpenUpload={() => setIsUploadOpen(true)}
+              onDownloadSelected={handleDownloadBatch}
+              onDeleteSelected={handleBatchDelete}
+              onSelectAll={handleSelectAll}
+              onClearSelection={() => setSelectedFileIds([])}
+              onRefresh={() => fetchFiles(true)}
+              onLogout={() => navigate('/login')}
+              onSortChange={(opt) => setSortOption(opt)}
+              onShowAbout={() => setShowAbout(true)}
+              viewMode={viewMode}
+              onToggleViewMode={setViewMode}
+            />
+          }
+          toolbar={
+            <XPToolbar
+              onBack={() => setSelectedCategory('all')}
+              onForward={() => {}}
+              onUp={() => setSelectedCategory('all')}
+              onOpenUpload={() => setIsUploadOpen(true)}
+              onDeleteSelected={handleBatchDelete}
+              selectedCount={selectedFileIds.length}
+              onRefresh={() => fetchFiles(true)}
+              isRefreshing={isRefreshing}
+              onFocusSearch={() => searchInputRef.current?.focus()}
+              viewMode={viewMode}
+              onToggleViewMode={setViewMode}
+            />
+          }
+          addressBar={
+            <XPAddressBar
+              currentPath={`CloudVault:\\${categoryHeader.title}`}
+              onNavigate={() => fetchFiles(true)}
+            />
+          }
+          statusBar={
+            <XPStatusBar
+              fileCount={filteredFiles.length}
+              selectedCount={selectedFileIds.length}
+              totalBytes={filteredFiles.reduce((acc, f) => acc + (f.size || 0), 0)}
+              storageUsed={user?.storageUsed || 0}
+              storageLimit={user?.storageLimit || 524288000}
+            />
+          }
+        >
+          {/* Split Body: Left Task Pane + Right File View */}
+          <div className="flex-1 flex flex-col md:flex-row min-h-0 bg-white">
+            {/* Left Explorer Task Pane */}
+            <div className="hidden md:block">
+              <XPExplorerSidebar
+                selectedCategory={selectedCategory}
+                onSelectCategory={setSelectedCategory}
+                onOpenUpload={() => setIsUploadOpen(true)}
+                onDownloadSelected={handleDownloadBatch}
+                onDeleteSelected={handleBatchDelete}
+                selectedCount={selectedFileIds.length}
+                user={user}
+                stats={stats}
+              />
+            </div>
+
+            {/* Right File Table / Tile View */}
+            <div className="flex-1 flex flex-col min-w-0 bg-white">
+              {/* Explorer Search & Theme Switcher Header */}
+              <div className="p-1.5 bg-[#ece9d8] border-b border-[#aca899] flex items-center justify-between gap-2 text-[11px]">
+                <div className="flex items-center gap-1.5 flex-1 max-w-sm">
+                  <span className="text-slate-700 font-medium">Search:</span>
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search vault files..."
+                    className="xp-input flex-1 text-xs"
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery('')}
+                      className="xp-btn text-[10px] py-0 px-1"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <ThemeToggle compact />
+                </div>
+              </div>
+
+              {/* Main File Listing */}
+              <div className="flex-1 overflow-auto bg-white">
+                {filteredFiles.length === 0 ? (
+                  <div className="h-full flex flex-col items-center justify-center p-8 text-center text-slate-700">
+                    <div className="text-5xl mb-3">📁</div>
+                    <div className="font-bold text-sm text-slate-800">This folder is empty.</div>
+                    <p className="text-xs text-slate-500 mt-1 max-w-sm">
+                      Upload your first assignment, lab report, or code script to your private academic vault.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setIsUploadOpen(true)}
+                      className="xp-btn xp-btn-primary mt-4 font-bold"
+                    >
+                      + Upload Coursework
+                    </button>
+                  </div>
+                ) : viewMode === 'list' ? (
+                  <table className="xp-table">
+                    <thead>
+                      <tr>
+                        <th style={{ width: '28px' }} className="text-center">
+                          <input
+                            type="checkbox"
+                            checked={allSelected}
+                            onChange={handleSelectAll}
+                            className="accent-blue-600"
+                          />
+                        </th>
+                        <th onClick={() => setSortOption(sortOption === 'name_asc' ? 'name_desc' : 'name_asc')}>
+                          Name {sortOption.includes('name') ? (sortOption.endsWith('asc') ? '▲' : '▼') : ''}
+                        </th>
+                        <th style={{ width: '90px' }} onClick={() => setSortOption(sortOption === 'size_asc' ? 'size_desc' : 'size_asc')}>
+                          Size {sortOption.includes('size') ? (sortOption.endsWith('asc') ? '▲' : '▼') : ''}
+                        </th>
+                        <th style={{ width: '130px' }}>
+                          Type
+                        </th>
+                        <th style={{ width: '150px' }} onClick={() => setSortOption(sortOption === 'date_asc' ? 'date_desc' : 'date_asc')}>
+                          Date Modified {sortOption.includes('date') ? (sortOption.endsWith('asc') ? '▲' : '▼') : ''}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredFiles.map((file) => {
+                        const isSelected = selectedFileIds.includes(file._id);
+                        const meta = getFileTypeMeta(file.originalName, file.mimeType);
+                        const IconComponent = getXpFileIcon(file);
+
+                        return (
+                          <tr
+                            key={file._id}
+                            className={isSelected ? 'selected' : ''}
+                            onClick={() => handleSelectToggle(file._id)}
+                            onDoubleClick={() => handleRowDoubleClick(file)}
+                            onContextMenu={(e) => handleRowContextMenu(e, file)}
+                          >
+                            <td className="text-center" onClick={(e) => e.stopPropagation()}>
+                              <input
+                                type="checkbox"
+                                checked={isSelected}
+                                onChange={() => handleSelectToggle(file._id)}
+                                className="accent-blue-600"
+                              />
+                            </td>
+                            <td>
+                              <div className="flex items-center gap-2">
+                                <IconComponent className="w-4 h-4 shrink-0" />
+                                <span className="truncate font-medium">{file.originalName}</span>
+                                {file.isStarred && <span className="text-amber-500 font-bold">★</span>}
+                              </div>
+                            </td>
+                            <td className="font-mono text-[10px]">
+                              {formatBytes(file.size)}
+                            </td>
+                            <td className="text-slate-600">
+                              {meta.type} File
+                            </td>
+                            <td className="text-slate-600">
+                              {formatDate(file.updatedAt || file.createdAt)}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                ) : (
+                  /* Tiles / Large Icons View */
+                  <div className="p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                    {filteredFiles.map((file) => {
+                      const isSelected = selectedFileIds.includes(file._id);
+                      const IconComponent = getXpFileIcon(file);
+
+                      return (
+                        <div
+                          key={file._id}
+                          className={`p-2.5 flex flex-col items-center text-center rounded border cursor-pointer ${
+                            isSelected
+                              ? 'bg-blue-600 text-white border-blue-800'
+                              : 'hover:bg-blue-50 border-transparent hover:border-blue-200'
+                          }`}
+                          onClick={() => handleSelectToggle(file._id)}
+                          onDoubleClick={() => handleRowDoubleClick(file)}
+                          onContextMenu={(e) => handleRowContextMenu(e, file)}
+                        >
+                          <IconComponent className="w-9 h-9 mb-1.5" />
+                          <span className={`text-[11px] font-medium line-clamp-2 break-all ${isSelected ? 'text-white' : 'text-slate-800'}`}>
+                            {file.originalName}
+                          </span>
+                          <span className={`text-[9px] font-mono mt-0.5 ${isSelected ? 'text-blue-100' : 'text-slate-500'}`}>
+                            {formatBytes(file.size)}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </XPWindow>
+      </div>
+    );
+  }
 
   return (
     <div className={`min-h-screen ${

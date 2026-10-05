@@ -15,7 +15,7 @@ export default function SignupPage() {
   const [errorMsg, setErrorMsg] = useState('');
   const [recoveryCodes, setRecoveryCodes] = useState(null);
   const { signup } = useAuth();
-  const { isDark } = useTheme();
+  const { isDark, isXP } = useTheme();
   const navigate = useNavigate();
 
   // Password strength calculation
@@ -67,6 +67,175 @@ export default function SignupPage() {
   const handleModalClose = () => {
     navigate('/dashboard');
   };
+
+  // Windows XP Professional Account Setup Wizard
+  if (isXP) {
+    return (
+      <div className="min-h-screen bg-[#004e98] flex flex-col justify-center items-center p-4 relative font-sans select-none">
+        {/* Recovery Codes Presentation Modal */}
+        {recoveryCodes && (
+          <RecoveryCodesModal
+            codes={recoveryCodes}
+            onClose={handleModalClose}
+          />
+        )}
+
+        {/* Top right theme toggle */}
+        <div className="absolute top-4 right-4 z-20">
+          <ThemeToggle />
+        </div>
+
+        <div className="xp-window-dialog w-full max-w-xl animate-scale-in">
+          {/* XP Titlebar */}
+          <div className="xp-titlebar">
+            <div className="xp-titlebar-text">
+              <span className="text-sm">⚙️</span>
+              <span>CloudVault Account Setup Wizard</span>
+            </div>
+            <div className="xp-window-controls">
+              <button
+                type="button"
+                onClick={() => navigate('/login')}
+                className="xp-btn-control xp-btn-close"
+                title="Cancel"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+
+          {/* XP Wizard Body: Left Sidebar + Right Form */}
+          <form onSubmit={handleSubmit}>
+            <div className="flex flex-col sm:flex-row min-h-[360px] bg-[#ece9d8]">
+              {/* Left Wizard Banner */}
+              <div className="sm:w-44 bg-gradient-to-b from-[#003c74] via-[#165096] to-[#002850] p-4 text-white flex flex-col justify-between border-r border-[#0a2f85]">
+                <div>
+                  <div className="text-3xl mb-3">☁️</div>
+                  <div className="text-sm font-bold leading-tight">Welcome to the CloudVault Setup Wizard</div>
+                  <div className="text-[10px] text-blue-200 mt-2">
+                    Create your private academic cloud storage for university computer labs.
+                  </div>
+                </div>
+
+                <div className="text-[9px] text-blue-300 border-t border-blue-800 pt-2">
+                  500 MiB Academic Tier
+                </div>
+              </div>
+
+              {/* Right Wizard Content */}
+              <div className="flex-1 p-5 text-[11px] text-slate-900 space-y-3">
+                <div className="border-b border-slate-300 pb-2">
+                  <div className="font-bold text-sm text-blue-950">Student Account Credentials</div>
+                  <div className="text-[10px] text-slate-600">
+                    No email address or phone number is required. Your privacy is guaranteed.
+                  </div>
+                </div>
+
+                {errorMsg && (
+                  <div className="p-2 bg-red-100 border border-red-500 text-red-900 text-[11px] flex items-center gap-1.5">
+                    <span>❌</span>
+                    <span>{errorMsg}</span>
+                  </div>
+                )}
+
+                <div className="space-y-2.5">
+                  <div>
+                    <label className="block font-bold text-slate-800 mb-1">
+                      <u>U</u>sername (3–30 characters):
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      autoFocus
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder="e.g. harsh_cs2026"
+                      className="xp-input w-full text-xs"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-800 mb-1">
+                      <u>P</u>assword (minimum 8 characters):
+                    </label>
+                    <input
+                      type="password"
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="xp-input w-full text-xs"
+                    />
+                    {password && (
+                      <div className="mt-1 flex items-center gap-2 text-[10px]">
+                        <span className="text-slate-600">Strength:</span>
+                        <span className="font-bold text-blue-900">{strength.label}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-800 mb-1">
+                      <u>C</u>onfirm Password:
+                    </label>
+                    <input
+                      type="password"
+                      required
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="xp-input w-full text-xs"
+                    />
+                  </div>
+                </div>
+
+                <div className="p-2 bg-white border border-[#7f9db9] text-[10px] text-slate-700 flex items-start gap-2">
+                  <span>🔑</span>
+                  <div>
+                    <strong>Emergency Recovery:</strong> You will be issued 5 cryptographic recovery codes upon completing this wizard. Keep them safe.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* XP Wizard Button Row */}
+            <div className="flex items-center justify-between p-3 bg-[#ece9d8] border-t border-slate-300">
+              <Link
+                to="/login"
+                className="text-blue-800 hover:underline text-[11px]"
+              >
+                Already have an account? Log on
+              </Link>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => navigate('/login')}
+                  className="xp-btn min-w-[75px]"
+                >
+                  &lt; Back
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="xp-btn xp-btn-primary min-w-[85px]"
+                >
+                  {submitting ? 'Creating...' : 'Next &gt;'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => navigate('/')}
+                  className="xp-btn min-w-[75px]"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`min-h-screen ${

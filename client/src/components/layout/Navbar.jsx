@@ -9,7 +9,7 @@ import ThemeToggle from '../common/ThemeToggle';
 
 export default function Navbar({ onToggleMobileSidebar }) {
   const { user, logout, isAdmin } = useAuth();
-  const { isDark } = useTheme();
+  const { isDark, isXP } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [showHygieneModal, setShowHygieneModal] = useState(false);
@@ -23,6 +23,110 @@ export default function Navbar({ onToggleMobileSidebar }) {
   const percentUsed = user?.storageLimit 
     ? Math.min(100, Math.round((user.storageUsed / user.storageLimit) * 100)) 
     : 0;
+
+  // Windows XP Navigation Bar
+  if (isXP) {
+    return (
+      <>
+        <LabHygieneModal
+          isOpen={showHygieneModal}
+          onClose={() => setShowHygieneModal(false)}
+          onConfirmLogout={handleConfirmedLogout}
+        />
+        <nav className="bg-[#ece9d8] border-b-2 border-[#0055ea] text-black font-sans text-xs px-3 py-1.5 flex items-center justify-between select-none shadow-md sticky top-0 z-30">
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Start Button */}
+            <Link
+              to="/dashboard"
+              className="flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-[#388e3c] to-[#4caf50] hover:from-[#2e7d32] hover:to-[#388e3c] text-white font-bold rounded-r-xl shadow-inner border border-[#1b5e20] active:scale-95 transition-transform"
+            >
+              <span className="text-sm">☁️</span>
+              <span className="tracking-wide text-xs">start</span>
+            </Link>
+
+            {/* Quick Navigation Buttons */}
+            <div className="flex items-center gap-1">
+              <Link
+                to="/dashboard"
+                className={`xp-button px-2.5 py-1 text-xs flex items-center gap-1 ${
+                  location.pathname === '/dashboard' ? 'font-bold bg-[#d4d0c8]' : ''
+                }`}
+              >
+                <span>📁</span>
+                <span className="hidden sm:inline">My Vault</span>
+              </Link>
+              <Link
+                to="/security"
+                className={`xp-button px-2.5 py-1 text-xs flex items-center gap-1 ${
+                  location.pathname === '/security' ? 'font-bold bg-[#d4d0c8]' : ''
+                }`}
+              >
+                <span>🛡️</span>
+                <span className="hidden sm:inline">Security</span>
+              </Link>
+              <Link
+                to="/settings"
+                className={`xp-button px-2.5 py-1 text-xs flex items-center gap-1 ${
+                  location.pathname === '/settings' ? 'font-bold bg-[#d4d0c8]' : ''
+                }`}
+              >
+                <span>⚙️</span>
+                <span className="hidden sm:inline">Settings</span>
+              </Link>
+              {isAdmin && (
+                <Link
+                  to="/admin"
+                  className={`xp-button px-2.5 py-1 text-xs flex items-center gap-1 ${
+                    location.pathname === '/admin' ? 'font-bold bg-[#d4d0c8]' : ''
+                  }`}
+                >
+                  <span>🖥️</span>
+                  <span className="hidden sm:inline">Management</span>
+                </Link>
+              )}
+            </div>
+          </div>
+
+          {/* Right controls */}
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            {/* Lab PC Safe Indicator */}
+            <div
+              className="hidden md:flex items-center gap-1 px-2 py-0.5 border border-[#7f9db9] bg-white text-[11px] font-sans"
+              title="Lab PC Safe Mode: Active"
+            >
+              <span className="text-xs">🛡️</span>
+              <span className="text-emerald-800 font-bold">Lab Safe</span>
+            </div>
+
+            {/* Storage Quota */}
+            <div className="hidden lg:flex items-center gap-1 px-2 py-0.5 border border-[#7f9db9] bg-white text-[11px] font-mono">
+              <span>💾</span>
+              <span>{formatBytes(user?.storageUsed || 0)} / {formatBytes(user?.storageLimit || 524288000)}</span>
+            </div>
+
+            {/* User Badge */}
+            <div className="flex items-center gap-1 px-2 py-0.5 border border-[#7f9db9] bg-white text-[11px]">
+              <span>👤</span>
+              <span className="font-bold">{user?.username || 'User'}</span>
+            </div>
+
+            {/* Theme Toggle */}
+            <ThemeToggle />
+
+            {/* Log Off Button */}
+            <button
+              onClick={() => setShowHygieneModal(true)}
+              className="xp-button px-2.5 py-1 text-xs font-bold text-red-900 flex items-center gap-1 hover:bg-red-50"
+              title="Log Off CloudVault"
+            >
+              <span>⏻</span>
+              <span className="hidden sm:inline">Log Off</span>
+            </button>
+          </div>
+        </nav>
+      </>
+    );
+  }
 
   return (
     <>

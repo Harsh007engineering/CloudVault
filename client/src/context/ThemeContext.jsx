@@ -6,7 +6,7 @@ export function ThemeProvider({ children }) {
   const [theme, setTheme] = useState(() => {
     try {
       const savedTheme = localStorage.getItem('cloudvault-theme');
-      if (savedTheme === 'dark' || savedTheme === 'light') {
+      if (savedTheme === 'dark' || savedTheme === 'light' || savedTheme === 'xp') {
         return savedTheme;
       }
       return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches 
@@ -22,11 +22,22 @@ export function ThemeProvider({ children }) {
     const body = document.body;
     const metaColorScheme = document.querySelector('meta[name="color-scheme"]');
 
-    if (theme === 'dark') {
+    if (theme === 'xp') {
+      root.classList.remove('dark', 'light');
+      root.classList.add('xp');
+      body.classList.remove('dark', 'light');
+      body.classList.add('xp');
+      root.setAttribute('data-theme', 'xp');
+      body.setAttribute('data-theme', 'xp');
+      root.style.colorScheme = 'light';
+      body.style.backgroundColor = '#004e98';
+      body.style.color = '#000000';
+      if (metaColorScheme) metaColorScheme.content = 'light';
+    } else if (theme === 'dark') {
       root.classList.add('dark');
-      root.classList.remove('light');
+      root.classList.remove('light', 'xp');
       body.classList.add('dark');
-      body.classList.remove('light');
+      body.classList.remove('light', 'xp');
       root.setAttribute('data-theme', 'dark');
       body.setAttribute('data-theme', 'dark');
       root.style.colorScheme = 'dark';
@@ -34,9 +45,9 @@ export function ThemeProvider({ children }) {
       body.style.color = '#f8fafc';
       if (metaColorScheme) metaColorScheme.content = 'dark';
     } else {
-      root.classList.remove('dark');
+      root.classList.remove('dark', 'xp');
       root.classList.add('light');
-      body.classList.remove('dark');
+      body.classList.remove('dark', 'xp');
       body.classList.add('light');
       root.setAttribute('data-theme', 'light');
       body.setAttribute('data-theme', 'light');
@@ -72,9 +83,11 @@ export function ThemeProvider({ children }) {
   };
 
   const isDark = theme === 'dark';
+  const isXP = theme === 'xp';
+  const isLight = theme === 'light';
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme, isDark }}>
+    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme, isDark, isXP, isLight }}>
       {children}
     </ThemeContext.Provider>
   );

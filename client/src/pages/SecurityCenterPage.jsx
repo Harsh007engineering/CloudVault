@@ -16,6 +16,7 @@ import {
   HelpCircle,
   ExternalLink
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/useTheme';
 import { useToast } from '../context/ToastContext';
@@ -25,11 +26,15 @@ import Sidebar from '../components/layout/Sidebar';
 import AmbientBackground from '../components/common/AmbientBackground';
 import RecoveryCodesModal from '../components/modals/RecoveryCodesModal';
 import { formatBytes, formatDate } from '../utils/formatters';
+import XPTitleBar from '../components/xp/XPTitleBar';
+import { XPShieldIcon, XPKeyIcon, XPComputerIcon } from '../components/xp/XPIcons';
+import ThemeToggle from '../components/common/ThemeToggle';
 
 export default function SecurityCenterPage() {
   const { user } = useAuth();
-  const { isDark } = useTheme();
+  const { isDark, isXP } = useTheme();
   const { success, error: toastError } = useToast();
+  const navigate = useNavigate();
 
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
@@ -64,6 +69,235 @@ export default function SecurityCenterPage() {
   const recoveryCodesRemaining = typeof user?.recoveryCodesRemaining === 'number' 
     ? user.recoveryCodesRemaining 
     : 5;
+
+  // Windows XP Professional Security Center
+  if (isXP) {
+    return (
+      <div className="min-h-screen bg-[#004e98] p-2 sm:p-4 flex flex-col items-center justify-center relative font-sans select-none">
+        {/* Recovery Codes Presentation Modal */}
+        {newCodes && (
+          <RecoveryCodesModal
+            codes={newCodes}
+            isOpen={true}
+            onClose={() => setNewCodes(null)}
+            isRegeneration={true}
+          />
+        )}
+
+        {/* Top right theme toggle */}
+        <div className="absolute top-4 right-4 z-20">
+          <ThemeToggle />
+        </div>
+
+        <div className="xp-window-dialog w-full max-w-4xl select-none animate-scale-in">
+          {/* XP Titlebar */}
+          <XPTitleBar
+            title="Windows Security Center - CloudVault Professional"
+            icon={XPShieldIcon}
+            onClose={() => navigate('/dashboard')}
+          />
+
+          <div className="flex flex-col md:flex-row min-h-[460px] bg-[#ece9d8]">
+            {/* Left Resources Sidebar */}
+            <div className="w-full md:w-56 bg-[#d6dff7] border-r border-[#ffffff] p-3 text-[11px] space-y-3">
+              <div className="font-bold text-blue-900 border-b border-slate-300 pb-1">
+                Resources
+              </div>
+
+              <div className="space-y-1.5">
+                <button
+                  type="button"
+                  onClick={() => setShowRegenConfirm((prev) => !prev)}
+                  className="xp-task-link text-left w-full"
+                >
+                  <XPKeyIcon className="w-3.5 h-3.5 shrink-0" />
+                  <span>Manage Recovery Codes</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => navigate('/settings')}
+                  className="xp-task-link text-left w-full"
+                >
+                  <Lock className="w-3.5 h-3.5 text-blue-700 shrink-0" />
+                  <span>Change Password</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => navigate('/settings')}
+                  className="xp-task-link text-left w-full"
+                >
+                  <XPComputerIcon className="w-3.5 h-3.5 shrink-0" />
+                  <span>System Properties</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => navigate('/dashboard')}
+                  className="xp-task-link text-left w-full font-bold text-blue-900 pt-2 border-t border-slate-300"
+                >
+                  <span>📁 Open My Coursework (C:)</span>
+                </button>
+              </div>
+
+              {/* Workstation Shield Info */}
+              <div className="p-2.5 bg-white border border-[#7f9db9] rounded text-[10px] space-y-1 mt-4">
+                <div className="font-bold text-emerald-800">Terminal Protected:</div>
+                <div className="text-slate-600">
+                  Student: <strong>{user?.username}</strong>
+                </div>
+                <div className="text-slate-500">
+                  Quota: {formatBytes(user?.storageLimit || 524288000)}
+                </div>
+              </div>
+            </div>
+
+            {/* Right Main Security Center Area */}
+            <div className="flex-1 p-5 text-[11px] text-slate-900 overflow-y-auto space-y-4">
+              {/* Security Header Banner */}
+              <div className="flex items-center gap-3 pb-3 border-b border-slate-300">
+                <XPShieldIcon className="w-12 h-12 shrink-0" />
+                <div>
+                  <h2 className="text-base font-bold text-blue-950">Security Essentials</h2>
+                  <p className="text-[10px] text-slate-600">
+                    Security Center helps monitor and maintain your coursework isolation settings on shared university workstations.
+                  </p>
+                </div>
+              </div>
+
+              {/* Password prompt for recovery code regeneration if active */}
+              {showRegenConfirm && (
+                <form onSubmit={handleRegenerateCodes} className="p-3 bg-amber-50 border border-amber-400 rounded space-y-2 animate-scale-in">
+                  <div className="font-bold text-amber-900 text-xs">
+                    Regenerate 5 Cryptographic Recovery Codes:
+                  </div>
+                  <div className="text-[10px] text-amber-800">
+                    Enter your account password to immediately invalidate old codes and issue 5 new codes:
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="password"
+                      placeholder="Current password"
+                      required
+                      value={regenPassword}
+                      onChange={(e) => setRegenPassword(e.target.value)}
+                      className="xp-input flex-1 text-xs"
+                    />
+                    <button
+                      type="submit"
+                      disabled={regenerating || !regenPassword}
+                      className="xp-btn xp-btn-primary"
+                    >
+                      {regenerating ? 'Regenerating...' : 'Confirm'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowRegenConfirm(false)}
+                      className="xp-btn"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              )}
+
+              {/* 4 Classic XP Security Center Panels */}
+              <div className="space-y-3">
+                {/* 1. Lab PC Safe Mode */}
+                <div className="bg-white border border-[#7f9db9] rounded p-3">
+                  <div className="flex items-center justify-between border-b border-slate-200 pb-1.5 mb-2">
+                    <div className="font-bold text-xs flex items-center gap-2">
+                      <span className="text-sm">🛡️</span>
+                      <span>Lab PC Safe Mode</span>
+                    </div>
+                    <span className="px-2 py-0.5 bg-emerald-100 border border-emerald-600 text-emerald-800 text-[10px] font-bold rounded">
+                      ● ON
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-slate-600 leading-relaxed">
+                    This shared computer is treated as a public terminal. No personal Google accounts, phone numbers, or passwords are saved into browser storage.
+                  </p>
+                </div>
+
+                {/* 2. HTTP-only Session Cookie Hardening */}
+                <div className="bg-white border border-[#7f9db9] rounded p-3">
+                  <div className="flex items-center justify-between border-b border-slate-200 pb-1.5 mb-2">
+                    <div className="font-bold text-xs flex items-center gap-2">
+                      <span className="text-sm">🔒</span>
+                      <span>HTTP-Only Session Hardening</span>
+                    </div>
+                    <span className="px-2 py-0.5 bg-emerald-100 border border-emerald-600 text-emerald-800 text-[10px] font-bold rounded">
+                      ● ON
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-slate-600 leading-relaxed">
+                    Session keys (<code className="font-mono text-[9px] bg-slate-100 px-1">cv.sid</code>) are locked to HTTP-only cookie headers with SameSite protection. Cross-site script reading is cryptographically prevented.
+                  </p>
+                </div>
+
+                {/* 3. Cache-Control Hardening */}
+                <div className="bg-white border border-[#7f9db9] rounded p-3">
+                  <div className="flex items-center justify-between border-b border-slate-200 pb-1.5 mb-2">
+                    <div className="font-bold text-xs flex items-center gap-2">
+                      <span className="text-sm">💾</span>
+                      <span>Cache-Control Hardening</span>
+                    </div>
+                    <span className="px-2 py-0.5 bg-emerald-100 border border-emerald-600 text-emerald-800 text-[10px] font-bold rounded">
+                      ● ON
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-slate-600 leading-relaxed">
+                    Downloaded files and metadata are delivered with <code className="font-mono text-[9px] bg-slate-100 px-1">Cache-Control: no-store, private</code> to prevent other students from recovering coursework from the browser cache.
+                  </p>
+                </div>
+
+                {/* 4. Cryptographic Recovery Codes */}
+                <div className="bg-white border border-[#7f9db9] rounded p-3">
+                  <div className="flex items-center justify-between border-b border-slate-200 pb-1.5 mb-2">
+                    <div className="font-bold text-xs flex items-center gap-2">
+                      <span className="text-sm">🔑</span>
+                      <span>Cryptographic Recovery Codes</span>
+                    </div>
+                    <span className={`px-2 py-0.5 border text-[10px] font-bold rounded ${
+                      recoveryCodesRemaining > 0 
+                        ? 'bg-blue-100 border-blue-600 text-blue-900' 
+                        : 'bg-red-100 border-red-600 text-red-900'
+                    }`}>
+                      {recoveryCodesRemaining} Remaining
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-[10px] text-slate-600 leading-relaxed">
+                      Single-use cryptographic recovery keys allow emergency password reset without exposing an email address.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setShowRegenConfirm((prev) => !prev)}
+                      className="xp-btn text-[10px] shrink-0"
+                    >
+                      Regenerate...
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Footer */}
+          <div className="flex items-center justify-end gap-2 p-3 bg-[#ece9d8] border-t border-slate-300">
+            <button
+              type="button"
+              onClick={() => navigate('/dashboard')}
+              className="xp-btn xp-btn-primary min-w-[75px]"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`min-h-screen ${

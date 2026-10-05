@@ -8,7 +8,7 @@ export default function RenameModal({ file, isOpen, onClose, onRenamed }) {
   const [newName, setNewName] = useState('');
   const [saving, setSaving] = useState(false);
   const { success, error: toastError } = useToast();
-  const { isDark } = useTheme();
+  const { isDark, isXP } = useTheme();
 
   useEffect(() => {
     if (file) {
@@ -36,6 +36,67 @@ export default function RenameModal({ file, isOpen, onClose, onRenamed }) {
       setSaving(false);
     }
   };
+
+  if (isXP) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
+        <div 
+          role="dialog"
+          aria-modal="true"
+          className="xp-window-dialog w-full max-w-sm select-none animate-scale-in"
+        >
+          <div className="xp-titlebar">
+            <div className="xp-titlebar-text">
+              <span>Rename File</span>
+            </div>
+            <div className="xp-window-controls">
+              <button
+                type="button"
+                onClick={onClose}
+                className="xp-btn-control xp-btn-close"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+
+          <form onSubmit={handleSubmit}>
+            <div className="p-4 bg-[#ece9d8] text-[11px] text-slate-900 space-y-3">
+              <label className="block text-slate-700">
+                Enter new filename:
+              </label>
+              <input
+                type="text"
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                required
+                autoFocus
+                className="xp-input w-full bg-white text-xs"
+              />
+            </div>
+
+            <div className="flex justify-end gap-2 p-3 bg-[#ece9d8] border-t border-slate-300">
+              <button
+                type="submit"
+                disabled={saving || !newName.trim() || newName === file.originalName}
+                className="xp-btn xp-btn-primary min-w-[70px]"
+              >
+                {saving ? 'Saving...' : 'OK'}
+              </button>
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={saving}
+                className="xp-btn min-w-[70px]"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-fade-in">

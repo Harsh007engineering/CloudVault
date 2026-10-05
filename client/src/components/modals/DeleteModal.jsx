@@ -10,7 +10,7 @@ export default function DeleteModal({ file, isOpen, onClose, onDeleted }) {
   const [deleting, setDeleting] = useState(false);
   const { updateStorage } = useAuth();
   const { success, error: toastError } = useToast();
-  const { isDark } = useTheme();
+  const { isDark, isXP } = useTheme();
 
   if (!isOpen || !file) return null;
 
@@ -30,6 +30,64 @@ export default function DeleteModal({ file, isOpen, onClose, onDeleted }) {
       setDeleting(false);
     }
   };
+
+  if (isXP) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
+        <div 
+          role="dialog"
+          aria-modal="true"
+          className="xp-window-dialog w-full max-w-sm select-none animate-scale-in"
+        >
+          <div className="xp-titlebar">
+            <div className="xp-titlebar-text">
+              <span>Confirm File Delete</span>
+            </div>
+            <div className="xp-window-controls">
+              <button
+                type="button"
+                onClick={onClose}
+                className="xp-btn-control xp-btn-close"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+
+          <div className="p-4 bg-[#ece9d8] text-[11px] text-slate-900 flex items-start gap-3">
+            <div className="text-2xl mt-0.5">⚠️</div>
+            <div className="space-y-2">
+              <p>
+                Are you sure you want to permanently delete <strong>"{file.originalName}"</strong> ({formatBytes(file.size)})?
+              </p>
+              <p className="text-[10px] text-slate-600">
+                This will remove the file from cloud storage and reclaim your academic quota immediately.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2 p-3 bg-[#ece9d8] border-t border-slate-300">
+            <button
+              type="button"
+              onClick={handleDelete}
+              disabled={deleting}
+              className="xp-btn xp-btn-primary min-w-[70px]"
+            >
+              {deleting ? 'Deleting...' : 'Yes'}
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={deleting}
+              className="xp-btn min-w-[70px]"
+            >
+              No
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-fade-in">

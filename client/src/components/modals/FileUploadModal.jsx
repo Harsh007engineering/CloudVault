@@ -9,7 +9,7 @@ import { useTheme } from '../../context/useTheme';
 export default function FileUploadModal({ isOpen, onClose, onUploadSuccess }) {
   const { user, updateStorage } = useAuth();
   const { success, error: toastError } = useToast();
-  const { isDark } = useTheme();
+  const { isDark, isXP } = useTheme();
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -107,6 +107,135 @@ export default function FileUploadModal({ isOpen, onClose, onUploadSuccess }) {
   };
 
   const totalSelectedSize = selectedFiles.reduce((sum, f) => sum + f.size, 0);
+
+  if (isXP) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
+        <div 
+          role="dialog"
+          aria-modal="true"
+          className="xp-window-dialog w-full max-w-md select-none animate-scale-in"
+        >
+          <div className="xp-titlebar">
+            <div className="xp-titlebar-text">
+              <span>{uploading ? 'Copying Files...' : 'Upload Coursework'}</span>
+            </div>
+            <div className="xp-window-controls">
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={uploading}
+                className="xp-btn-control xp-btn-close"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+
+          <div className="p-4 bg-[#ece9d8] text-[11px] text-slate-900 space-y-3">
+            {/* Transfer Animation / Description */}
+            <div className="flex items-center gap-3 p-2 bg-white border border-[#7f9db9]">
+              <div className="text-2xl animate-pulse">📁 ➔ ☁️</div>
+              <div className="text-[10px] space-y-0.5">
+                <div><strong>To:</strong> CloudVault (C:\StudentCoursework)</div>
+                <div><strong>From:</strong> Local Lab Workstation</div>
+                <div><strong>Remaining Quota:</strong> {formatBytes(remainingQuota)}</div>
+              </div>
+            </div>
+
+            {/* Select / Browse */}
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-slate-800">Files to upload:</span>
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="xp-btn"
+              >
+                Browse...
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                className="hidden"
+                onChange={(e) => {
+                  if (e.target.files) handleFiles(e.target.files);
+                }}
+              />
+            </div>
+
+            {/* Selected Files List in Sunken White Box */}
+            <div className="bg-white border border-[#7f9db9] h-32 overflow-y-auto p-1.5 space-y-1">
+              {selectedFiles.length === 0 ? (
+                <div className="text-center text-slate-400 py-8">
+                  No files selected. Click "Browse..." or drag files here.
+                </div>
+              ) : (
+                selectedFiles.map((file, idx) => (
+                  <div key={idx} className="flex items-center justify-between px-1.5 py-0.5 hover:bg-[#e8f0fe] rounded text-[11px]">
+                    <span className="truncate pr-2 font-medium">📄 {file.name}</span>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="font-mono text-[10px] text-slate-500">{formatBytes(file.size)}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeSelectedFile(idx)}
+                        disabled={uploading}
+                        className="text-red-600 hover:font-bold text-xs"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Upload Progress Bar (XP Green Blocks) */}
+            {uploading && (
+              <div className="space-y-1 pt-1">
+                <div className="flex justify-between text-[10px] font-bold text-slate-700">
+                  <span>Uploading to academic vault...</span>
+                  <span>{progress}%</span>
+                </div>
+                <div className="xp-progress-track">
+                  <div 
+                    className="xp-progress-fill"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Action buttons */}
+          <div className="flex items-center justify-between p-3 bg-[#ece9d8] border-t border-slate-300">
+            <span className="text-[10px] text-slate-600">
+              {selectedFiles.length} file(s) ({formatBytes(totalSelectedSize)})
+            </span>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleUploadSubmit}
+                disabled={selectedFiles.length === 0 || uploading}
+                className="xp-btn xp-btn-primary min-w-[75px]"
+              >
+                {uploading ? 'Copying...' : 'Upload'}
+              </button>
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={uploading}
+                className="xp-btn min-w-[75px]"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-fade-in" role="dialog" aria-modal="true" aria-labelledby="upload-modal-title">

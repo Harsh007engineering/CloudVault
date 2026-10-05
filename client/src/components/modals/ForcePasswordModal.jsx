@@ -11,9 +11,78 @@ export default function ForcePasswordModal({ isOpen }) {
   const [saving, setSaving] = useState(false);
   const { refreshUser } = useAuth();
   const { success, error: toastError } = useToast();
-  const { isDark } = useTheme();
+  const { isDark, isXP } = useTheme();
 
   if (!isOpen) return null;
+
+  if (isXP) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in font-sans select-none">
+        <div className="xp-window-dialog w-full max-w-sm animate-scale-in">
+          {/* XP Titlebar */}
+          <div className="xp-titlebar">
+            <div className="xp-titlebar-text">
+              <span className="text-sm">🔑</span>
+              <span>Change Password</span>
+            </div>
+          </div>
+
+          {/* XP Dialog Header */}
+          <div className="p-3 bg-gradient-to-r from-[#003c74] via-[#124b8f] to-[#003c74] text-white flex items-center justify-between border-b border-[#0a2f85]">
+            <div>
+              <div className="text-sm font-bold">Password Expired</div>
+              <div className="text-[10px] text-blue-200">Security requirement</div>
+            </div>
+            <span className="text-2xl">🔐</span>
+          </div>
+
+          <form onSubmit={handleSubmit} className="p-4 bg-[#ece9d8] text-[11px] text-slate-900 space-y-3">
+            <p className="leading-normal">
+              You have logged on with a temporary password. You must enter a new permanent password to access your vault files.
+            </p>
+
+            <div className="space-y-2">
+              <div>
+                <label className="block font-bold mb-1"><u>N</u>ew Password:</label>
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  required
+                  minLength={8}
+                  placeholder="Minimum 8 characters"
+                  className="xp-input w-full text-xs"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold mb-1"><u>C</u>onfirm New Password:</label>
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  required
+                  minLength={8}
+                  placeholder="Re-enter password"
+                  className="xp-input w-full text-xs"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#d4d0c8]">
+              <button
+                type="submit"
+                disabled={saving}
+                className="xp-button px-4 py-1.5 font-bold text-xs"
+              >
+                {saving ? 'Updating...' : 'OK'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();

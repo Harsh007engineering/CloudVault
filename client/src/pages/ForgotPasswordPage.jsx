@@ -16,7 +16,7 @@ export default function ForgotPasswordPage() {
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const { success } = useToast();
-  const { isDark } = useTheme();
+  const { isDark, isXP } = useTheme();
   const navigate = useNavigate();
 
   // Step 1: Submit Username
@@ -91,6 +91,206 @@ export default function ForgotPasswordPage() {
       setSubmitting(false);
     }
   };
+
+  // Windows XP Professional Password Reset Wizard
+  if (isXP) {
+    return (
+      <div className="min-h-screen bg-[#004e98] flex flex-col justify-center items-center p-4 relative font-sans select-none">
+        {/* Top right theme toggle */}
+        <div className="absolute top-4 right-4 z-20">
+          <ThemeToggle />
+        </div>
+
+        <div className="xp-window-dialog w-full max-w-xl animate-scale-in">
+          {/* XP Titlebar */}
+          <div className="xp-titlebar">
+            <div className="xp-titlebar-text">
+              <span>🔑 CloudVault Password Reset Wizard</span>
+            </div>
+            <div className="xp-window-controls">
+              <button
+                type="button"
+                onClick={() => navigate('/login')}
+                className="xp-btn-control xp-btn-close"
+                title="Cancel"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row min-h-[340px] bg-[#ece9d8]">
+            {/* Left Wizard Banner */}
+            <div className="sm:w-44 bg-gradient-to-b from-[#003c74] via-[#165096] to-[#002850] p-4 text-white flex flex-col justify-between border-r border-[#0a2f85]">
+              <div>
+                <div className="text-3xl mb-3">🔑</div>
+                <div className="text-sm font-bold leading-tight">Password Reset Wizard</div>
+                <div className="text-[10px] text-blue-200 mt-2">
+                  Restore access using single-use cryptographic recovery keys.
+                </div>
+              </div>
+
+              <div className="text-[9px] text-blue-300 border-t border-blue-800 pt-2">
+                Step {step} of 4
+              </div>
+            </div>
+
+            {/* Right Wizard Content */}
+            <div className="flex-1 p-5 text-[11px] text-slate-900 space-y-3">
+              {errorMsg && (
+                <div className="p-2 bg-red-100 border border-red-500 text-red-900 text-[11px] flex items-center gap-1.5">
+                  <span>❌</span>
+                  <span>{errorMsg}</span>
+                </div>
+              )}
+
+              {/* Step 1: Username */}
+              {step === 1 && (
+                <form onSubmit={handleUsernameSubmit} className="space-y-3">
+                  <div className="font-bold text-sm text-blue-950">Enter Account Username</div>
+                  <p className="text-[10px] text-slate-600">
+                    Type the student username you chose when creating your vault:
+                  </p>
+                  <div>
+                    <label className="block font-bold text-slate-800 mb-1">Username:</label>
+                    <input
+                      type="text"
+                      required
+                      autoFocus
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder="e.g. harsh_student"
+                      className="xp-input w-full text-xs"
+                    />
+                  </div>
+                  <div className="pt-4 flex justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => navigate('/login')}
+                      className="xp-btn"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={submitting || !username.trim()}
+                      className="xp-btn xp-btn-primary min-w-[75px]"
+                    >
+                      {submitting ? 'Checking...' : 'Next >'}
+                    </button>
+                  </div>
+                </form>
+              )}
+
+              {/* Step 2: Recovery Code */}
+              {step === 2 && (
+                <form onSubmit={handleCodeSubmit} className="space-y-3">
+                  <div className="font-bold text-sm text-blue-950">Enter Cryptographic Recovery Code</div>
+                  <p className="text-[10px] text-slate-600">
+                    Enter any unused recovery code from your issued list for <strong>{username}</strong>:
+                  </p>
+                  <div>
+                    <label className="block font-bold text-slate-800 mb-1">Recovery Code (8 chars):</label>
+                    <input
+                      type="text"
+                      required
+                      autoFocus
+                      value={recoveryCode}
+                      onChange={(e) => setRecoveryCode(e.target.value.toUpperCase())}
+                      placeholder="e.g. 8K4P-X92M"
+                      className="xp-input w-full font-mono text-xs uppercase"
+                    />
+                  </div>
+                  <div className="pt-4 flex justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setStep(1)}
+                      className="xp-btn"
+                    >
+                      &lt; Back
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={submitting || !recoveryCode.trim()}
+                      className="xp-btn xp-btn-primary min-w-[75px]"
+                    >
+                      {submitting ? 'Verifying...' : 'Next >'}
+                    </button>
+                  </div>
+                </form>
+              )}
+
+              {/* Step 3: New Password */}
+              {step === 3 && (
+                <form onSubmit={handlePasswordReset} className="space-y-3">
+                  <div className="font-bold text-sm text-blue-950">Set New Vault Password</div>
+                  <div>
+                    <label className="block font-bold text-slate-800 mb-1">New Password (8+ chars):</label>
+                    <input
+                      type="password"
+                      required
+                      autoFocus
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="xp-input w-full text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-bold text-slate-800 mb-1">Confirm New Password:</label>
+                    <input
+                      type="password"
+                      required
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="xp-input w-full text-xs"
+                    />
+                  </div>
+                  <div className="pt-4 flex justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setStep(2)}
+                      className="xp-btn"
+                    >
+                      &lt; Back
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={submitting}
+                      className="xp-btn xp-btn-primary min-w-[85px]"
+                    >
+                      {submitting ? 'Resetting...' : 'Finish'}
+                    </button>
+                  </div>
+                </form>
+              )}
+
+              {/* Step 4: Finished */}
+              {step === 4 && (
+                <div className="space-y-3 text-center py-4">
+                  <div className="text-3xl">✅</div>
+                  <div className="font-bold text-sm text-emerald-800">Password Reset Completed</div>
+                  <p className="text-[10px] text-slate-600">
+                    Your password has been changed successfully and the used recovery code has been invalidated.
+                  </p>
+                  <div className="pt-4">
+                    <button
+                      type="button"
+                      onClick={() => navigate('/login')}
+                      className="xp-btn xp-btn-primary min-w-[120px]"
+                    >
+                      Log On Now
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`min-h-screen ${

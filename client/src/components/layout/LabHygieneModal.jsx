@@ -3,8 +3,79 @@ import { ShieldAlert, Trash2, LogOut, X, CheckCircle2 } from 'lucide-react';
 import { useTheme } from '../../context/useTheme';
 
 export default function LabHygieneModal({ isOpen, onClose, onConfirmLogout }) {
-  const { isDark } = useTheme();
+  const { isDark, isXP } = useTheme();
   if (!isOpen) return null;
+
+  if (isXP) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in font-sans select-none">
+        <div className="xp-window-dialog w-full max-w-sm animate-scale-in">
+          {/* XP Titlebar */}
+          <div className="xp-titlebar">
+            <div className="xp-titlebar-text">
+              <span className="text-sm">🔑</span>
+              <span>Log Off CloudVault</span>
+            </div>
+            <div className="xp-window-controls">
+              <button
+                type="button"
+                onClick={onClose}
+                className="xp-btn-control xp-btn-close"
+                title="Cancel"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+
+          {/* XP Dialog Header */}
+          <div className="p-3 bg-gradient-to-r from-[#003c74] via-[#124b8f] to-[#003c74] text-white flex items-center justify-between border-b border-[#0a2f85]">
+            <div>
+              <div className="text-sm font-bold">Log Off CloudVault</div>
+              <div className="text-[10px] text-blue-200">Public Laboratory Workstation Check</div>
+            </div>
+            <span className="text-2xl">⏻</span>
+          </div>
+
+          {/* XP Content */}
+          <div className="p-4 bg-[#ece9d8] text-[11px] text-slate-900 space-y-3">
+            <p className="leading-normal">
+              Your CloudVault session will be terminated immediately and authentication cookies cleared from this browser.
+            </p>
+
+            <div className="p-2.5 bg-[#ffffe1] border border-[#d4d0c8] space-y-1.5 text-[10px]">
+              <div className="font-bold text-slate-800 flex items-center gap-1">
+                <span>⚠️</span>
+                <span>Before leaving this shared PC:</span>
+              </div>
+              <div className="pl-3 space-y-1 text-slate-700">
+                <div>• Delete downloaded files from <b>Downloads</b></div>
+                <div>• Empty the Windows <b>Recycle Bin</b></div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#d4d0c8]">
+              <button
+                type="button"
+                onClick={onConfirmLogout}
+                className="xp-button px-4 py-1.5 font-bold text-xs text-red-900 hover:bg-red-50 flex items-center gap-1"
+              >
+                <span>⏻</span>
+                <span><u>L</u>og Off</span>
+              </button>
+              <button
+                type="button"
+                onClick={onClose}
+                className="xp-button px-4 py-1.5 text-xs"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-fade-in">

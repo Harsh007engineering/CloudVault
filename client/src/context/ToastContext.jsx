@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { CheckCircle2, AlertCircle, Info, X } from 'lucide-react';
+import { useTheme } from './useTheme';
 
 const ToastContext = createContext(null);
 
@@ -25,12 +26,41 @@ export function ToastProvider({ children }) {
   const error = useCallback((msg, duration) => addToast(msg, 'error', duration), [addToast]);
   const info = useCallback((msg, duration) => addToast(msg, 'info', duration), [addToast]);
 
+  const { isXP } = useTheme();
+
   return (
     <ToastContext.Provider value={{ addToast, removeToast, success, error, info }}>
       {children}
       {/* Toast Render Container */}
       <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none">
         {toasts.map((toast) => {
+          if (isXP) {
+            return (
+              <div
+                key={toast.id}
+                className="pointer-events-auto xp-balloon animate-slide-up"
+              >
+                <div className="xp-balloon-header">
+                  <span className="flex items-center gap-1.5 text-xs font-bold text-blue-900">
+                    <span>
+                      {toast.type === 'error' ? '❌' : toast.type === 'success' ? 'ℹ️' : 'ℹ️'}
+                    </span>
+                    CloudVault {toast.type === 'error' ? 'Alert' : toast.type === 'success' ? 'Completed' : 'Notification'}
+                  </span>
+                  <button
+                    onClick={() => removeToast(toast.id)}
+                    className="text-slate-800 hover:text-red-700 font-bold text-xs"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <div className="text-[11px] leading-relaxed text-slate-900 font-normal">
+                  {toast.message}
+                </div>
+              </div>
+            );
+          }
+
           let bg = 'bg-slate-900 text-white';
           let Icon = Info;
           let iconColor = 'text-sky-400';

@@ -14,7 +14,7 @@ export default function LoginPage() {
   const [errorMsg, setErrorMsg] = useState('');
   const { login } = useAuth();
   const { success } = useToast();
-  const { isDark } = useTheme();
+  const { isDark, isXP } = useTheme();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -32,6 +32,132 @@ export default function LoginPage() {
       setSubmitting(false);
     }
   };
+
+  // Windows XP Professional Logon Window
+  if (isXP) {
+    return (
+      <div className="min-h-screen bg-[#004e98] flex flex-col justify-center items-center p-4 relative font-sans select-none">
+        {/* Top right theme toggle */}
+        <div className="absolute top-4 right-4 z-20">
+          <ThemeToggle />
+        </div>
+
+        <div className="xp-window-dialog w-full max-w-md animate-scale-in">
+          {/* XP Titlebar */}
+          <div className="xp-titlebar">
+            <div className="xp-titlebar-text">
+              <span className="text-sm">🔑</span>
+              <span>Log On to CloudVault</span>
+            </div>
+            <div className="xp-window-controls">
+              <button
+                type="button"
+                onClick={() => navigate('/')}
+                className="xp-btn-control xp-btn-close"
+                title="Cancel"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+
+          {/* XP Dialog Header Banner */}
+          <div className="p-4 bg-gradient-to-r from-[#003c74] via-[#124b8f] to-[#003c74] text-white flex items-center justify-between border-b border-[#0a2f85]">
+            <div>
+              <div className="text-base font-bold tracking-tight">CloudVault Professional</div>
+              <div className="text-[10px] text-blue-200">Academic Cloud Storage for Laboratory Computers</div>
+            </div>
+            <div className="text-3xl">☁️</div>
+          </div>
+
+          {/* XP Dialog Form */}
+          <form onSubmit={handleSubmit} className="p-6 bg-[#ece9d8] text-[11px] text-slate-900 space-y-4">
+            {errorMsg && (
+              <div className="p-2.5 bg-red-100 border border-red-500 text-red-900 text-[11px] flex items-center gap-2">
+                <span>❌</span>
+                <span>{errorMsg}</span>
+              </div>
+            )}
+
+            <div className="space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                <label className="sm:w-28 font-bold text-slate-800">
+                  <u>U</u>ser name:
+                </label>
+                <input
+                  type="text"
+                  required
+                  autoFocus
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="e.g. hr_007"
+                  className="xp-input flex-1 text-xs"
+                />
+              </div>
+
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                <label className="sm:w-28 font-bold text-slate-800">
+                  <u>P</u>assword:
+                </label>
+                <input
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="xp-input flex-1 text-xs"
+                />
+              </div>
+
+              <div className="flex justify-end pt-1">
+                <Link
+                  to="/forgot-password"
+                  className="text-blue-800 hover:underline text-[10px]"
+                >
+                  Forgot your password?
+                </Link>
+              </div>
+            </div>
+
+            {/* Lab PC Safe Mode Notice */}
+            <div className="p-2.5 bg-white border border-[#7f9db9] text-[10px] text-slate-700 flex items-start gap-2">
+              <span className="text-sm">🛡️</span>
+              <div className="leading-snug">
+                <strong>Lab PC Safe Mode:</strong> Sessions are managed via secure HTTP-only cookies. No credentials will remain on this public workstation.
+              </div>
+            </div>
+
+            {/* XP Action Buttons */}
+            <div className="flex items-center justify-between pt-2 border-t border-slate-300">
+              <Link
+                to="/signup"
+                className="text-blue-800 hover:underline text-[11px] font-bold"
+              >
+                New Student Registration &gt;&gt;
+              </Link>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="xp-btn xp-btn-primary min-w-[75px]"
+                >
+                  {submitting ? 'Verifying...' : 'OK'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => navigate('/')}
+                  className="xp-btn min-w-[75px]"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`min-h-screen ${
