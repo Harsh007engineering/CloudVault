@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import api from '../services/api';
 
 const AuthContext = createContext(null);
@@ -31,7 +31,7 @@ export function AuthProvider({ children }) {
     refreshUser();
   }, [refreshUser]);
 
-  const login = async (username, password) => {
+  const login = useCallback(async (username, password) => {
     const res = await api.post('/auth/login', { username, password });
     if (res.success && res.data?.user) {
       setUser({
@@ -41,18 +41,18 @@ export function AuthProvider({ children }) {
       return res.data;
     }
     throw new Error(res.message || 'Login failed');
-  };
+  }, []);
 
-  const signup = async (username, password, confirmPassword) => {
+  const signup = useCallback(async (username, password, confirmPassword) => {
     const res = await api.post('/auth/signup', { username, password, confirmPassword });
     if (res.success && res.data?.user) {
       setUser(res.data.user);
       return res.data; // Includes plaintext recoveryCodes to display ONCE!
     }
     throw new Error(res.message || 'Signup failed');
-  };
+  }, []);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     try {
       await api.post('/auth/logout');
     } catch (err) {
@@ -60,33 +60,38 @@ export function AuthProvider({ children }) {
     } finally {
       setUser(null);
     }
-  };
+  }, []);
 
-  const updateStorage = (used, limit) => {
+  const updateStorage = useCallback((used, limit) => {
     setUser((prev) => {
       if (!prev) return null;
+      const nextUsed = used !== undefined ? used : prev.storageUsed;
+      const nextLimit = limit !== undefined ? limit : prev.storageLimit;
+      if (prev.storageUsed === nextUsed && prev.storageLimit === nextLimit) {
+        return prev;
+      }
       return {
         ...prev,
-        storageUsed: used !== undefined ? used : prev.storageUsed,
-        storageLimit: limit !== undefined ? limit : prev.storageLimit
+        storageUsed: nextUsed,
+        storageLimit: nextLimit
       };
     });
-  };
+  }, []);
+
+  const value = useMemo(() => ({
+    user,
+    loading,
+    login,
+    signup,
+    logout,
+    refreshUser,
+    updateStorage,
+    isAuthenticated: !!user,
+    isAdmin: user?.role === 'admin'
+  }), [user, loading, login, signup, logout, refreshUser, updateStorage]);
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        loading,
-        login,
-        signup,
-        logout,
-        refreshUser,
-        updateStorage,
-        isAuthenticated: !!user,
-        isAdmin: user?.role === 'admin'
-      }}
-    >
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
