@@ -282,6 +282,13 @@ export default function LandingPage() {
                     <span>📂</span>
                     <span>Explore Virtual Vault</span>
                   </a>
+                  <a
+                    href="#how-it-works-xp"
+                    className="flex items-center gap-1.5 p-1 hover:underline text-blue-900"
+                  >
+                    <span>📋</span>
+                    <span>How It Works (Workflow)</span>
+                  </a>
                 </div>
               </div>
 
@@ -603,6 +610,50 @@ export default function LandingPage() {
                       </tr>
                     </tbody>
                   </table>
+                </div>
+              </div>
+
+              {/* How It Works (3 Steps) - XP Wizard Style */}
+              <div id="how-it-works-xp">
+                <div className="text-xs font-bold text-slate-800 uppercase tracking-wider pb-1 mb-2 border-b border-slate-200">
+                  How It Works — Lab Computer Workflow
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div className="xp-sunken p-3 bg-[#f9f8f4] space-y-1.5 border border-[#7f9db9]">
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 bg-[#0055ea] text-white font-bold text-[10px] flex items-center justify-center border border-[#0a2f85]">
+                        1
+                      </div>
+                      <span className="font-bold text-xs text-slate-900">Enter Vault in 5s</span>
+                    </div>
+                    <p className="text-[11px] text-slate-600 leading-normal">
+                      Sit down at any lab workstation, navigate to CloudVault, and enter your username and password. No two-factor SMS or Gmail prompt on the public screen.
+                    </p>
+                  </div>
+
+                  <div className="xp-sunken p-3 bg-[#f9f8f4] space-y-1.5 border border-[#7f9db9]">
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 bg-[#0055ea] text-white font-bold text-[10px] flex items-center justify-center border border-[#0a2f85]">
+                        2
+                      </div>
+                      <span className="font-bold text-xs text-slate-900">Work with Coursework</span>
+                    </div>
+                    <p className="text-[11px] text-slate-600 leading-normal">
+                      Download the lab report template, view sample outputs in the browser, or drop newly completed project code right into your vault.
+                    </p>
+                  </div>
+
+                  <div className="xp-sunken p-3 bg-[#f9f8f4] space-y-1.5 border border-[#7f9db9]">
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 bg-[#0055ea] text-white font-bold text-[10px] flex items-center justify-center border border-[#0a2f85]">
+                        3
+                      </div>
+                      <span className="font-bold text-xs text-slate-900">Zero-Trace Signout</span>
+                    </div>
+                    <p className="text-[11px] text-slate-600 leading-normal">
+                      When class ends, click Log Off. Cookies are deleted from the public browser, the session is invalidated, and no personal files linger on disk.
+                    </p>
+                  </div>
                 </div>
               </div>
 

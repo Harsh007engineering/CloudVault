@@ -6,7 +6,8 @@ const tests = [
   'auth.test.js',
   'files_security.test.js',
   'admin.test.js',
-  'features_upgrade.test.js'
+  'features_upgrade.test.js',
+  'edge_cases.test.js'
 ];
 
 async function runTest(file) {

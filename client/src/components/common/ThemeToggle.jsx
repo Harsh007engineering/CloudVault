@@ -27,8 +27,10 @@ export default function ThemeToggle({ className = '', compact = false }) {
           theme === 'light'
             ? 'bg-white text-slate-900 shadow-sm font-bold'
             : isXP
-              ? 'text-slate-700 hover:bg-[#d6dff7]'
-              : 'text-slate-400 hover:text-white'
+              ? 'text-slate-800 hover:bg-[#d6dff7]'
+              : isDark
+                ? 'text-slate-400 hover:text-white'
+                : 'text-slate-600 hover:text-slate-900'
         }`}
         title="Switch to Light Theme"
       >
@@ -46,8 +48,10 @@ export default function ThemeToggle({ className = '', compact = false }) {
           theme === 'dark'
             ? 'bg-slate-950 text-white shadow-sm font-bold border border-slate-800'
             : isXP
-              ? 'text-slate-700 hover:bg-[#d6dff7]'
-              : 'text-slate-600 hover:text-slate-950'
+              ? 'text-slate-800 hover:bg-[#d6dff7]'
+              : isDark
+                ? 'text-slate-400 hover:text-white'
+                : 'text-slate-600 hover:text-slate-900'
         }`}
         title="Switch to Dark Theme"
       >
@@ -62,7 +66,9 @@ export default function ThemeToggle({ className = '', compact = false }) {
         className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 transition-all duration-200 focus:outline-none ${
           isXP
             ? 'bg-gradient-to-b from-[#225ad7] to-[#1242ab] text-white font-bold shadow-sm rounded-sm border border-[#0a2f85]'
-            : 'rounded-full text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400'
+            : isDark
+              ? 'rounded-full text-slate-400 hover:text-cyan-300'
+              : 'rounded-full text-slate-600 hover:text-blue-600'
         }`}
         title="Switch to Windows XP Professional Theme"
       >
