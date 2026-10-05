@@ -19,7 +19,7 @@ function RequireAuth({ children }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-[#090d16] text-slate-500 dark:text-slate-400 text-xs">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400 text-xs">
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-brand-500 animate-ping" />
           Verifying secure session...
@@ -41,7 +41,7 @@ function RequireAdmin({ children }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-[#090d16] text-slate-500 dark:text-slate-400 text-xs">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400 text-xs">
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-purple-500 animate-ping" />
           Checking admin permissions...
@@ -63,7 +63,7 @@ function PublicOnly({ children }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-[#090d16] text-slate-500 dark:text-slate-400 text-xs">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400 text-xs">
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-brand-500 animate-ping" />
           Loading...
