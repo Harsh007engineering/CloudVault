@@ -33,20 +33,20 @@ export default function StorageBreakdownWidget({ stats, user }) {
   const overallPercent = Math.min(100, Math.round((totalUsed / totalLimit) * 100));
 
   return (
-    <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm">
+    <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-sm transition-colors">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
-        <div className="flex items-center gap-2 text-xs font-semibold text-slate-800">
-          <HardDrive className="w-4 h-4 text-brand-600" />
+        <div className="flex items-center gap-2 text-xs font-semibold text-slate-800 dark:text-slate-200">
+          <HardDrive className="w-4 h-4 text-brand-600 dark:text-brand-400" />
           <span>Storage Breakdown</span>
         </div>
-        <div className="text-xs text-slate-500">
-          <span className="font-bold text-slate-900">{formatBytes(totalUsed)}</span> of{' '}
-          <span className="font-bold text-slate-900">{formatBytes(totalLimit)}</span> ({overallPercent}%)
+        <div className="text-xs text-slate-500 dark:text-slate-400">
+          <span className="font-bold text-slate-900 dark:text-white">{formatBytes(totalUsed)}</span> of{' '}
+          <span className="font-bold text-slate-900 dark:text-white">{formatBytes(totalLimit)}</span> ({overallPercent}%)
         </div>
       </div>
 
       {/* Segmented Color Bar */}
-      <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden flex border border-slate-200/70 p-0.5">
+      <div className="w-full h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex border border-slate-200/70 dark:border-slate-700/60 p-0.5">
         {categories.map((cat) => {
           const pct = getPercent(cat.bytes);
           if (pct <= 0) return null;
@@ -62,13 +62,13 @@ export default function StorageBreakdownWidget({ stats, user }) {
       </div>
 
       {/* Legend & Details */}
-      <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 pt-3 border-t border-slate-100 text-xs">
+      <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs">
         {categories.map((cat) => (
           <div key={cat.key} className="flex items-center gap-2">
             <span className={`w-2.5 h-2.5 rounded-full ${cat.dot} shrink-0`} />
             <div className="truncate">
-              <span className="text-[11px] text-slate-500 block truncate">{cat.label}</span>
-              <span className="font-bold text-slate-800 font-mono text-[11px] block">{formatBytes(cat.bytes)}</span>
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 block truncate">{cat.label}</span>
+              <span className="font-bold text-slate-800 dark:text-slate-200 font-mono text-[11px] block">{formatBytes(cat.bytes)}</span>
             </div>
           </div>
         ))}

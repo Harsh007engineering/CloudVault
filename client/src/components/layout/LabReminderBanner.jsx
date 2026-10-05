@@ -7,16 +7,16 @@ export default function LabReminderBanner() {
   if (dismissed) return null;
 
   return (
-    <div className="bg-amber-500/10 border-b border-amber-500/20 text-amber-900 px-4 py-2 text-xs sm:text-sm font-medium flex items-center justify-between transition-all">
+    <div className="bg-amber-500/10 dark:bg-amber-500/15 border-b border-amber-500/20 text-amber-900 dark:text-amber-200 px-4 py-2 text-xs sm:text-sm font-medium flex items-center justify-between transition-all">
       <div className="max-w-6xl mx-auto flex items-center justify-center gap-2 flex-1 text-center">
-        <Shield className="w-4 h-4 text-amber-600 shrink-0" />
+        <Shield className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
         <span>
-          <strong>Using a public university computer?</strong> Remember to log out when you're finished. No personal credentials are saved on this PC.
+          <strong>Shared Lab PC Notice:</strong> Remember to log out when finished. No personal credentials or tokens are saved on this computer.
         </span>
       </div>
       <button
         onClick={() => setDismissed(true)}
-        className="text-amber-700 hover:text-amber-950 p-1 rounded-md hover:bg-amber-500/20 transition-colors"
+        className="text-amber-700 dark:text-amber-300 hover:text-amber-950 dark:hover:text-white p-1 rounded-md hover:bg-amber-500/20 transition-colors"
         title="Dismiss reminder"
       >
         <X className="w-4 h-4" />

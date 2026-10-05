@@ -49,8 +49,8 @@ export function getFileTypeMeta(filename = '', mimeType = '') {
     return {
       type: 'PDF',
       category: 'document',
-      color: 'text-rose-600 bg-rose-50 border-rose-200',
-      badge: 'bg-rose-100 text-rose-700',
+      color: 'text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-900/60',
+      badge: 'bg-rose-100 dark:bg-rose-900/50 text-rose-700 dark:text-rose-300',
       icon: FileText
     };
   }
@@ -59,8 +59,8 @@ export function getFileTypeMeta(filename = '', mimeType = '') {
     return {
       type: 'DOCX',
       category: 'document',
-      color: 'text-blue-600 bg-blue-50 border-blue-200',
-      badge: 'bg-blue-100 text-blue-700',
+      color: 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 border-blue-200 dark:border-blue-900/60',
+      badge: 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300',
       icon: FileText
     };
   }
@@ -69,8 +69,8 @@ export function getFileTypeMeta(filename = '', mimeType = '') {
     return {
       type: 'SHEET',
       category: 'spreadsheet',
-      color: 'text-emerald-600 bg-emerald-50 border-emerald-200',
-      badge: 'bg-emerald-100 text-emerald-700',
+      color: 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-900/60',
+      badge: 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300',
       icon: FileSpreadsheet
     };
   }
@@ -79,8 +79,8 @@ export function getFileTypeMeta(filename = '', mimeType = '') {
     return {
       type: 'PPT',
       category: 'presentation',
-      color: 'text-amber-600 bg-amber-50 border-amber-200',
-      badge: 'bg-amber-100 text-amber-700',
+      color: 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-900/60',
+      badge: 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300',
       icon: Presentation
     };
   }
@@ -89,8 +89,8 @@ export function getFileTypeMeta(filename = '', mimeType = '') {
     return {
       type: 'IMG',
       category: 'image',
-      color: 'text-purple-600 bg-purple-50 border-purple-200',
-      badge: 'bg-purple-100 text-purple-700',
+      color: 'text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/40 border-purple-200 dark:border-purple-900/60',
+      badge: 'bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300',
       icon: ImageIcon
     };
   }
@@ -99,8 +99,8 @@ export function getFileTypeMeta(filename = '', mimeType = '') {
     return {
       type: 'ZIP',
       category: 'archive',
-      color: 'text-orange-600 bg-orange-50 border-orange-200',
-      badge: 'bg-orange-100 text-orange-700',
+      color: 'text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-950/40 border-orange-200 dark:border-orange-900/60',
+      badge: 'bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300',
       icon: FileArchive
     };
   }
@@ -109,8 +109,8 @@ export function getFileTypeMeta(filename = '', mimeType = '') {
     return {
       type: 'TXT',
       category: 'document',
-      color: 'text-slate-600 bg-slate-100 border-slate-200',
-      badge: 'bg-slate-200 text-slate-700',
+      color: 'text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700',
+      badge: 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200',
       icon: FileText
     };
   }
@@ -118,8 +118,8 @@ export function getFileTypeMeta(filename = '', mimeType = '') {
   return {
     type: ext ? ext.replace('.', '').toUpperCase() : 'FILE',
     category: 'other',
-    color: 'text-slate-600 bg-slate-100 border-slate-200',
-    badge: 'bg-slate-200 text-slate-700',
+    color: 'text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700',
+    badge: 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200',
     icon: FileGeneric
   };
 }

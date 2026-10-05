@@ -21,7 +21,7 @@ import {
   Command,
   X
 } from 'lucide-react';
-import api from '../services/api';
+import api, { getFileDownloadUrl } from '../services/api';
 import Navbar from '../components/layout/Navbar';
 import LabReminderBanner from '../components/layout/LabReminderBanner';
 import FileUploadModal from '../components/modals/FileUploadModal';
@@ -112,7 +112,7 @@ export default function DashboardPage() {
   }, []);
 
   const handleDownload = (file) => {
-    window.location.href = `/api/files/${file._id}/download`;
+    window.location.href = getFileDownloadUrl(file._id);
   };
 
   const handleToggleStar = async (file) => {
@@ -175,12 +175,12 @@ export default function DashboardPage() {
     selectedFileIds.forEach((id, idx) => {
       setTimeout(() => {
         const link = document.createElement('a');
-        link.href = `/api/files/${id}/download`;
+        link.href = getFileDownloadUrl(id);
         link.setAttribute('download', '');
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-      }, idx * 400); // Stagger downloads slightly to prevent browser blocking
+      }, idx * 400);
     });
     success(`Downloading ${selectedFileIds.length} files...`);
   };
@@ -192,7 +192,7 @@ export default function DashboardPage() {
 
     setIsBatchDeleting(true);
     try {
-      const res = await api.post('/api/files/batch-delete', { fileIds: selectedFileIds });
+      const res = await api.post('/files/batch-delete', { fileIds: selectedFileIds });
       if (res.success) {
         success(`Successfully deleted ${res.data.deletedCount} files.`);
         updateStorage(res.data.storageUsed, res.data.storageLimit);
@@ -209,9 +209,8 @@ export default function DashboardPage() {
   };
 
   // Handle files dropped via GlobalDropzone
-  const handleFilesDropped = (droppedFileList) => {
+  const handleFilesDropped = () => {
     setIsUploadOpen(true);
-    // You can pass the dropped files to FileUploadModal if desired, or let the modal handle
   };
 
   // Filter files by category tabs
@@ -225,7 +224,7 @@ export default function DashboardPage() {
   const allSelected = filteredFiles.length > 0 && selectedFileIds.length === filteredFiles.length;
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col antialiased">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#090d16] text-slate-900 dark:text-slate-100 flex flex-col antialiased transition-colors">
       {/* Global Window Drag & Drop Overlay */}
       <GlobalDropzone onFilesDropped={handleFilesDropped} />
 
@@ -279,17 +278,17 @@ export default function DashboardPage() {
       {/* Main Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header Action Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200 dark:border-slate-800">
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+              <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                 Academic Cloud Vault
               </h1>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-brand-100 text-brand-700 border border-brand-200/80">
-                Encrypted & Private
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-brand-100 dark:bg-brand-950/60 text-brand-700 dark:text-brand-300 border border-brand-200/80 dark:border-brand-800/80">
+                Encrypted &amp; Private
               </span>
             </div>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
               Store, preview, and organize your coursework securely across university computers
             </p>
           </div>
@@ -298,18 +297,18 @@ export default function DashboardPage() {
             <button
               onClick={fetchFiles}
               disabled={loading}
-              className="p-2.5 bg-white border border-slate-200 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors shadow-sm disabled:opacity-50"
+              className="p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-sm disabled:opacity-50"
               title="Refresh files"
             >
-              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-brand-600' : ''}`} />
+              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-brand-600 dark:text-brand-400' : ''}`} />
             </button>
 
             <button
               onClick={() => setIsUploadOpen(true)}
-              className="bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-700 hover:to-indigo-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-md shadow-brand-600/20 transition-all flex items-center gap-2"
+              className="bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-md shadow-brand-600/25 transition-all flex items-center gap-2 group"
             >
-              <UploadCloud className="w-4 h-4" />
-              Upload Coursework
+              <UploadCloud className="w-4 h-4 transition-transform group-hover:-translate-y-0.5" />
+              <span>Upload Coursework</span>
             </button>
           </div>
         </div>
@@ -339,8 +338,8 @@ export default function DashboardPage() {
                   onClick={() => setSelectedCategory(tab.id)}
                   className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 ${
                     selectedCategory === tab.id
-                      ? 'bg-slate-900 text-white shadow-sm'
-                      : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                      ? 'bg-slate-900 dark:bg-brand-600 text-white shadow-sm'
+                      : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
                   {TabIcon && (
@@ -365,10 +364,10 @@ export default function DashboardPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search files..."
-                className="w-full pl-9 pr-12 py-1.5 text-xs bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 shadow-sm transition-all"
+                className="w-full pl-9 pr-12 py-1.5 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 shadow-sm transition-all"
               />
               <div className="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
-                <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[9px] font-mono text-slate-400 bg-slate-100 border border-slate-200 rounded">
+                <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[9px] font-mono text-slate-400 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded">
                   /
                 </kbd>
               </div>
@@ -379,7 +378,7 @@ export default function DashboardPage() {
               <select
                 value={sortOption}
                 onChange={(e) => setSortOption(e.target.value)}
-                className="appearance-none bg-white border border-slate-200 rounded-xl px-3 py-1.5 pr-8 text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500/30 shadow-sm cursor-pointer"
+                className="appearance-none bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-1.5 pr-8 text-xs font-medium text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500/50 shadow-sm cursor-pointer"
               >
                 <option value="date_desc">Newest First</option>
                 <option value="date_asc">Oldest First</option>
@@ -394,11 +393,13 @@ export default function DashboardPage() {
             </div>
 
             {/* View Mode Toggle */}
-            <div className="hidden sm:flex items-center bg-white border border-slate-200 rounded-xl p-0.5 shadow-sm">
+            <div className="hidden sm:flex items-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-0.5 shadow-sm">
               <button
                 onClick={() => setViewMode('list')}
                 className={`p-1.5 rounded-lg transition-colors ${
-                  viewMode === 'list' ? 'bg-slate-100 text-brand-600' : 'text-slate-400 hover:text-slate-600'
+                  viewMode === 'list' 
+                    ? 'bg-slate-100 dark:bg-slate-800 text-brand-600 dark:text-brand-400' 
+                    : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'
                 }`}
                 title="List view"
               >
@@ -407,7 +408,9 @@ export default function DashboardPage() {
               <button
                 onClick={() => setViewMode('grid')}
                 className={`p-1.5 rounded-lg transition-colors ${
-                  viewMode === 'grid' ? 'bg-slate-100 text-brand-600' : 'text-slate-400 hover:text-slate-600'
+                  viewMode === 'grid' 
+                    ? 'bg-slate-100 dark:bg-slate-800 text-brand-600 dark:text-brand-400' 
+                    : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'
                 }`}
                 title="Grid view"
               >
@@ -421,38 +424,38 @@ export default function DashboardPage() {
         <div className="mt-6">
           {loading && files.length === 0 ? (
             /* Skeleton Loading State */
-            <div className="bg-white border border-slate-200/80 rounded-2xl shadow-sm p-4 divide-y divide-slate-100">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm p-4 divide-y divide-slate-100 dark:divide-slate-800">
               {[1, 2, 3, 4, 5].map((idx) => (
                 <div key={idx} className="py-3 flex items-center justify-between animate-pulse">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-xl bg-slate-200"></div>
+                    <div className="w-8 h-8 rounded-xl bg-slate-200 dark:bg-slate-800"></div>
                     <div className="space-y-1.5">
-                      <div className="h-3 w-48 bg-slate-200 rounded"></div>
-                      <div className="h-2 w-24 bg-slate-100 rounded"></div>
+                      <div className="h-3 w-48 bg-slate-200 dark:bg-slate-800 rounded"></div>
+                      <div className="h-2 w-24 bg-slate-100 dark:bg-slate-800/60 rounded"></div>
                     </div>
                   </div>
-                  <div className="h-3 w-16 bg-slate-100 rounded"></div>
+                  <div className="h-3 w-16 bg-slate-100 dark:bg-slate-800/60 rounded"></div>
                 </div>
               ))}
             </div>
           ) : filteredFiles.length === 0 ? (
             /* Premium Empty State */
-            <div className="bg-white border border-dashed border-slate-300 rounded-3xl p-14 text-center">
-              <div className="w-16 h-16 bg-slate-50 border border-slate-200/80 rounded-2xl flex items-center justify-center mx-auto text-slate-400 mb-4 shadow-sm">
+            <div className="bg-white dark:bg-slate-900/60 border border-dashed border-slate-300 dark:border-slate-800 rounded-3xl p-14 text-center">
+              <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 rounded-2xl flex items-center justify-center mx-auto text-slate-400 dark:text-slate-500 mb-4 shadow-sm">
                 {selectedCategory === 'starred' ? (
-                  <Star className="w-8 h-8 text-amber-400" />
+                  <Star className="w-8 h-8 text-amber-400 fill-amber-400" />
                 ) : (
                   <FolderPlus className="w-8 h-8 text-brand-500" />
                 )}
               </div>
-              <h3 className="text-base font-bold text-slate-800">
+              <h3 className="text-base font-bold text-slate-800 dark:text-slate-200">
                 {searchQuery
                   ? 'No matching files found'
                   : selectedCategory === 'starred'
                   ? 'No starred files yet'
                   : 'Your academic vault is empty'}
               </h3>
-              <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1 leading-relaxed">
+              <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto mt-1 leading-relaxed">
                 {searchQuery
                   ? `No files matched "${searchQuery}". Press Esc to clear search.`
                   : selectedCategory === 'starred'
@@ -462,7 +465,7 @@ export default function DashboardPage() {
               {!searchQuery && selectedCategory !== 'starred' && (
                 <button
                   onClick={() => setIsUploadOpen(true)}
-                  className="mt-5 inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-md transition-all"
+                  className="mt-5 inline-flex items-center gap-2 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-md transition-all"
                 >
                   <UploadCloud className="w-4 h-4" />
                   Upload First File
@@ -471,20 +474,20 @@ export default function DashboardPage() {
             </div>
           ) : viewMode === 'list' ? (
             /* Table / List View */
-            <div className="bg-white border border-slate-200/80 rounded-2xl shadow-sm overflow-hidden">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-slate-100 text-left text-xs">
-                  <thead className="bg-slate-50/80 text-slate-500 font-semibold uppercase tracking-wider">
+                <table className="min-w-full divide-y divide-slate-100 dark:divide-slate-800 text-left text-xs">
+                  <thead className="bg-slate-50/80 dark:bg-slate-950/60 text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider">
                     <tr>
                       <th className="py-3 px-4 w-10">
                         <button
                           type="button"
                           onClick={handleSelectAll}
-                          className="p-1 rounded text-slate-400 hover:text-slate-600"
+                          className="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                           title={allSelected ? 'Deselect all' : 'Select all'}
                         >
                           {allSelected ? (
-                            <CheckSquare className="w-4 h-4 text-brand-600" />
+                            <CheckSquare className="w-4 h-4 text-brand-600 dark:text-brand-400" />
                           ) : (
                             <Square className="w-4 h-4" />
                           )}
@@ -497,7 +500,7 @@ export default function DashboardPage() {
                       <th className="py-3 px-4 text-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100">
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                     {filteredFiles.map((file) => {
                       const meta = getFileTypeMeta(file.originalName, file.mimeType);
                       const Icon = meta.icon;
@@ -506,18 +509,18 @@ export default function DashboardPage() {
                       return (
                         <tr
                           key={file._id}
-                          className={`hover:bg-slate-50/80 transition-colors group ${
-                            isSelected ? 'bg-brand-50/40' : ''
+                          className={`hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors group ${
+                            isSelected ? 'bg-brand-50/40 dark:bg-brand-950/30' : ''
                           }`}
                         >
                           <td className="py-3 px-4">
                             <button
                               type="button"
                               onClick={() => handleSelectToggle(file._id)}
-                              className="p-1 rounded text-slate-400 hover:text-brand-600"
+                              className="p-1 rounded text-slate-400 hover:text-brand-600 dark:hover:text-brand-400"
                             >
                               {isSelected ? (
-                                <CheckSquare className="w-4 h-4 text-brand-600" />
+                                <CheckSquare className="w-4 h-4 text-brand-600 dark:text-brand-400" />
                               ) : (
                                 <Square className="w-4 h-4" />
                               )}
@@ -527,7 +530,7 @@ export default function DashboardPage() {
                             <div className="flex items-center gap-3">
                               <button
                                 onClick={() => handleToggleStar(file)}
-                                className="p-1 text-slate-300 hover:text-amber-400 transition-colors"
+                                className="p-1 text-slate-300 dark:text-slate-600 hover:text-amber-400 dark:hover:text-amber-400 transition-colors"
                                 title={file.isStarred ? 'Unstar file' : 'Star file'}
                               >
                                 <Star
@@ -541,7 +544,7 @@ export default function DashboardPage() {
                                 <Icon className="w-4 h-4" />
                               </div>
                               <span
-                                className="font-semibold text-slate-800 hover:text-brand-600 truncate max-w-xs sm:max-w-md cursor-pointer select-none"
+                                className="font-semibold text-slate-800 dark:text-slate-200 hover:text-brand-600 dark:hover:text-brand-400 truncate max-w-xs sm:max-w-md cursor-pointer select-none"
                                 onClick={() => setFileToPreview(file)}
                                 title={file.originalName}
                               >
@@ -554,38 +557,38 @@ export default function DashboardPage() {
                               {meta.type}
                             </span>
                           </td>
-                          <td className="py-3 px-4 font-mono text-slate-600">
+                          <td className="py-3 px-4 font-mono text-slate-600 dark:text-slate-400">
                             {formatBytes(file.size)}
                           </td>
-                          <td className="py-3 px-4 text-slate-500">
+                          <td className="py-3 px-4 text-slate-500 dark:text-slate-400">
                             {formatDate(file.createdAt)}
                           </td>
                           <td className="py-3 px-4 text-right">
                             <div className="flex items-center justify-end gap-1">
                               <button
                                 onClick={() => setFileToPreview(file)}
-                                className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+                                className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
                                 title="Quick Preview"
                               >
                                 <Eye className="w-4 h-4" />
                               </button>
                               <button
                                 onClick={() => handleDownload(file)}
-                                className="p-1.5 text-slate-400 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-colors"
+                                className="p-1.5 text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-950/40 rounded-lg transition-colors"
                                 title="Download"
                               >
                                 <Download className="w-4 h-4" />
                               </button>
                               <button
                                 onClick={() => setFileToRename(file)}
-                                className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+                                className="p-1.5 text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40 rounded-lg transition-colors"
                                 title="Rename"
                               >
                                 <Edit3 className="w-4 h-4" />
                               </button>
                               <button
                                 onClick={() => setFileToDelete(file)}
-                                className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                                className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors"
                                 title="Delete"
                               >
                                 <Trash2 className="w-4 h-4" />
@@ -610,8 +613,10 @@ export default function DashboardPage() {
                 return (
                   <div
                     key={file._id}
-                    className={`bg-white border rounded-2xl p-4 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group ${
-                      isSelected ? 'border-brand-500 ring-2 ring-brand-500/20' : 'border-slate-200/80'
+                    className={`bg-white dark:bg-slate-900 border rounded-2xl p-4 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group ${
+                      isSelected 
+                        ? 'border-brand-500 ring-2 ring-brand-500/20 dark:ring-brand-500/30' 
+                        : 'border-slate-200/80 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
                     }`}
                   >
                     <div>
@@ -620,10 +625,10 @@ export default function DashboardPage() {
                           <button
                             type="button"
                             onClick={() => handleSelectToggle(file._id)}
-                            className="p-1 rounded text-slate-400 hover:text-brand-600"
+                            className="p-1 rounded text-slate-400 hover:text-brand-600 dark:hover:text-brand-400"
                           >
                             {isSelected ? (
-                              <CheckSquare className="w-4 h-4 text-brand-600" />
+                              <CheckSquare className="w-4 h-4 text-brand-600 dark:text-brand-400" />
                             ) : (
                               <Square className="w-4 h-4" />
                             )}
@@ -636,7 +641,7 @@ export default function DashboardPage() {
                         <div className="flex items-center gap-1.5">
                           <button
                             onClick={() => handleToggleStar(file)}
-                            className="p-1 text-slate-300 hover:text-amber-400 transition-colors"
+                            className="p-1 text-slate-300 dark:text-slate-600 hover:text-amber-400 transition-colors"
                             title={file.isStarred ? 'Unstar file' : 'Star file'}
                           >
                             <Star
@@ -652,21 +657,21 @@ export default function DashboardPage() {
                       </div>
 
                       <h4
-                        className="text-xs font-bold text-slate-800 truncate hover:text-brand-600 cursor-pointer"
+                        className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate hover:text-brand-600 dark:hover:text-brand-400 cursor-pointer"
                         onClick={() => setFileToPreview(file)}
                         title={file.originalName}
                       >
                         {file.originalName}
                       </h4>
-                      <p className="text-[11px] text-slate-400 mt-1 font-mono">
+                      <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1 font-mono">
                         {formatBytes(file.size)} &bull; {formatDate(file.createdAt)}
                       </p>
                     </div>
 
-                    <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+                    <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
                       <button
                         onClick={() => setFileToPreview(file)}
-                        className="text-xs font-semibold text-brand-600 hover:text-brand-700 flex items-center gap-1"
+                        className="text-xs font-semibold text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 flex items-center gap-1"
                       >
                         <Eye className="w-3.5 h-3.5" />
                         Preview
@@ -675,21 +680,21 @@ export default function DashboardPage() {
                       <div className="flex items-center gap-1">
                         <button
                           onClick={() => handleDownload(file)}
-                          className="p-1 text-slate-400 hover:text-brand-600 rounded transition-colors"
+                          className="p-1 text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 rounded transition-colors"
                           title="Download"
                         >
                           <Download className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={() => setFileToRename(file)}
-                          className="p-1 text-slate-400 hover:text-amber-600 rounded transition-colors"
+                          className="p-1 text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 rounded transition-colors"
                           title="Rename"
                         >
                           <Edit3 className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={() => setFileToDelete(file)}
-                          className="p-1 text-slate-400 hover:text-rose-600 rounded transition-colors"
+                          className="p-1 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 rounded transition-colors"
                           title="Delete"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
