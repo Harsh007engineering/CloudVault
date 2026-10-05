@@ -18,12 +18,13 @@
         try {
           var saved = localStorage.getItem('cloudvault-theme');
           var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-          if (saved === 'dark' || (!saved && prefersDark)) {
+          var isDark = saved === 'dark' || (!saved && prefersDark);
+          if (isDark) {
             document.documentElement.classList.add('dark');
-            document.querySelector('meta[name="color-scheme"]').content = 'dark';
+            document.documentElement.style.colorScheme = 'dark';
           } else {
             document.documentElement.classList.remove('dark');
-            document.querySelector('meta[name="color-scheme"]').content = 'light';
+            document.documentElement.style.colorScheme = 'light';
           }
         } catch (e) {}
       })();

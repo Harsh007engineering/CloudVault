@@ -13,21 +13,32 @@ export function ThemeProvider({ children }) {
         ? 'dark' 
         : 'light';
     } catch {
-      return 'dark'; // Default to modern dark mode
+      return 'light'; // Default to clean light mode
     }
   });
 
   useEffect(() => {
     const root = document.documentElement;
+    const body = document.body;
     const metaColorScheme = document.querySelector('meta[name="color-scheme"]');
 
     if (theme === 'dark') {
       root.classList.add('dark');
-      document.body.classList.add('dark');
+      root.classList.remove('light');
+      body.classList.add('dark');
+      body.classList.remove('light');
+      root.style.colorScheme = 'dark';
+      body.style.backgroundColor = '#020617';
+      body.style.color = '#f8fafc';
       if (metaColorScheme) metaColorScheme.content = 'dark';
     } else {
       root.classList.remove('dark');
-      document.body.classList.remove('dark');
+      root.classList.add('light');
+      body.classList.remove('dark');
+      body.classList.add('light');
+      root.style.colorScheme = 'light';
+      body.style.backgroundColor = '#f8fafc';
+      body.style.color = '#0f172a';
       if (metaColorScheme) metaColorScheme.content = 'light';
     }
 
@@ -38,7 +49,7 @@ export function ThemeProvider({ children }) {
     }
   }, [theme]);
 
-  // Listen to OS system preference changes if user hasn't explicitly saved
+  // Listen to OS system preference changes only if user hasn't explicitly set a preference
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleChange = (e) => {
@@ -59,7 +70,7 @@ export function ThemeProvider({ children }) {
   const isDark = theme === 'dark';
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, isDark }}>
+    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme, isDark }}>
       {children}
     </ThemeContext.Provider>
   );
