@@ -45,11 +45,21 @@ export default function DashboardPage() {
 
   const [files, setFiles] = useState([]);
   const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [sortOption, setSortOption] = useState('date_desc');
   const [selectedCategory, setSelectedCategory] = useState('all'); // 'all', 'starred', 'document', 'image', 'spreadsheet', 'presentation', 'archive'
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'grid'
+
+  // Debounce search query to prevent rapid-fire requests
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   // Multi-select state
   const [selectedFileIds, setSelectedFileIds] = useState([]);
@@ -63,14 +73,23 @@ export default function DashboardPage() {
 
   const searchInputRef = useRef(null);
 
+  // Keep stable callback refs to isolate fetchFiles from context mutations
+  const updateStorageRef = useRef(updateStorage);
+  updateStorageRef.current = updateStorage;
+
+  const toastErrorRef = useRef(toastError);
+  toastErrorRef.current = toastError;
+
   // Fetch files and storage stats
-  const fetchFiles = useCallback(async () => {
-    setLoading(true);
+  const fetchFiles = useCallback(async (isManual = false) => {
+    if (isManual) {
+      setIsRefreshing(true);
+    }
     try {
       const [filesRes, statsRes] = await Promise.all([
         api.get('/files', {
           params: {
-            search: searchQuery || undefined,
+            search: debouncedSearch || undefined,
             sort: sortOption,
             starred: selectedCategory === 'starred' ? 'true' : undefined
           }
@@ -80,17 +99,18 @@ export default function DashboardPage() {
 
       if (filesRes.success) {
         setFiles(filesRes.data.files);
-        updateStorage(filesRes.data.storageUsed, filesRes.data.storageLimit);
+        updateStorageRef.current?.(filesRes.data.storageUsed, filesRes.data.storageLimit);
       }
       if (statsRes.success) {
         setStats(statsRes.data);
       }
     } catch (err) {
-      toastError(err.message || 'Failed to fetch vault files');
+      toastErrorRef.current?.(err.message || 'Failed to fetch vault files');
     } finally {
-      setLoading(false);
+      setInitialLoading(false);
+      setIsRefreshing(false);
     }
-  }, [searchQuery, sortOption, selectedCategory, updateStorage, toastError]);
+  }, [debouncedSearch, sortOption, selectedCategory]);
 
   useEffect(() => {
     fetchFiles();
@@ -311,8 +331,8 @@ export default function DashboardPage() {
 
           <div className="flex items-center gap-3">
             <button
-              onClick={fetchFiles}
-              disabled={loading}
+              onClick={() => fetchFiles(true)}
+              disabled={isRefreshing}
               className={`p-2.5 rounded-xl border transition-colors shadow-sm disabled:opacity-50 ${
                 isDark 
                   ? 'bg-slate-900 border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800' 
@@ -320,7 +340,7 @@ export default function DashboardPage() {
               }`}
               title="Refresh files"
             >
-              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-brand-600' : ''}`} />
+              <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-brand-600' : ''}`} />
             </button>
 
             <button
@@ -461,8 +481,8 @@ export default function DashboardPage() {
 
         {/* File Content Area */}
         <div className="mt-6">
-          {loading && files.length === 0 ? (
-            /* Skeleton Loading State */
+          {initialLoading ? (
+            /* Skeleton Loading State (Initial Mount Only) */
             <div className={`border rounded-3xl shadow-sm p-4 divide-y ${
               isDark ? 'bg-slate-900/70 border-slate-800 divide-slate-800' : 'bg-white/90 border-slate-200/90 divide-slate-100'
             }`}>

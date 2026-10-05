@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { 
   ShieldCheck, 
   Users, 
@@ -30,7 +30,17 @@ export default function AdminPage() {
   const [metrics, setMetrics] = useState(null);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+
+  // Debounce search query
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   // Modals state
   const [editingQuotaUser, setEditingQuotaUser] = useState(null);
@@ -38,22 +48,28 @@ export default function AdminPage() {
   const [tempPasswordModal, setTempPasswordModal] = useState(null);
   const [copiedPassword, setCopiedPassword] = useState(false);
 
-  const fetchAdminData = useCallback(async () => {
-    setLoading(true);
+  const toastErrorRef = useRef(toastError);
+  toastErrorRef.current = toastError;
+
+  const fetchAdminData = useCallback(async (isManual = false) => {
+    if (isManual) {
+      setIsRefreshing(true);
+    }
     try {
       const [metricsRes, usersRes] = await Promise.all([
         api.get('/admin/metrics'),
-        api.get('/admin/users', { params: { search: searchQuery || undefined } })
+        api.get('/admin/users', { params: { search: debouncedSearch || undefined } })
       ]);
 
       if (metricsRes.success) setMetrics(metricsRes.data);
       if (usersRes.success) setUsers(usersRes.data.users);
     } catch (err) {
-      toastError(err.message || 'Failed to fetch admin statistics');
+      toastErrorRef.current?.(err.message || 'Failed to fetch admin statistics');
     } finally {
       setLoading(false);
+      setIsRefreshing(false);
     }
-  }, [searchQuery, toastError]);
+  }, [debouncedSearch]);
 
   useEffect(() => {
     fetchAdminData();
@@ -281,14 +297,14 @@ export default function AdminPage() {
           </div>
 
           <button
-            onClick={fetchAdminData}
-            disabled={loading}
+            onClick={() => fetchAdminData(true)}
+            disabled={isRefreshing}
             className={`self-start sm:self-auto p-2.5 rounded-xl border transition-colors shadow-sm disabled:opacity-50 ${
               isDark ? 'bg-slate-900 border-slate-800 text-slate-300 hover:text-white' : 'bg-white border-slate-200 text-slate-700 hover:text-slate-900'
             }`}
             title="Refresh"
           >
-            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-purple-600' : ''}`} />
+            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-purple-600' : ''}`} />
           </button>
         </div>
 
