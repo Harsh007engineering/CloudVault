@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-const ThemeContext = createContext();
+export const ThemeContext = createContext();
 
 export function ThemeProvider({ children }) {
   const [theme, setTheme] = useState(() => {
@@ -13,7 +13,7 @@ export function ThemeProvider({ children }) {
         ? 'dark' 
         : 'light';
     } catch {
-      return 'light'; // Default to clean light mode
+      return 'light';
     }
   });
 
@@ -27,6 +27,8 @@ export function ThemeProvider({ children }) {
       root.classList.remove('light');
       body.classList.add('dark');
       body.classList.remove('light');
+      root.setAttribute('data-theme', 'dark');
+      body.setAttribute('data-theme', 'dark');
       root.style.colorScheme = 'dark';
       body.style.backgroundColor = '#020617';
       body.style.color = '#f8fafc';
@@ -36,6 +38,8 @@ export function ThemeProvider({ children }) {
       root.classList.add('light');
       body.classList.remove('dark');
       body.classList.add('light');
+      root.setAttribute('data-theme', 'light');
+      body.setAttribute('data-theme', 'light');
       root.style.colorScheme = 'light';
       body.style.backgroundColor = '#f8fafc';
       body.style.color = '#0f172a';
