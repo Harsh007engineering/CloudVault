@@ -32,13 +32,16 @@ import FilePreviewModal from '../components/modals/FilePreviewModal';
 import GlobalDropzone from '../components/files/GlobalDropzone';
 import BatchActionBar from '../components/files/BatchActionBar';
 import StorageBreakdownWidget from '../components/storage/StorageBreakdownWidget';
+import AmbientBackground from '../components/common/AmbientBackground';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { useTheme } from '../context/useTheme';
 import { formatBytes, formatDate, getFileTypeMeta } from '../utils/formatters';
 
 export default function DashboardPage() {
   const { user, updateStorage } = useAuth();
   const { success, error: toastError } = useToast();
+  const { isDark } = useTheme();
 
   const [files, setFiles] = useState([]);
   const [stats, setStats] = useState(null);
@@ -224,7 +227,12 @@ export default function DashboardPage() {
   const allSelected = filteredFiles.length > 0 && selectedFileIds.length === filteredFiles.length;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col antialiased transition-colors">
+    <div className={`min-h-screen ${
+      isDark ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'
+    } flex flex-col antialiased transition-colors relative selection:bg-brand-500 selection:text-white`}>
+      {/* Dynamic Ambient Background Canvas */}
+      <AmbientBackground isDark={isDark} />
+
       {/* Global Window Drag & Drop Overlay */}
       <GlobalDropzone onFilesDropped={handleFilesDropped} />
 
@@ -276,19 +284,27 @@ export default function DashboardPage() {
       />
 
       {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
         {/* Header Action Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200 dark:border-slate-800">
+        <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b ${
+          isDark ? 'border-slate-800' : 'border-slate-200/90'
+        }`}>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+              <h1 className={`text-2xl font-extrabold tracking-tight ${
+                isDark ? 'text-white' : 'text-slate-900'
+              }`}>
                 Academic Cloud Vault
               </h1>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-brand-100 dark:bg-brand-950/60 text-brand-700 dark:text-brand-300 border border-brand-200/80 dark:border-brand-800/80">
+              <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border backdrop-blur-sm ${
+                isDark 
+                  ? 'bg-brand-950/60 text-brand-300 border-brand-800/80' 
+                  : 'bg-brand-50 text-brand-700 border-brand-200 shadow-sm'
+              }`}>
                 Encrypted &amp; Private
               </span>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            <p className={`text-xs mt-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
               Store, preview, and organize your coursework securely across university computers
             </p>
           </div>
@@ -297,15 +313,19 @@ export default function DashboardPage() {
             <button
               onClick={fetchFiles}
               disabled={loading}
-              className="p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-sm disabled:opacity-50"
+              className={`p-2.5 rounded-xl border transition-colors shadow-sm disabled:opacity-50 ${
+                isDark 
+                  ? 'bg-slate-900 border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800' 
+                  : 'bg-white/90 border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-50'
+              }`}
               title="Refresh files"
             >
-              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-brand-600 dark:text-brand-400' : ''}`} />
+              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-brand-600' : ''}`} />
             </button>
 
             <button
               onClick={() => setIsUploadOpen(true)}
-              className="bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-md shadow-brand-600/25 transition-all flex items-center gap-2 group"
+              className="bg-gradient-to-r from-brand-600 via-indigo-600 to-brand-600 hover:from-brand-500 hover:to-indigo-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-lg shadow-brand-600/25 transition-all flex items-center gap-2 group active:translate-y-0.5"
             >
               <UploadCloud className="w-4 h-4 transition-transform group-hover:-translate-y-0.5" />
               <span>Upload Coursework</span>
@@ -332,18 +352,21 @@ export default function DashboardPage() {
               { id: 'archive', label: 'Archives' }
             ].map((tab) => {
               const TabIcon = tab.icon;
+              const isSelected = selectedCategory === tab.id;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setSelectedCategory(tab.id)}
                   className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 ${
-                    selectedCategory === tab.id
-                      ? 'bg-slate-900 dark:bg-brand-600 text-white shadow-sm'
-                      : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
+                    isSelected
+                      ? 'bg-brand-600 text-white shadow-md shadow-brand-600/25'
+                      : isDark
+                        ? 'bg-slate-900/80 border border-slate-800 text-slate-300 hover:bg-slate-800 hover:text-white'
+                        : 'bg-white/90 border border-slate-200/90 text-slate-700 hover:bg-white hover:text-slate-900 shadow-sm'
                   }`}
                 >
                   {TabIcon && (
-                    <TabIcon className={`w-3.5 h-3.5 ${selectedCategory === tab.id ? 'fill-amber-400 text-amber-400' : 'text-slate-400'}`} />
+                    <TabIcon className={`w-3.5 h-3.5 ${isSelected ? 'fill-amber-400 text-amber-400' : 'text-slate-400'}`} />
                   )}
                   <span>{tab.label}</span>
                 </button>
@@ -364,10 +387,16 @@ export default function DashboardPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search files..."
-                className="w-full pl-9 pr-12 py-1.5 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 shadow-sm transition-all"
+                className={`w-full pl-9 pr-12 py-1.5 text-xs rounded-xl transition-all focus:outline-none ${
+                  isDark 
+                    ? 'bg-slate-900/90 border border-slate-800 text-white placeholder-slate-500 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/50 shadow-sm' 
+                    : 'bg-white/95 border border-slate-300/90 text-slate-900 placeholder-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/15 shadow-sm'
+                }`}
               />
               <div className="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
-                <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[9px] font-mono text-slate-400 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded">
+                <kbd className={`hidden sm:inline-block px-1.5 py-0.5 text-[9px] font-mono border rounded ${
+                  isDark ? 'text-slate-400 bg-slate-800 border-slate-700' : 'text-slate-500 bg-slate-100 border-slate-200'
+                }`}>
                   /
                 </kbd>
               </div>
@@ -378,7 +407,11 @@ export default function DashboardPage() {
               <select
                 value={sortOption}
                 onChange={(e) => setSortOption(e.target.value)}
-                className="appearance-none bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-1.5 pr-8 text-xs font-medium text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500/50 shadow-sm cursor-pointer"
+                className={`appearance-none rounded-xl px-3 py-1.5 pr-8 text-xs font-medium focus:outline-none shadow-sm cursor-pointer border ${
+                  isDark 
+                    ? 'bg-slate-900/90 border-slate-800 text-slate-200 focus:ring-2 focus:ring-brand-500/50' 
+                    : 'bg-white/95 border-slate-300/90 text-slate-800 focus:ring-4 focus:ring-brand-500/15'
+                }`}
               >
                 <option value="date_desc">Newest First</option>
                 <option value="date_asc">Oldest First</option>
@@ -393,13 +426,17 @@ export default function DashboardPage() {
             </div>
 
             {/* View Mode Toggle */}
-            <div className="hidden sm:flex items-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-0.5 shadow-sm">
+            <div className={`hidden sm:flex items-center rounded-xl p-0.5 shadow-sm border ${
+              isDark ? 'bg-slate-900 border-slate-800' : 'bg-white/90 border-slate-200/90'
+            }`}>
               <button
                 onClick={() => setViewMode('list')}
                 className={`p-1.5 rounded-lg transition-colors ${
                   viewMode === 'list' 
-                    ? 'bg-slate-100 dark:bg-slate-800 text-brand-600 dark:text-brand-400' 
-                    : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'
+                    ? isDark 
+                      ? 'bg-slate-800 text-brand-400' 
+                      : 'bg-slate-100 text-brand-600 shadow-sm'
+                    : 'text-slate-400 hover:text-slate-600'
                 }`}
                 title="List view"
               >
@@ -409,8 +446,10 @@ export default function DashboardPage() {
                 onClick={() => setViewMode('grid')}
                 className={`p-1.5 rounded-lg transition-colors ${
                   viewMode === 'grid' 
-                    ? 'bg-slate-100 dark:bg-slate-800 text-brand-600 dark:text-brand-400' 
-                    : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'
+                    ? isDark 
+                      ? 'bg-slate-800 text-brand-400' 
+                      : 'bg-slate-100 text-brand-600 shadow-sm'
+                    : 'text-slate-400 hover:text-slate-600'
                 }`}
                 title="Grid view"
               >
@@ -424,38 +463,50 @@ export default function DashboardPage() {
         <div className="mt-6">
           {loading && files.length === 0 ? (
             /* Skeleton Loading State */
-            <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm p-4 divide-y divide-slate-100 dark:divide-slate-800">
+            <div className={`border rounded-3xl shadow-sm p-4 divide-y ${
+              isDark ? 'bg-slate-900/70 border-slate-800 divide-slate-800' : 'bg-white/90 border-slate-200/90 divide-slate-100'
+            }`}>
               {[1, 2, 3, 4, 5].map((idx) => (
                 <div key={idx} className="py-3 flex items-center justify-between animate-pulse">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-xl bg-slate-200 dark:bg-slate-800"></div>
+                    <div className={`w-8 h-8 rounded-xl ${isDark ? 'bg-slate-800' : 'bg-slate-200'}`}></div>
                     <div className="space-y-1.5">
-                      <div className="h-3 w-48 bg-slate-200 dark:bg-slate-800 rounded"></div>
-                      <div className="h-2 w-24 bg-slate-100 dark:bg-slate-800/60 rounded"></div>
+                      <div className={`h-3 w-48 rounded ${isDark ? 'bg-slate-800' : 'bg-slate-200'}`}></div>
+                      <div className={`h-2 w-24 rounded ${isDark ? 'bg-slate-800/60' : 'bg-slate-100'}`}></div>
                     </div>
                   </div>
-                  <div className="h-3 w-16 bg-slate-100 dark:bg-slate-800/60 rounded"></div>
+                  <div className={`h-3 w-16 rounded ${isDark ? 'bg-slate-800/60' : 'bg-slate-100'}`}></div>
                 </div>
               ))}
             </div>
           ) : filteredFiles.length === 0 ? (
             /* Premium Empty State */
-            <div className="bg-white dark:bg-slate-900/60 border border-dashed border-slate-300 dark:border-slate-800 rounded-3xl p-14 text-center">
-              <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 rounded-2xl flex items-center justify-center mx-auto text-slate-400 dark:text-slate-500 mb-4 shadow-sm">
+            <div className={`border-2 border-dashed rounded-3xl p-14 text-center backdrop-blur-xl transition-all ${
+              isDark 
+                ? 'bg-slate-900/60 border-slate-800' 
+                : 'bg-white/85 border-slate-300/80 shadow-xl shadow-slate-200/40'
+            }`}>
+              <div className={`w-16 h-16 border rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm ${
+                isDark 
+                  ? 'bg-slate-800 border-slate-700/80 text-slate-500' 
+                  : 'bg-slate-50 border-slate-200 text-slate-400'
+              }`}>
                 {selectedCategory === 'starred' ? (
                   <Star className="w-8 h-8 text-amber-400 fill-amber-400" />
                 ) : (
                   <FolderPlus className="w-8 h-8 text-brand-500" />
                 )}
               </div>
-              <h3 className="text-base font-bold text-slate-800 dark:text-slate-200">
+              <h3 className={`text-base font-bold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
                 {searchQuery
                   ? 'No matching files found'
                   : selectedCategory === 'starred'
                   ? 'No starred files yet'
                   : 'Your academic vault is empty'}
               </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto mt-1 leading-relaxed">
+              <p className={`text-xs max-w-sm mx-auto mt-1 leading-relaxed ${
+                isDark ? 'text-slate-400' : 'text-slate-600'
+              }`}>
                 {searchQuery
                   ? `No files matched "${searchQuery}". Press Esc to clear search.`
                   : selectedCategory === 'starred'
@@ -465,7 +516,7 @@ export default function DashboardPage() {
               {!searchQuery && selectedCategory !== 'starred' && (
                 <button
                   onClick={() => setIsUploadOpen(true)}
-                  className="mt-5 inline-flex items-center gap-2 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-md transition-all"
+                  className="mt-5 inline-flex items-center gap-2 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-md transition-all active:translate-y-0.5"
                 >
                   <UploadCloud className="w-4 h-4" />
                   Upload First File
@@ -474,20 +525,26 @@ export default function DashboardPage() {
             </div>
           ) : viewMode === 'list' ? (
             /* Table / List View */
-            <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
+            <div className={`border rounded-3xl overflow-hidden backdrop-blur-xl transition-all ${
+              isDark 
+                ? 'bg-slate-900/70 border-slate-800/80 shadow-2xl shadow-black/40 ring-1 ring-white/5' 
+                : 'bg-white/90 border-slate-200/90 shadow-xl shadow-slate-200/60 ring-1 ring-slate-900/5'
+            }`}>
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-slate-100 dark:divide-slate-800 text-left text-xs">
-                  <thead className="bg-slate-50/80 dark:bg-slate-950/60 text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider">
+                <table className="min-w-full divide-y text-left text-xs">
+                  <thead className={`font-semibold uppercase tracking-wider ${
+                    isDark ? 'bg-slate-950/60 text-slate-400 divide-slate-800' : 'bg-slate-50/90 text-slate-600 divide-slate-200'
+                  }`}>
                     <tr>
                       <th className="py-3 px-4 w-10">
                         <button
                           type="button"
                           onClick={handleSelectAll}
-                          className="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                          className="p-1 rounded text-slate-400 hover:text-slate-600"
                           title={allSelected ? 'Deselect all' : 'Select all'}
                         >
                           {allSelected ? (
-                            <CheckSquare className="w-4 h-4 text-brand-600 dark:text-brand-400" />
+                            <CheckSquare className="w-4 h-4 text-brand-600" />
                           ) : (
                             <Square className="w-4 h-4" />
                           )}
@@ -500,7 +557,7 @@ export default function DashboardPage() {
                       <th className="py-3 px-4 text-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                  <tbody className={`divide-y ${isDark ? 'divide-slate-800/80' : 'divide-slate-100'}`}>
                     {filteredFiles.map((file) => {
                       const meta = getFileTypeMeta(file.originalName, file.mimeType);
                       const Icon = meta.icon;
@@ -509,18 +566,20 @@ export default function DashboardPage() {
                       return (
                         <tr
                           key={file._id}
-                          className={`hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors group ${
-                            isSelected ? 'bg-brand-50/40 dark:bg-brand-950/30' : ''
+                          className={`transition-colors group ${
+                            isSelected 
+                              ? isDark ? 'bg-brand-950/30' : 'bg-brand-50/70' 
+                              : isDark ? 'hover:bg-slate-800/50' : 'hover:bg-slate-50/80'
                           }`}
                         >
                           <td className="py-3 px-4">
                             <button
                               type="button"
                               onClick={() => handleSelectToggle(file._id)}
-                              className="p-1 rounded text-slate-400 hover:text-brand-600 dark:hover:text-brand-400"
+                              className="p-1 rounded text-slate-400 hover:text-brand-600"
                             >
                               {isSelected ? (
-                                <CheckSquare className="w-4 h-4 text-brand-600 dark:text-brand-400" />
+                                <CheckSquare className="w-4 h-4 text-brand-600" />
                               ) : (
                                 <Square className="w-4 h-4" />
                               )}
@@ -530,7 +589,7 @@ export default function DashboardPage() {
                             <div className="flex items-center gap-3">
                               <button
                                 onClick={() => handleToggleStar(file)}
-                                className="p-1 text-slate-300 dark:text-slate-600 hover:text-amber-400 dark:hover:text-amber-400 transition-colors"
+                                className="p-1 text-slate-300 hover:text-amber-400 transition-colors"
                                 title={file.isStarred ? 'Unstar file' : 'Star file'}
                               >
                                 <Star
@@ -544,7 +603,9 @@ export default function DashboardPage() {
                                 <Icon className="w-4 h-4" />
                               </div>
                               <span
-                                className="font-semibold text-slate-800 dark:text-slate-200 hover:text-brand-600 dark:hover:text-brand-400 truncate max-w-xs sm:max-w-md cursor-pointer select-none"
+                                className={`font-semibold hover:text-brand-600 truncate max-w-xs sm:max-w-md cursor-pointer select-none ${
+                                  isDark ? 'text-slate-200' : 'text-slate-800'
+                                }`}
                                 onClick={() => setFileToPreview(file)}
                                 title={file.originalName}
                               >
@@ -557,38 +618,46 @@ export default function DashboardPage() {
                               {meta.type}
                             </span>
                           </td>
-                          <td className="py-3 px-4 font-mono text-slate-600 dark:text-slate-400">
+                          <td className={`py-3 px-4 font-mono ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                             {formatBytes(file.size)}
                           </td>
-                          <td className="py-3 px-4 text-slate-500 dark:text-slate-400">
+                          <td className={`py-3 px-4 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                             {formatDate(file.createdAt)}
                           </td>
                           <td className="py-3 px-4 text-right">
                             <div className="flex items-center justify-end gap-1">
                               <button
                                 onClick={() => setFileToPreview(file)}
-                                className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                                className={`p-1.5 rounded-lg transition-colors ${
+                                  isDark ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
+                                }`}
                                 title="Quick Preview"
                               >
                                 <Eye className="w-4 h-4" />
                               </button>
                               <button
                                 onClick={() => handleDownload(file)}
-                                className="p-1.5 text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-950/40 rounded-lg transition-colors"
+                                className={`p-1.5 rounded-lg transition-colors ${
+                                  isDark ? 'text-slate-400 hover:text-brand-400 hover:bg-brand-950/40' : 'text-slate-500 hover:text-brand-600 hover:bg-brand-50'
+                                }`}
                                 title="Download"
                               >
                                 <Download className="w-4 h-4" />
                               </button>
                               <button
                                 onClick={() => setFileToRename(file)}
-                                className="p-1.5 text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40 rounded-lg transition-colors"
+                                className={`p-1.5 rounded-lg transition-colors ${
+                                  isDark ? 'text-slate-400 hover:text-amber-400 hover:bg-amber-950/40' : 'text-slate-500 hover:text-amber-600 hover:bg-amber-50'
+                                }`}
                                 title="Rename"
                               >
                                 <Edit3 className="w-4 h-4" />
                               </button>
                               <button
                                 onClick={() => setFileToDelete(file)}
-                                className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors"
+                                className={`p-1.5 rounded-lg transition-colors ${
+                                  isDark ? 'text-slate-400 hover:text-rose-400 hover:bg-rose-950/40' : 'text-slate-500 hover:text-rose-600 hover:bg-rose-50'
+                                }`}
                                 title="Delete"
                               >
                                 <Trash2 className="w-4 h-4" />
@@ -613,10 +682,12 @@ export default function DashboardPage() {
                 return (
                   <div
                     key={file._id}
-                    className={`bg-white dark:bg-slate-900 border rounded-2xl p-4 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group ${
+                    className={`rounded-3xl p-4 backdrop-blur-xl transition-all flex flex-col justify-between group border ${
                       isSelected 
-                        ? 'border-brand-500 ring-2 ring-brand-500/20 dark:ring-brand-500/30' 
-                        : 'border-slate-200/80 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+                        ? 'border-brand-500 ring-2 ring-brand-500/20' 
+                        : isDark
+                          ? 'bg-slate-900/70 border-slate-800/80 shadow-md hover:shadow-xl hover:border-slate-700 ring-1 ring-white/5'
+                          : 'bg-white/90 border-slate-200/90 shadow-sm hover:shadow-xl hover:shadow-indigo-500/5 hover:-translate-y-0.5 ring-1 ring-slate-900/5'
                     }`}
                   >
                     <div>
@@ -625,10 +696,10 @@ export default function DashboardPage() {
                           <button
                             type="button"
                             onClick={() => handleSelectToggle(file._id)}
-                            className="p-1 rounded text-slate-400 hover:text-brand-600 dark:hover:text-brand-400"
+                            className="p-1 rounded text-slate-400 hover:text-brand-600"
                           >
                             {isSelected ? (
-                              <CheckSquare className="w-4 h-4 text-brand-600 dark:text-brand-400" />
+                              <CheckSquare className="w-4 h-4 text-brand-600" />
                             ) : (
                               <Square className="w-4 h-4" />
                             )}
@@ -641,7 +712,7 @@ export default function DashboardPage() {
                         <div className="flex items-center gap-1.5">
                           <button
                             onClick={() => handleToggleStar(file)}
-                            className="p-1 text-slate-300 dark:text-slate-600 hover:text-amber-400 transition-colors"
+                            className="p-1 text-slate-300 hover:text-amber-400 transition-colors"
                             title={file.isStarred ? 'Unstar file' : 'Star file'}
                           >
                             <Star
@@ -657,21 +728,25 @@ export default function DashboardPage() {
                       </div>
 
                       <h4
-                        className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate hover:text-brand-600 dark:hover:text-brand-400 cursor-pointer"
+                        className={`text-xs font-bold truncate hover:text-brand-600 cursor-pointer ${
+                          isDark ? 'text-slate-200' : 'text-slate-800'
+                        }`}
                         onClick={() => setFileToPreview(file)}
                         title={file.originalName}
                       >
                         {file.originalName}
                       </h4>
-                      <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1 font-mono">
+                      <p className={`text-[11px] mt-1 font-mono ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                         {formatBytes(file.size)} &bull; {formatDate(file.createdAt)}
                       </p>
                     </div>
 
-                    <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                    <div className={`mt-4 pt-3 border-t flex items-center justify-between ${
+                      isDark ? 'border-slate-800' : 'border-slate-100'
+                    }`}>
                       <button
                         onClick={() => setFileToPreview(file)}
-                        className="text-xs font-semibold text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 flex items-center gap-1"
+                        className="text-xs font-semibold text-brand-600 hover:text-brand-700 flex items-center gap-1"
                       >
                         <Eye className="w-3.5 h-3.5" />
                         Preview
@@ -680,21 +755,27 @@ export default function DashboardPage() {
                       <div className="flex items-center gap-1">
                         <button
                           onClick={() => handleDownload(file)}
-                          className="p-1 text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 rounded transition-colors"
+                          className={`p-1 rounded transition-colors ${
+                            isDark ? 'text-slate-400 hover:text-brand-400' : 'text-slate-500 hover:text-brand-600'
+                          }`}
                           title="Download"
                         >
                           <Download className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={() => setFileToRename(file)}
-                          className="p-1 text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 rounded transition-colors"
+                          className={`p-1 rounded transition-colors ${
+                            isDark ? 'text-slate-400 hover:text-amber-400' : 'text-slate-500 hover:text-amber-600'
+                          }`}
                           title="Rename"
                         >
                           <Edit3 className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={() => setFileToDelete(file)}
-                          className="p-1 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 rounded transition-colors"
+                          className={`p-1 rounded transition-colors ${
+                            isDark ? 'text-slate-400 hover:text-rose-400' : 'text-slate-500 hover:text-rose-600'
+                          }`}
                           title="Delete"
                         >
                           <Trash2 className="w-3.5 h-3.5" />

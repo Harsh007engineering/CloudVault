@@ -31,8 +31,9 @@ import {
 } from 'lucide-react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
+import { useTheme } from '../context/useTheme';
 import ThemeToggle from '../components/common/ThemeToggle';
+import AmbientBackground from '../components/common/AmbientBackground';
 
 // Mock files for interactive live vault demo
 const DEMO_FILES = [
@@ -138,29 +139,8 @@ export default function LandingPage() {
 
   return (
     <div className={`min-h-screen ${isDark ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'} flex flex-col transition-colors selection:bg-brand-500 selection:text-white relative`}>
-      {/* Multi-Color Ambient Gradient Canvas for Dynamic Glassmorphic Refraction while Scrolling */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        {/* Top cyan/sky orb */}
-        <div className={`absolute -top-32 -left-32 w-[550px] h-[550px] rounded-full blur-[130px] transform-gpu ${
-          isDark ? 'bg-cyan-600/10' : 'bg-cyan-300/25'
-        }`} />
-        {/* Top-right violet/purple orb */}
-        <div className={`absolute -top-20 -right-32 w-[600px] h-[600px] rounded-full blur-[140px] transform-gpu ${
-          isDark ? 'bg-violet-600/12' : 'bg-indigo-300/20'
-        }`} />
-        {/* Mid-page fuchsia/rose orb */}
-        <div className={`absolute top-[35%] -left-40 w-[500px] h-[500px] rounded-full blur-[120px] transform-gpu ${
-          isDark ? 'bg-rose-500/10' : 'bg-rose-200/25'
-        }`} />
-        {/* Mid-page emerald/teal orb */}
-        <div className={`absolute top-[55%] -right-40 w-[550px] h-[550px] rounded-full blur-[130px] transform-gpu ${
-          isDark ? 'bg-emerald-500/10' : 'bg-emerald-200/20'
-        }`} />
-        {/* Bottom indigo/blue orb */}
-        <div className={`absolute -bottom-40 left-1/3 w-[650px] h-[650px] rounded-full blur-[140px] transform-gpu ${
-          isDark ? 'bg-indigo-600/12' : 'bg-sky-200/25'
-        }`} />
-      </div>
+      {/* Ambient Lighting & Mesh Canvas */}
+      <AmbientBackground isDark={isDark} />
 
       {/* 1. Shared Lab Computer Safety Notice with Dismiss Cross Option */}
       {!bannerDismissed && (

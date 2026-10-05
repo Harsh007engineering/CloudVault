@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { formatBytes, formatDate, getFileTypeMeta } from '../../utils/formatters';
 import { useToast } from '../../context/ToastContext';
+import { useTheme } from '../../context/useTheme';
 import { getFileDownloadUrl } from '../../services/api';
 
 export default function FilePreviewModal({ 
@@ -29,6 +30,7 @@ export default function FilePreviewModal({
   onDeleteRequest 
 }) {
   const { success, error: toastError } = useToast();
+  const { isDark } = useTheme();
   const [textContent, setTextContent] = useState(null);
   const [textLoading, setTextLoading] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -77,11 +79,13 @@ export default function FilePreviewModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/70 backdrop-blur-md animate-fade-in">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full h-[85vh] border border-slate-200/80 flex flex-col md:flex-row overflow-hidden animate-scale-in">
+      <div className={`rounded-3xl shadow-2xl max-w-5xl w-full h-[85vh] border flex flex-col md:flex-row overflow-hidden animate-scale-in backdrop-blur-2xl ${
+        isDark ? 'bg-slate-900/90 border-slate-800' : 'bg-white border-slate-200 shadow-slate-300/50'
+      }`}>
         {/* Main Preview Container */}
         <div className="flex-1 bg-slate-900 flex flex-col min-h-0 relative">
           {/* Preview Header Controls */}
-          <div className="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between text-white text-xs">
+          <div className="p-3 bg-slate-950/80 border-b border-slate-800 flex items-center justify-between text-white text-xs">
             <div className="flex items-center gap-2 truncate pr-2">
               <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${meta.badge}`}>
                 {meta.type}
@@ -99,6 +103,9 @@ export default function FilePreviewModal({
                   >
                     <ZoomOut className="w-4 h-4" />
                   </button>
+                  <span className="text-[11px] font-mono text-slate-400 px-1">
+                    {Math.round(zoomLevel * 100)}%
+                  </span>
                   <button
                     onClick={() => setZoomLevel((z) => Math.min(3, z + 0.25))}
                     className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
@@ -112,67 +119,68 @@ export default function FilePreviewModal({
               {isText && textContent && (
                 <button
                   onClick={handleCopyText}
-                  className="flex items-center gap-1 px-2 py-1 rounded-lg text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 text-xs"
+                  className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700"
                 >
-                  {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span>{copied ? 'Copied' : 'Copy Text'}</span>
+                  {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span>{copied ? 'Copied' : 'Copy'}</span>
                 </button>
               )}
 
               <button
                 onClick={onClose}
-                className="md:hidden p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg"
+                className="md:hidden p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
           </div>
 
-          {/* Preview Render Body */}
-          <div className="flex-1 overflow-auto flex items-center justify-center p-4">
+          {/* Preview Viewport */}
+          <div className="flex-1 overflow-auto flex items-center justify-center p-4 relative select-none">
             {isImage ? (
-              <div className="overflow-auto max-h-full flex items-center justify-center">
+              <div className="max-w-full max-h-full flex items-center justify-center overflow-auto">
                 <img
                   src={fileUrl}
                   alt={file.originalName}
-                  className="rounded-lg shadow-lg object-contain transition-transform duration-200"
-                  style={{ transform: `scale(${zoomLevel})` }}
+                  style={{ transform: `scale(${zoomLevel})`, transformOrigin: 'center center' }}
+                  className="max-h-[70vh] object-contain rounded-lg transition-transform duration-150 shadow-2xl"
                 />
               </div>
             ) : isPdf ? (
               <iframe
-                src={fileUrl}
+                src={`${fileUrl}#toolbar=0`}
                 title={file.originalName}
-                className="w-full h-full rounded-lg border-0 bg-white"
+                className="w-full h-full rounded-lg bg-white border-0"
               />
             ) : isText ? (
               textLoading ? (
-                <div className="text-slate-400 text-xs flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
-                  <span>Loading file text...</span>
+                <div className="flex items-center gap-2 text-slate-400 text-xs">
+                  <div className="w-2 h-2 rounded-full bg-brand-500 animate-ping" />
+                  Loading text preview...
                 </div>
               ) : (
-                <pre className="w-full h-full p-4 bg-slate-950 text-slate-200 font-mono text-xs overflow-auto rounded-lg border border-slate-800 leading-relaxed select-text">
+                <pre className="w-full h-full p-4 overflow-auto font-mono text-xs text-slate-200 bg-slate-950/80 rounded-xl leading-relaxed whitespace-pre-wrap select-text">
                   {textContent}
                 </pre>
               )
             ) : (
-              <div className="text-center p-8 text-slate-400 max-w-sm">
-                <div className="w-16 h-16 rounded-2xl bg-slate-800/80 border border-slate-700 flex items-center justify-center mx-auto mb-4 text-slate-300">
+              /* Non-previewable fallback */
+              <div className="text-center p-8 max-w-sm">
+                <div className={`w-16 h-16 rounded-2xl mx-auto flex items-center justify-center mb-4 ${meta.color}`}>
                   <FileText className="w-8 h-8" />
                 </div>
                 <h4 className="text-sm font-bold text-white mb-1">
-                  Preview not supported in-browser
+                  Preview not directly available
                 </h4>
-                <p className="text-xs text-slate-400 mb-5 leading-relaxed">
-                  Download this {meta.type} file to open it in your desktop application.
+                <p className="text-xs text-slate-400 mb-6 leading-relaxed">
+                  This file type cannot be previewed inside the browser. Download it to view on your workstation.
                 </p>
                 <button
                   onClick={handleDownload}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-semibold shadow-md transition-all"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-semibold shadow-lg shadow-brand-500/20 transition-all active:translate-y-0.5"
                 >
                   <Download className="w-4 h-4" />
-                  Download File
+                  Download File ({formatBytes(file.size)})
                 </button>
               </div>
             )}
@@ -180,13 +188,19 @@ export default function FilePreviewModal({
         </div>
 
         {/* Right Inspector & Metadata Sidebar */}
-        <div className="w-full md:w-80 bg-white dark:bg-slate-900 border-t md:border-t-0 md:border-l border-slate-200 dark:border-slate-800 flex flex-col justify-between shrink-0 transition-colors">
+        <div className={`w-full md:w-80 border-t md:border-t-0 md:border-l flex flex-col justify-between shrink-0 transition-colors ${
+          isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+        }`}>
           <div className="p-5 overflow-y-auto">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white">File Inspector</h3>
+            <div className={`flex items-center justify-between pb-3 border-b ${
+              isDark ? 'border-slate-800' : 'border-slate-100'
+            }`}>
+              <h3 className={`text-sm font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>File Inspector</h3>
               <button
                 onClick={onClose}
-                className="hidden md:flex p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+                className={`hidden md:flex p-1 rounded-lg ${
+                  isDark ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'
+                }`}
               >
                 <X className="w-4 h-4" />
               </button>
@@ -195,31 +209,37 @@ export default function FilePreviewModal({
             {/* File info list */}
             <div className="mt-4 space-y-4 text-xs">
               <div>
-                <span className="text-slate-400 dark:text-slate-500 font-medium block mb-1">Filename</span>
-                <span className="font-semibold text-slate-800 dark:text-slate-200 break-all block">{file.originalName}</span>
+                <span className={`font-medium block mb-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Filename</span>
+                <span className={`font-semibold break-all block ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>{file.originalName}</span>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <div className="p-3 bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/60 rounded-xl">
-                  <span className="text-slate-400 dark:text-slate-500 font-medium block">Size</span>
-                  <span className="font-bold text-slate-800 dark:text-slate-200 font-mono mt-0.5 block">{formatBytes(file.size)}</span>
+                <div className={`p-3 rounded-xl border ${
+                  isDark ? 'bg-slate-800/60 border-slate-700/60' : 'bg-slate-50 border-slate-200/80 shadow-sm'
+                }`}>
+                  <span className={`font-medium block ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Size</span>
+                  <span className={`font-bold font-mono mt-0.5 block ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>{formatBytes(file.size)}</span>
                 </div>
-                <div className="p-3 bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/60 rounded-xl">
-                  <span className="text-slate-400 dark:text-slate-500 font-medium block">Type</span>
-                  <span className="font-bold text-slate-800 dark:text-slate-200 mt-0.5 block">{meta.type}</span>
+                <div className={`p-3 rounded-xl border ${
+                  isDark ? 'bg-slate-800/60 border-slate-700/60' : 'bg-slate-50 border-slate-200/80 shadow-sm'
+                }`}>
+                  <span className={`font-medium block ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Type</span>
+                  <span className={`font-bold mt-0.5 block ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>{meta.type}</span>
                 </div>
               </div>
 
               <div>
-                <span className="text-slate-400 dark:text-slate-500 font-medium block mb-1">MIME Type</span>
-                <span className="font-mono text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/60 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 block text-[11px]">
+                <span className={`font-medium block mb-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>MIME Type</span>
+                <span className={`font-mono px-2.5 py-1 rounded-lg border block text-[11px] ${
+                  isDark ? 'text-slate-300 bg-slate-800/60 border-slate-700' : 'text-slate-700 bg-slate-50 border-slate-200'
+                }`}>
                   {file.mimeType}
                 </span>
               </div>
 
               <div>
-                <span className="text-slate-400 dark:text-slate-500 font-medium block mb-1">Uploaded On</span>
-                <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
+                <span className={`font-medium block mb-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Uploaded On</span>
+                <div className={`flex items-center gap-1.5 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
                   <Calendar className="w-3.5 h-3.5 text-slate-400" />
                   <span>{formatDate(file.createdAt)}</span>
                 </div>
@@ -228,13 +248,19 @@ export default function FilePreviewModal({
           </div>
 
           {/* Action Toolbar */}
-          <div className="p-5 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/60 space-y-2">
+          <div className={`p-5 border-t space-y-2 ${
+            isDark ? 'border-slate-800 bg-slate-950/60' : 'border-slate-100 bg-slate-50/70'
+          }`}>
             <button
               onClick={() => onToggleStar(file)}
               className={`w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-semibold border transition-all ${
                 file.isStarred
-                  ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-900/60 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/60'
-                  : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700'
+                  ? isDark 
+                    ? 'bg-amber-950/40 border-amber-900/60 text-amber-300 hover:bg-amber-900/60'
+                    : 'bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100 shadow-sm'
+                  : isDark
+                    ? 'bg-slate-800 border-slate-700 text-slate-200 hover:bg-slate-700'
+                    : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100 shadow-sm'
               }`}
             >
               <Star className={`w-3.5 h-3.5 ${file.isStarred ? 'fill-amber-400 text-amber-500' : 'text-slate-400'}`} />
@@ -243,7 +269,7 @@ export default function FilePreviewModal({
 
             <button
               onClick={handleDownload}
-              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-semibold shadow-md shadow-brand-600/20 transition-all"
+              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-gradient-to-r from-brand-600 via-indigo-600 to-brand-600 hover:from-brand-500 hover:to-indigo-500 text-white rounded-xl text-xs font-semibold shadow-md transition-all active:translate-y-0.5"
             >
               <Download className="w-4 h-4" />
               Download File
@@ -255,7 +281,9 @@ export default function FilePreviewModal({
                   onClose();
                   onRenameRequest(file);
                 }}
-                className="flex items-center justify-center gap-1.5 py-2 px-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 transition-colors"
+                className={`flex items-center justify-center gap-1.5 py-2 px-3 border rounded-xl text-xs font-semibold transition-colors ${
+                  isDark ? 'bg-slate-800 border-slate-700 text-slate-200 hover:bg-slate-700' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100 shadow-sm'
+                }`}
               >
                 <Edit3 className="w-3.5 h-3.5" />
                 Rename
@@ -266,7 +294,9 @@ export default function FilePreviewModal({
                   onClose();
                   onDeleteRequest(file);
                 }}
-                className="flex items-center justify-center gap-1.5 py-2 px-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200/80 dark:border-rose-900/60 hover:bg-rose-100 dark:hover:bg-rose-900/60 rounded-xl text-xs font-semibold text-rose-700 dark:text-rose-300 transition-colors"
+                className={`flex items-center justify-center gap-1.5 py-2 px-3 border rounded-xl text-xs font-semibold transition-colors ${
+                  isDark ? 'bg-rose-950/40 border-rose-900/60 text-rose-300 hover:bg-rose-900/60' : 'bg-rose-50 border-rose-200 text-rose-700 hover:bg-rose-100 shadow-sm'
+                }`}
               >
                 <Trash2 className="w-3.5 h-3.5" />
                 Delete
