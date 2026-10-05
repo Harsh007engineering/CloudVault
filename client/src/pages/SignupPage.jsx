@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Cloud, Lock, User, ArrowRight, Check, AlertCircle, Shield, KeyRound } from 'lucide-react';
+import { Cloud, Lock, User, ArrowRight, Check, AlertCircle, Shield, KeyRound, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/useTheme';
 import RecoveryCodesModal from '../components/modals/RecoveryCodesModal';
 import ThemeToggle from '../components/common/ThemeToggle';
+import AmbientBackground from '../components/common/AmbientBackground';
 
 export default function SignupPage() {
   const [username, setUsername] = useState('');
@@ -13,6 +15,7 @@ export default function SignupPage() {
   const [errorMsg, setErrorMsg] = useState('');
   const [recoveryCodes, setRecoveryCodes] = useState(null);
   const { signup } = useAuth();
+  const { isDark } = useTheme();
   const navigate = useNavigate();
 
   // Password strength calculation
@@ -66,7 +69,12 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative transition-colors">
+    <div className={`min-h-screen ${
+      isDark ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'
+    } flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative transition-colors selection:bg-brand-500 selection:text-white`}>
+      {/* Ambient Lighting & Mesh Canvas */}
+      <AmbientBackground isDark={isDark} />
+
       {/* Recovery Codes Presentation Modal */}
       {recoveryCodes && (
         <RecoveryCodesModal
@@ -88,18 +96,44 @@ export default function SignupPage() {
             </div>
           </Link>
         </div>
-        <h2 className="mt-4 text-center text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+
+        <div className="mt-3 flex items-center justify-center gap-2">
+          <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold border backdrop-blur-sm ${
+            isDark 
+              ? 'bg-brand-950/60 text-brand-300 border-brand-800/60' 
+              : 'bg-brand-50 text-brand-700 border-brand-200 shadow-sm'
+          }`}>
+            Campus Edition
+          </span>
+          <span className={`text-[11px] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+            &bull; Safe for Shared Lab PCs
+          </span>
+        </div>
+
+        <h2 className={`mt-2 text-center text-2xl sm:text-3xl font-extrabold tracking-tight ${
+          isDark ? 'text-white' : 'text-slate-900'
+        }`}>
           Create Your CloudVault
         </h2>
-        <p className="mt-1.5 text-center text-xs text-slate-500 dark:text-slate-400">
+        <p className={`mt-1 text-center text-xs ${
+          isDark ? 'text-slate-400' : 'text-slate-600 font-medium'
+        }`}>
           500 MiB free academic storage &bull; No email, phone, or OAuth needed
         </p>
       </div>
 
       <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-md px-4 relative z-10">
-        <div className="bg-white dark:bg-slate-900 py-8 px-6 sm:px-10 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-black/40">
+        <div className={`py-8 px-6 sm:px-10 rounded-3xl border backdrop-blur-2xl transition-all ${
+          isDark 
+            ? 'bg-slate-900/70 border-slate-800/80 shadow-2xl shadow-black/50 ring-1 ring-white/5' 
+            : 'bg-white/90 border-slate-200/90 shadow-2xl shadow-indigo-500/5 ring-1 ring-slate-900/5'
+        }`}>
           {errorMsg && (
-            <div className="mb-5 p-3.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 rounded-xl flex items-center gap-2.5 text-xs text-rose-700 dark:text-rose-300">
+            <div className={`mb-5 p-3.5 rounded-2xl flex items-center gap-2.5 text-xs border ${
+              isDark 
+                ? 'bg-rose-950/40 border-rose-900/60 text-rose-300' 
+                : 'bg-rose-50 border-rose-200 text-rose-700'
+            }`}>
               <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
               <span>{errorMsg}</span>
             </div>
@@ -107,7 +141,9 @@ export default function SignupPage() {
 
           <form className="space-y-4" onSubmit={handleSubmit}>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+              <label className={`block text-xs font-semibold mb-1.5 ${
+                isDark ? 'text-slate-300' : 'text-slate-700'
+              }`}>
                 Choose Username
               </label>
               <div className="relative">
@@ -121,16 +157,24 @@ export default function SignupPage() {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="e.g. cs_student_2026"
-                  className="block w-full pl-10 pr-3.5 py-2.5 bg-white dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all"
+                  className={`block w-full pl-10 pr-3.5 py-2.5 rounded-xl text-sm transition-all focus:outline-none ${
+                    isDark 
+                      ? 'bg-slate-900/90 border border-slate-700 text-white placeholder-slate-500 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/50' 
+                      : 'bg-slate-50/90 hover:bg-white focus:bg-white border border-slate-300/90 text-slate-900 placeholder-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/15 shadow-sm'
+                  }`}
                 />
               </div>
-              <span className="text-[11px] text-slate-400 dark:text-slate-500 mt-1 block">
+              <span className={`text-[11px] mt-1 block ${
+                isDark ? 'text-slate-400' : 'text-slate-500'
+              }`}>
                 3–30 characters (letters, numbers, underscore, hyphen)
               </span>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+              <label className={`block text-xs font-semibold mb-1.5 ${
+                isDark ? 'text-slate-300' : 'text-slate-700'
+              }`}>
                 Set Password
               </label>
               <div className="relative">
@@ -143,27 +187,35 @@ export default function SignupPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="At least 8 characters"
-                  className="block w-full pl-10 pr-3.5 py-2.5 bg-white dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all"
+                  className={`block w-full pl-10 pr-3.5 py-2.5 rounded-xl text-sm transition-all focus:outline-none ${
+                    isDark 
+                      ? 'bg-slate-900/90 border border-slate-700 text-white placeholder-slate-500 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/50' 
+                      : 'bg-slate-50/90 hover:bg-white focus:bg-white border border-slate-300/90 text-slate-900 placeholder-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/15 shadow-sm'
+                  }`}
                 />
               </div>
               {password && (
                 <div className="mt-2 space-y-1">
-                  <div className="h-1.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                  <div className={`h-1.5 w-full rounded-full overflow-hidden ${
+                    isDark ? 'bg-slate-800' : 'bg-slate-200'
+                  }`}>
                     <div
                       className={`h-full rounded-full transition-all duration-300 ${strength.color}`}
                       style={{ width: strength.width }}
                     />
                   </div>
-                  <div className="flex justify-between text-[10px] text-slate-400">
-                    <span>Password Strength</span>
-                    <span className="font-semibold text-slate-600 dark:text-slate-300">{strength.label}</span>
+                  <div className="flex justify-between text-[10px]">
+                    <span className={isDark ? 'text-slate-400' : 'text-slate-500'}>Password Strength</span>
+                    <span className={`font-semibold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{strength.label}</span>
                   </div>
                 </div>
               )}
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+              <label className={`block text-xs font-semibold mb-1.5 ${
+                isDark ? 'text-slate-300' : 'text-slate-700'
+              }`}>
                 Confirm Password
               </label>
               <div className="relative">
@@ -176,14 +228,24 @@ export default function SignupPage() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Re-enter password to confirm"
-                  className="block w-full pl-10 pr-3.5 py-2.5 bg-white dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all"
+                  className={`block w-full pl-10 pr-3.5 py-2.5 rounded-xl text-sm transition-all focus:outline-none ${
+                    isDark 
+                      ? 'bg-slate-900/90 border border-slate-700 text-white placeholder-slate-500 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/50' 
+                      : 'bg-slate-50/90 hover:bg-white focus:bg-white border border-slate-300/90 text-slate-900 placeholder-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/15 shadow-sm'
+                  }`}
                 />
               </div>
             </div>
 
-            <div className="p-3 bg-brand-50/70 dark:bg-brand-950/40 border border-brand-200/80 dark:border-brand-800/60 rounded-xl flex items-start gap-2.5 text-xs text-brand-900 dark:text-brand-200">
-              <KeyRound className="w-4 h-4 text-brand-600 dark:text-brand-400 shrink-0 mt-0.5" />
-              <span>
+            <div className={`p-3.5 rounded-2xl flex items-start gap-2.5 text-xs border ${
+              isDark 
+                ? 'bg-brand-950/40 border-brand-800/60 text-brand-200' 
+                : 'bg-gradient-to-r from-brand-50 to-indigo-50 border-brand-200 text-brand-900 shadow-sm'
+            }`}>
+              <KeyRound className={`w-4 h-4 shrink-0 mt-0.5 ${
+                isDark ? 'text-brand-400' : 'text-brand-600'
+              }`} />
+              <span className="leading-relaxed">
                 You will receive <strong>5 cryptographic recovery codes</strong> upon registration. Save them safely!
               </span>
             </div>
@@ -191,19 +253,23 @@ export default function SignupPage() {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full mt-2 py-3 px-4 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-semibold shadow-md shadow-brand-600/25 hover:shadow-brand-500/35 text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed group"
+              className="w-full mt-2 py-3 px-4 rounded-xl bg-gradient-to-r from-brand-600 via-indigo-600 to-brand-600 hover:from-brand-500 hover:to-indigo-500 text-white font-semibold shadow-lg shadow-brand-600/25 hover:shadow-brand-500/35 text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed group active:translate-y-0.5"
             >
               <span>{submitting ? 'Generating Vault & Codes...' : 'Create Account & Get Codes'}</span>
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </button>
           </form>
 
-          <div className="mt-6 pt-5 border-t border-slate-200/80 dark:border-slate-800 text-center">
-            <p className="text-xs text-slate-600 dark:text-slate-400">
+          <div className={`mt-6 pt-5 border-t text-center ${
+            isDark ? 'border-slate-800' : 'border-slate-200/80'
+          }`}>
+            <p className={`text-xs ${
+              isDark ? 'text-slate-400' : 'text-slate-600'
+            }`}>
               Already have an account?{' '}
               <Link
                 to="/login"
-                className="font-semibold text-brand-600 dark:text-brand-400 hover:underline"
+                className="font-semibold text-brand-600 hover:text-brand-500 hover:underline"
               >
                 Sign In
               </Link>

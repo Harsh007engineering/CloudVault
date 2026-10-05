@@ -3,7 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Cloud, KeyRound, Lock, User, ArrowRight, CheckCircle2, AlertCircle, HelpCircle } from 'lucide-react';
 import api from '../services/api';
 import { useToast } from '../context/ToastContext';
+import { useTheme } from '../context/useTheme';
 import ThemeToggle from '../components/common/ThemeToggle';
+import AmbientBackground from '../components/common/AmbientBackground';
 
 export default function ForgotPasswordPage() {
   const [step, setStep] = useState(1); // 1: Username, 2: Recovery Code, 3: New Password, 4: Done
@@ -14,6 +16,7 @@ export default function ForgotPasswordPage() {
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const { success } = useToast();
+  const { isDark } = useTheme();
   const navigate = useNavigate();
 
   // Step 1: Submit Username
@@ -90,7 +93,12 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative transition-colors">
+    <div className={`min-h-screen ${
+      isDark ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'
+    } flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative transition-colors selection:bg-brand-500 selection:text-white`}>
+      {/* Ambient Lighting & Mesh Canvas */}
+      <AmbientBackground isDark={isDark} />
+
       {/* Top right theme toggle */}
       <div className="absolute top-4 right-4 z-20">
         <ThemeToggle />
@@ -104,18 +112,44 @@ export default function ForgotPasswordPage() {
             </div>
           </Link>
         </div>
-        <h2 className="mt-4 text-center text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+
+        <div className="mt-3 flex items-center justify-center gap-2">
+          <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold border backdrop-blur-sm ${
+            isDark 
+              ? 'bg-brand-950/60 text-brand-300 border-brand-800/60' 
+              : 'bg-brand-50 text-brand-700 border-brand-200 shadow-sm'
+          }`}>
+            Campus Edition
+          </span>
+          <span className={`text-[11px] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+            &bull; Emergency Recovery
+          </span>
+        </div>
+
+        <h2 className={`mt-2 text-center text-2xl sm:text-3xl font-extrabold tracking-tight ${
+          isDark ? 'text-white' : 'text-slate-900'
+        }`}>
           Reset Password
         </h2>
-        <p className="mt-1.5 text-center text-xs text-slate-500 dark:text-slate-400">
+        <p className={`mt-1 text-center text-xs ${
+          isDark ? 'text-slate-400' : 'text-slate-600 font-medium'
+        }`}>
           Restore account access using one of your 5 recovery codes
         </p>
       </div>
 
       <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-md px-4 relative z-10">
-        <div className="bg-white dark:bg-slate-900 py-8 px-6 sm:px-10 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-black/40">
+        <div className={`py-8 px-6 sm:px-10 rounded-3xl border backdrop-blur-2xl transition-all ${
+          isDark 
+            ? 'bg-slate-900/70 border-slate-800/80 shadow-2xl shadow-black/50 ring-1 ring-white/5' 
+            : 'bg-white/90 border-slate-200/90 shadow-2xl shadow-indigo-500/5 ring-1 ring-slate-900/5'
+        }`}>
           {errorMsg && (
-            <div className="mb-5 p-3.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 rounded-xl flex items-center gap-2.5 text-xs text-rose-700 dark:text-rose-300">
+            <div className={`mb-5 p-3.5 rounded-2xl flex items-center gap-2.5 text-xs border ${
+              isDark 
+                ? 'bg-rose-950/40 border-rose-900/60 text-rose-300' 
+                : 'bg-rose-50 border-rose-200 text-rose-700'
+            }`}>
               <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
               <span>{errorMsg}</span>
             </div>
@@ -123,16 +157,18 @@ export default function ForgotPasswordPage() {
 
           {/* Progress Indicator */}
           {step < 4 && (
-            <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-100 dark:border-slate-800 text-xs">
-              <span className={step >= 1 ? 'font-bold text-brand-600 dark:text-brand-400' : 'text-slate-400 dark:text-slate-600'}>
+            <div className={`flex items-center justify-between mb-6 pb-4 border-b text-xs ${
+              isDark ? 'border-slate-800' : 'border-slate-100'
+            }`}>
+              <span className={step >= 1 ? 'font-bold text-brand-600' : isDark ? 'text-slate-600' : 'text-slate-400'}>
                 1. Username
               </span>
-              <span className="text-slate-300 dark:text-slate-700">&rarr;</span>
-              <span className={step >= 2 ? 'font-bold text-brand-600 dark:text-brand-400' : 'text-slate-400 dark:text-slate-600'}>
+              <span className={isDark ? 'text-slate-700' : 'text-slate-300'}>&rarr;</span>
+              <span className={step >= 2 ? 'font-bold text-brand-600' : isDark ? 'text-slate-600' : 'text-slate-400'}>
                 2. Recovery Code
               </span>
-              <span className="text-slate-300 dark:text-slate-700">&rarr;</span>
-              <span className={step >= 3 ? 'font-bold text-brand-600 dark:text-brand-400' : 'text-slate-400 dark:text-slate-600'}>
+              <span className={isDark ? 'text-slate-700' : 'text-slate-300'}>&rarr;</span>
+              <span className={step >= 3 ? 'font-bold text-brand-600' : isDark ? 'text-slate-600' : 'text-slate-400'}>
                 3. New Password
               </span>
             </div>
@@ -142,7 +178,9 @@ export default function ForgotPasswordPage() {
           {step === 1 && (
             <form className="space-y-4" onSubmit={handleUsernameSubmit}>
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                <label className={`block text-xs font-semibold mb-1.5 ${
+                  isDark ? 'text-slate-300' : 'text-slate-700'
+                }`}>
                   Enter Your Username
                 </label>
                 <div className="relative">
@@ -156,7 +194,11 @@ export default function ForgotPasswordPage() {
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     placeholder="e.g. harsh_student"
-                    className="block w-full pl-10 pr-3.5 py-2.5 bg-white dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all"
+                    className={`block w-full pl-10 pr-3.5 py-2.5 rounded-xl text-sm transition-all focus:outline-none ${
+                      isDark 
+                        ? 'bg-slate-900/90 border border-slate-700 text-white placeholder-slate-500 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/50' 
+                        : 'bg-slate-50/90 hover:bg-white focus:bg-white border border-slate-300/90 text-slate-900 placeholder-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/15 shadow-sm'
+                    }`}
                   />
                 </div>
               </div>
@@ -164,7 +206,7 @@ export default function ForgotPasswordPage() {
               <button
                 type="submit"
                 disabled={submitting || !username.trim()}
-                className="w-full mt-2 py-3 px-4 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-semibold shadow-md shadow-brand-600/25 hover:shadow-brand-500/35 text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed group"
+                className="w-full mt-2 py-3 px-4 rounded-xl bg-gradient-to-r from-brand-600 via-indigo-600 to-brand-600 hover:from-brand-500 hover:to-indigo-500 text-white font-semibold shadow-lg shadow-brand-600/25 hover:shadow-brand-500/35 text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed group active:translate-y-0.5"
               >
                 <span>{submitting ? 'Checking...' : 'Continue'}</span>
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
@@ -177,13 +219,15 @@ export default function ForgotPasswordPage() {
             <form className="space-y-4" onSubmit={handleCodeSubmit}>
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                    Recovery Code for <span className="text-brand-600 dark:text-brand-400 font-bold">{username}</span>
+                  <label className={`block text-xs font-semibold ${
+                    isDark ? 'text-slate-300' : 'text-slate-700'
+                  }`}>
+                    Recovery Code for <span className="text-brand-600 font-bold">{username}</span>
                   </label>
                   <button
                     type="button"
                     onClick={() => setStep(1)}
-                    className="text-[11px] text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 underline"
+                    className="text-[11px] text-slate-400 hover:text-slate-600 underline"
                   >
                     Change user
                   </button>
@@ -199,10 +243,16 @@ export default function ForgotPasswordPage() {
                     value={recoveryCode}
                     onChange={(e) => setRecoveryCode(e.target.value.toUpperCase())}
                     placeholder="e.g. 8K4P-X92M"
-                    className="block w-full pl-10 pr-3.5 py-2.5 font-mono tracking-wider bg-white dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 uppercase transition-all"
+                    className={`block w-full pl-10 pr-3.5 py-2.5 font-mono tracking-wider rounded-xl text-sm transition-all focus:outline-none uppercase ${
+                      isDark 
+                        ? 'bg-slate-900/90 border border-slate-700 text-white placeholder-slate-500 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/50' 
+                        : 'bg-slate-50/90 hover:bg-white focus:bg-white border border-slate-300/90 text-slate-900 placeholder-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/15 shadow-sm'
+                    }`}
                   />
                 </div>
-                <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 block">
+                <span className={`text-[11px] mt-1 block ${
+                  isDark ? 'text-slate-400' : 'text-slate-500'
+                }`}>
                   Any unused code from your 5 recovery codes will work.
                 </span>
               </div>
@@ -210,7 +260,7 @@ export default function ForgotPasswordPage() {
               <button
                 type="submit"
                 disabled={submitting || !recoveryCode.trim()}
-                className="w-full mt-2 py-3 px-4 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-semibold shadow-md shadow-brand-600/25 hover:shadow-brand-500/35 text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed group"
+                className="w-full mt-2 py-3 px-4 rounded-xl bg-gradient-to-r from-brand-600 via-indigo-600 to-brand-600 hover:from-brand-500 hover:to-indigo-500 text-white font-semibold shadow-lg shadow-brand-600/25 hover:shadow-brand-500/35 text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed group active:translate-y-0.5"
               >
                 <span>{submitting ? 'Verifying Code...' : 'Verify Recovery Code'}</span>
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
@@ -222,7 +272,9 @@ export default function ForgotPasswordPage() {
           {step === 3 && (
             <form className="space-y-4" onSubmit={handlePasswordReset}>
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                <label className={`block text-xs font-semibold mb-1.5 ${
+                  isDark ? 'text-slate-300' : 'text-slate-700'
+                }`}>
                   New Password
                 </label>
                 <div className="relative">
@@ -236,13 +288,19 @@ export default function ForgotPasswordPage() {
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     placeholder="Minimum 8 characters"
-                    className="block w-full pl-10 pr-3.5 py-2.5 bg-white dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all"
+                    className={`block w-full pl-10 pr-3.5 py-2.5 rounded-xl text-sm transition-all focus:outline-none ${
+                      isDark 
+                        ? 'bg-slate-900/90 border border-slate-700 text-white placeholder-slate-500 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/50' 
+                        : 'bg-slate-50/90 hover:bg-white focus:bg-white border border-slate-300/90 text-slate-900 placeholder-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/15 shadow-sm'
+                    }`}
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                <label className={`block text-xs font-semibold mb-1.5 ${
+                  isDark ? 'text-slate-300' : 'text-slate-700'
+                }`}>
                   Confirm New Password
                 </label>
                 <div className="relative">
@@ -255,7 +313,11 @@ export default function ForgotPasswordPage() {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Confirm new password"
-                    className="block w-full pl-10 pr-3.5 py-2.5 bg-white dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all"
+                    className={`block w-full pl-10 pr-3.5 py-2.5 rounded-xl text-sm transition-all focus:outline-none ${
+                      isDark 
+                        ? 'bg-slate-900/90 border border-slate-700 text-white placeholder-slate-500 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/50' 
+                        : 'bg-slate-50/90 hover:bg-white focus:bg-white border border-slate-300/90 text-slate-900 placeholder-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/15 shadow-sm'
+                    }`}
                   />
                 </div>
               </div>
@@ -263,7 +325,7 @@ export default function ForgotPasswordPage() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full mt-2 py-3 px-4 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-semibold shadow-md shadow-brand-600/25 hover:shadow-brand-500/35 text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full mt-2 py-3 px-4 rounded-xl bg-gradient-to-r from-brand-600 via-indigo-600 to-brand-600 hover:from-brand-500 hover:to-indigo-500 text-white font-semibold shadow-lg shadow-brand-600/25 hover:shadow-brand-500/35 text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed active:translate-y-0.5"
               >
                 <span>{submitting ? 'Resetting Password...' : 'Reset Password & Proceed'}</span>
                 <CheckCircle2 className="w-4 h-4" />
@@ -274,16 +336,18 @@ export default function ForgotPasswordPage() {
           {/* Step 4: Success */}
           {step === 4 && (
             <div className="text-center py-4 space-y-4">
-              <div className="w-14 h-14 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-2xl mx-auto flex items-center justify-center shadow-md shadow-emerald-500/10">
+              <div className="w-14 h-14 bg-emerald-500/10 text-emerald-600 rounded-2xl mx-auto flex items-center justify-center shadow-md shadow-emerald-500/10">
                 <CheckCircle2 className="w-8 h-8" />
               </div>
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Password Reset Complete</h3>
-              <p className="text-xs text-slate-600 dark:text-slate-400">
+              <h3 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                Password Reset Complete
+              </h3>
+              <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                 Your password has been successfully updated and the used recovery code has been invalidated.
               </p>
               <Link
                 to="/login"
-                className="inline-flex items-center justify-center w-full py-3 px-4 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 shadow-md shadow-brand-600/25 transition-all"
+                className="inline-flex items-center justify-center w-full py-3 px-4 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-brand-600 via-indigo-600 to-brand-600 hover:from-brand-500 hover:to-indigo-500 shadow-md shadow-brand-600/25 transition-all"
               >
                 Sign In With New Password
               </Link>
@@ -291,19 +355,25 @@ export default function ForgotPasswordPage() {
           )}
 
           {/* Lost Recovery Codes Callout */}
-          <div className="mt-6 pt-5 border-t border-slate-200/80 dark:border-slate-800">
-            <div className="p-3.5 bg-slate-50 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 rounded-xl text-xs text-slate-600 dark:text-slate-400 flex items-start gap-2.5">
-              <HelpCircle className="w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0 mt-0.5" />
+          <div className={`mt-6 pt-5 border-t ${isDark ? 'border-slate-800' : 'border-slate-200/80'}`}>
+            <div className={`p-3.5 rounded-2xl text-xs flex items-start gap-2.5 border ${
+              isDark 
+                ? 'bg-slate-900/60 border-slate-800 text-slate-300' 
+                : 'bg-slate-50/80 border-slate-200 text-slate-700 shadow-sm'
+            }`}>
+              <HelpCircle className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
               <div>
-                <span className="font-semibold text-slate-700 dark:text-slate-300">Lost your recovery codes?</span>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
+                <span className={`font-semibold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
+                  Lost your recovery codes?
+                </span>
+                <p className={`text-[11px] mt-0.5 leading-relaxed ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                   Contact your university lab administrator. An administrator can issue a secure temporary password.
                 </p>
               </div>
             </div>
 
             <div className="mt-4 text-center">
-              <Link to="/login" className="text-xs font-semibold text-brand-600 dark:text-brand-400 hover:underline">
+              <Link to="/login" className="text-xs font-semibold text-brand-600 hover:text-brand-500 hover:underline">
                 &larr; Back to Sign In
               </Link>
             </div>
