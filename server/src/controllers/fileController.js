@@ -374,6 +374,7 @@ const getStorageStats = async (req, res, next) => {
       images: { count: 0, bytes: 0, label: 'Images' },
       spreadsheets: { count: 0, bytes: 0, label: 'Spreadsheets' },
       presentations: { count: 0, bytes: 0, label: 'Presentations' },
+      code: { count: 0, bytes: 0, label: 'Code' },
       archives: { count: 0, bytes: 0, label: 'Archives' },
       other: { count: 0, bytes: 0, label: 'Other' }
     };
@@ -392,6 +393,9 @@ const getStorageStats = async (req, res, next) => {
       } else if (['.ppt', '.pptx'].includes(ext)) {
         breakdown.presentations.count += 1;
         breakdown.presentations.bytes += file.size;
+      } else if (['.py', '.java', '.cpp', '.c', '.cs', '.js', '.jsx', '.ts', '.tsx', '.html', '.css', '.json', '.sql', '.sh', '.md'].includes(ext)) {
+        breakdown.code.count += 1;
+        breakdown.code.bytes += file.size;
       } else if (['.zip', '.rar', '.7z'].includes(ext)) {
         breakdown.archives.count += 1;
         breakdown.archives.bytes += file.size;

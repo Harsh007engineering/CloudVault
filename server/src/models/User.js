@@ -63,11 +63,15 @@ const userSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Hide sensitive fields by default when serializing to JSON
+// Hide sensitive fields by default when serializing to JSON, while safely exposing recovery code count
 userSchema.methods.toJSON = function () {
   const user = this.toObject();
+  const recoveryCodesRemaining = Array.isArray(user.recoveryCodes) 
+    ? user.recoveryCodes.filter(c => !c.used).length 
+    : 0;
   delete user.passwordHash;
   delete user.recoveryCodes;
+  user.recoveryCodesRemaining = recoveryCodesRemaining;
   return user;
 };
 

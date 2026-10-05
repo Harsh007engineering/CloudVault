@@ -1,5 +1,5 @@
 import React from 'react';
-import { HardDrive, FileText, Image as ImageIcon, FileSpreadsheet, Presentation, FileArchive, HelpCircle } from 'lucide-react';
+import { HardDrive, FileText, Image as ImageIcon, FileSpreadsheet, Presentation, FileCode, FileArchive, HelpCircle, AlertCircle } from 'lucide-react';
 import { useTheme } from '../../context/useTheme';
 import { formatBytes } from '../../utils/formatters';
 
@@ -12,8 +12,9 @@ export default function StorageBreakdownWidget({ stats, user }) {
   const breakdown = stats?.breakdown || {
     documents: { bytes: 0, count: 0, label: 'Documents' },
     images: { bytes: 0, count: 0, label: 'Images' },
-    spreadsheets: { bytes: 0, count: 0, label: 'Spreadsheets' },
-    presentations: { bytes: 0, count: 0, label: 'Presentations' },
+    spreadsheets: { bytes: 0, count: 0, label: 'Sheets' },
+    presentations: { bytes: 0, count: 0, label: 'Slides' },
+    code: { bytes: 0, count: 0, label: 'Code' },
     archives: { bytes: 0, count: 0, label: 'Archives' },
     other: { bytes: 0, count: 0, label: 'Other' }
   };
@@ -26,13 +27,15 @@ export default function StorageBreakdownWidget({ stats, user }) {
   const categories = [
     { key: 'documents', label: 'Documents', color: 'bg-blue-500', dot: 'bg-blue-500', icon: FileText, ...breakdown.documents },
     { key: 'images', label: 'Images', color: 'bg-purple-500', dot: 'bg-purple-500', icon: ImageIcon, ...breakdown.images },
-    { key: 'spreadsheets', label: 'Sheets', color: 'bg-emerald-500', dot: 'bg-emerald-500', icon: FileSpreadsheet, ...breakdown.spreadsheets },
-    { key: 'presentations', label: 'Slides', color: 'bg-amber-500', dot: 'bg-amber-500', icon: Presentation, ...breakdown.presentations },
-    { key: 'archives', label: 'Archives', color: 'bg-orange-500', dot: 'bg-orange-500', icon: FileArchive, ...breakdown.archives },
-    { key: 'other', label: 'Other', color: 'bg-slate-400', dot: 'bg-slate-400', icon: HelpCircle, ...breakdown.other },
+    { key: 'spreadsheets', label: 'Sheets', color: 'bg-emerald-500', dot: 'bg-emerald-500', icon: FileSpreadsheet, ...(breakdown.spreadsheets || { bytes: 0, count: 0 }) },
+    { key: 'presentations', label: 'Slides', color: 'bg-amber-500', dot: 'bg-amber-500', icon: Presentation, ...(breakdown.presentations || { bytes: 0, count: 0 }) },
+    { key: 'code', label: 'Code', color: 'bg-cyan-500', dot: 'bg-cyan-500', icon: FileCode, ...(breakdown.code || { bytes: 0, count: 0 }) },
+    { key: 'archives', label: 'Archives', color: 'bg-orange-500', dot: 'bg-orange-500', icon: FileArchive, ...(breakdown.archives || { bytes: 0, count: 0 }) },
+    { key: 'other', label: 'Other', color: 'bg-slate-400', dot: 'bg-slate-400', icon: HelpCircle, ...(breakdown.other || { bytes: 0, count: 0 }) },
   ];
 
   const overallPercent = Math.min(100, Math.round((totalUsed / totalLimit) * 100));
+  const isNearQuota = remaining < 52428800; // Less than 50 MiB remaining
 
   return (
     <div className={`rounded-3xl p-5 backdrop-blur-xl border transition-all ${
@@ -71,15 +74,27 @@ export default function StorageBreakdownWidget({ stats, user }) {
         })}
       </div>
 
+      {/* Near Quota Warning Banner (if under 50 MiB remaining) */}
+      {isNearQuota && totalUsed > 0 && (
+        <div className={`mt-3 px-3 py-2 rounded-xl text-xs flex items-center gap-2 border ${
+          isDark 
+            ? 'bg-amber-950/40 border-amber-800/60 text-amber-300' 
+            : 'bg-amber-50 border-amber-200 text-amber-800'
+        }`}>
+          <AlertCircle className="w-4 h-4 shrink-0 text-amber-500" />
+          <span>Only {formatBytes(remaining)} remaining — consider removing older coursework if you need more space.</span>
+        </div>
+      )}
+
       {/* Legend & Details */}
-      <div className={`mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 pt-3 border-t text-xs ${
+      <div className={`mt-4 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5 pt-3 border-t text-xs ${
         isDark ? 'border-slate-800' : 'border-slate-100'
       }`}>
         {categories.map((cat) => (
-          <div key={cat.key} className="flex items-center gap-2">
+          <div key={cat.key} className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-slate-500/5 transition-colors">
             <span className={`w-2.5 h-2.5 rounded-full ${cat.dot} shrink-0`} />
             <div className="truncate">
-              <span className={`text-[11px] block truncate ${
+              <span className={`text-[11px] block truncate font-medium ${
                 isDark ? 'text-slate-400' : 'text-slate-500'
               }`}>{cat.label}</span>
               <span className={`font-bold font-mono text-[11px] block ${

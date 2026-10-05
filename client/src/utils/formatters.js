@@ -115,6 +115,16 @@ export function getFileTypeMeta(filename = '', mimeType = '') {
     };
   }
 
+  if (['.py', '.java', '.cpp', '.c', '.cs', '.js', '.jsx', '.ts', '.tsx', '.html', '.css', '.json', '.sql', '.sh', '.md'].includes(ext)) {
+    return {
+      type: ext.replace('.', '').toUpperCase(),
+      category: 'code',
+      color: 'text-cyan-600 dark:text-cyan-400 bg-cyan-50 dark:bg-cyan-950/40 border-cyan-200 dark:border-cyan-900/60',
+      badge: 'bg-cyan-100 dark:bg-cyan-900/50 text-cyan-700 dark:text-cyan-300',
+      icon: FileCode
+    };
+  }
+
   return {
     type: ext ? ext.replace('.', '').toUpperCase() : 'FILE',
     category: 'other',

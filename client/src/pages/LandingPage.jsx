@@ -39,47 +39,47 @@ import AmbientBackground from '../components/common/AmbientBackground';
 const DEMO_FILES = [
   {
     id: 1,
-    name: 'CS201_Algorithm_Analysis_Report.pdf',
-    category: 'documents',
-    type: 'PDF',
-    size: '2.4 MB',
-    date: '2 hours ago',
+    name: 'DBMS_Assignment_3.sql',
+    category: 'code',
+    type: 'SQL',
+    size: '34 KB',
+    date: '1 hour ago',
     starred: true,
-    badgeColor: 'bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border-rose-200 dark:border-rose-900/60',
-    icon: FileText
+    badgeColor: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-950/60 dark:text-cyan-300 border-cyan-200 dark:border-cyan-900/60',
+    icon: FileCode
   },
   {
     id: 2,
-    name: 'Circuit_Oscilloscope_Waveform.png',
-    category: 'images',
-    type: 'IMG',
-    size: '1.1 MB',
-    date: 'Yesterday',
-    starred: true,
-    badgeColor: 'bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200 dark:border-amber-900/60',
-    icon: ImageIcon
-  },
-  {
-    id: 3,
-    name: 'Embedded_Robotics_Firmware.cpp',
+    name: 'ML_Lab_Experiment_4.py',
     category: 'code',
-    type: 'CODE',
-    size: '48 KB',
-    date: '3 days ago',
-    starred: false,
+    type: 'PY',
+    size: '128 KB',
+    date: '3 hours ago',
+    starred: true,
     badgeColor: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 border-indigo-200 dark:border-indigo-900/60',
     icon: FileCode
   },
   {
-    id: 4,
-    name: 'Final_Semester_Project_Archive.zip',
-    category: 'archives',
-    type: 'ZIP',
-    size: '8.9 MB',
-    date: 'Oct 2, 2026',
+    id: 3,
+    name: 'Physics_Lab_Manual.pdf',
+    category: 'documents',
+    type: 'PDF',
+    size: '3.8 MB',
+    date: 'Yesterday',
     starred: false,
-    badgeColor: 'bg-purple-100 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300 border-purple-200 dark:border-purple-900/60',
-    icon: FolderArchive
+    badgeColor: 'bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border-rose-200 dark:border-rose-900/60',
+    icon: FileText
+  },
+  {
+    id: 4,
+    name: 'Operating_Systems_Notes.docx',
+    category: 'documents',
+    type: 'DOCX',
+    size: '1.4 MB',
+    date: '2 days ago',
+    starred: false,
+    badgeColor: 'bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border-blue-200 dark:border-blue-900/60',
+    icon: FileText
   }
 ];
 
@@ -116,24 +116,40 @@ export default function LandingPage() {
 
   const faqs = [
     {
-      q: "Why does CloudVault deliberately not require an email or phone number?",
-      a: "Shared university computer laboratories are public environments. Requiring Gmail or Microsoft accounts exposes personal data, email inboxes, search history, and browser autofill passwords to other students. CloudVault provides a completely isolated, academic-only storage vault."
+      q: "Why not just use Google Drive?",
+      a: "Shared university computer laboratories are public environments. Logging into personal Google accounts exposes your personal email inbox, Google Drive files, YouTube history, and private photos. Public lab browsers frequently prompt to save passwords, and students routinely forget to log out when class ends. CloudVault provides a private, isolated workspace specifically for coursework with zero personal account exposure."
     },
     {
-      q: "How do I reset my password if I don't have an email on file?",
-      a: "When you create your account, CloudVault generates 5 cryptographically secure one-time recovery codes (e.g. 8K4P-X92M). If you forget your password, simply enter your username and any unused recovery code to immediately set a new password."
+      q: "What if I forget my password without an email?",
+      a: "When you create your CloudVault account, you are issued 5 cryptographic, single-use recovery codes (e.g. 8K4P-X92M). Store these safely (in a password manager, notes app, or printed). If you ever forget your password, simply enter your username and any unused recovery code to instantly set a new password. You can also regenerate fresh recovery codes at any time from your Security Center."
     },
     {
-      q: "Can other students or computers in the lab access my files?",
-      a: "No. Every user's files are strictly isolated with database-level ownership checks ({ _id: fileId, userId: req.user._id }). Furthermore, sessions are protected by HTTP-only cookies, and our anti-cache headers prevent shared browsers from saving local copies of downloaded files."
+      q: "Can the lab admin or other students see my files?",
+      a: "No. Every student's vault is strictly segregated at the database query level ({ _id: fileId, userId: req.user._id }). Other students cannot access your files even if they sit at the same workstation. Files stored on our Cloudflare R2 object storage use unique cryptographically random keys and are only accessible through authenticated, signed session requests."
     },
     {
-      q: "What happens when I reach my 500 MiB storage limit?",
-      a: "The 500 MiB storage quota is a logical limit. You can easily delete old coursework or archives to reclaim space immediately. University administrators also have the capability to adjust individual student quotas if special research projects require more capacity."
+      q: "What happens when I graduate or leave the lab?",
+      a: "You can download all your coursework or specific files at any time with one click. When you no longer need your vault, you can delete individual files or close your account permanently. CloudVault does not hold on to stale files or sell your academic data."
     },
     {
-      q: "Is CloudVault really ₹0/month to operate?",
-      a: "Yes! CloudVault is specifically designed around free-tier cloud infrastructure: MongoDB Atlas Free M0 (512 MB metadata), Cloudflare R2 (10 GB object storage with ₹0 egress bandwidth fees), and Vercel/Render free tiers."
+      q: "Is 500 MiB enough storage?",
+      a: "Yes! 500 MiB is designed specifically for active coursework—including lab manuals, PDF reports, code repositories (.py, .cpp, .java), slide decks, and spreadsheets. A typical code file is under 50 KB and a lab PDF is ~2 MB, meaning 500 MiB comfortably holds hundreds of assignments. CloudVault is not meant for storing 4K movies or personal photo libraries."
+    },
+    {
+      q: "Why do I need to clear the downloads folder on a lab PC?",
+      a: "When you download a file to a shared PC, Windows or Linux saves it locally to C:\\Users\\LabUser\\Downloads or Desktop. Even if you log out of CloudVault, that downloaded copy remains on the public hard drive until wiped. CloudVault includes built-in in-browser previews so you rarely even need to download files, plus an automatic sign-out hygiene reminder to purge local temp files."
+    },
+    {
+      q: "Does CloudVault work on restricted college Wi-Fi or firewall networks?",
+      a: "Yes. CloudVault communicates over standard HTTPS (port 443). It does not require custom ports, WebRTC, P2P networking, or VPN connections that are typically blocked by university firewalls and IT proxies."
+    },
+    {
+      q: "Can I access my vault from my phone or hostel room laptop?",
+      a: "Absolutely. CloudVault is a fully responsive web application. You can view your lab manuals from your phone while walking to class, upload an assignment from your laptop in your hostel, and then open and present it seamlessly from the lab PC projector."
+    },
+    {
+      q: "Is CloudVault really ₹0/month free to use?",
+      a: "Yes, 100% free. CloudVault is engineered with zero-cost modern cloud architecture: MongoDB Atlas free tier for metadata, Cloudflare R2 for zero-egress object storage, and Vercel/Render for frontend/backend hosting. There are no credit cards, hidden trials, or subscriptions."
     }
   ];
 
@@ -391,10 +407,15 @@ export default function LandingPage() {
               <div className="flex items-center gap-4 text-xs">
                 <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-medium">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span>Lab PC Safe Mode</span>
+                  <span>🛡 Lab PC Safe Mode: Protected</span>
                 </div>
-                <div className={`font-mono ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-                  142 MiB / 500 MiB (28%)
+                <div className="hidden sm:flex items-center gap-2">
+                  <span className={`font-mono text-xs ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                    142 MiB / 500 MiB (28.4%)
+                  </span>
+                  <div className={`w-16 h-1.5 rounded-full overflow-hidden ${isDark ? 'bg-slate-800' : 'bg-slate-200'}`}>
+                    <div className="bg-brand-500 h-full w-[28.4%]" />
+                  </div>
                 </div>
               </div>
             </div>
@@ -566,58 +587,88 @@ export default function LandingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* The Risky Way */}
-            <div className={`p-6 rounded-2xl backdrop-blur-xl border space-y-4 shadow-lg ${
+            {/* The Risky Traditional Way */}
+            <div className={`p-6 sm:p-7 rounded-2xl backdrop-blur-xl border space-y-4 shadow-lg ${
               isDark 
                 ? 'bg-rose-950/25 border-rose-900/50 shadow-rose-950/20 text-slate-300' 
                 : 'bg-rose-50/90 border-rose-200 text-slate-700 shadow-rose-100'
             }`}>
-              <div className="flex items-center gap-2.5 text-rose-600 dark:text-rose-400 font-bold text-base">
-                <AlertTriangle className="w-5 h-5 shrink-0" />
-                <h3>The Risky Way: Gmail &amp; Google Drive on Lab PCs</h3>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5 text-rose-600 dark:text-rose-400 font-bold text-base">
+                  <AlertTriangle className="w-5 h-5 shrink-0" />
+                  <h3>Traditional Lab PC Workflow</h3>
+                </div>
+                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-600 border border-rose-500/20">
+                  High Risk
+                </span>
               </div>
               <ul className="space-y-3 text-xs sm:text-sm">
-                <li className="flex items-start gap-2">
+                <li className="flex items-start gap-2.5">
                   <X className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
-                  <span><strong>Forgotten Sessions:</strong> Students frequently forget to log out when class ends, exposing personal email and Drive to whoever sits down next.</span>
+                  <span>Log into personal Gmail / Google Drive on a shared public machine</span>
                 </li>
-                <li className="flex items-start gap-2">
+                <li className="flex items-start gap-2.5">
                   <X className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
-                  <span><strong>Browser Autofill Leaks:</strong> Public browsers prompt to save your master password, personal phone number, and autofill credentials.</span>
+                  <span>Public browser dialog prompts: <em>&ldquo;Save password &amp; sync autofill?&rdquo;</em></span>
                 </li>
-                <li className="flex items-start gap-2">
+                <li className="flex items-start gap-2.5">
                   <X className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
-                  <span><strong>Aggressive Disk Caching:</strong> Public PC browsers store submitted exams and private PDFs in workstation disk caches indefinitely.</span>
+                  <span>2FA prompt sent to phone (which often has zero mobile reception in basement labs!)</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <X className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
+                  <span>Download coursework and reports directly onto the shared public desktop</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <X className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
+                  <span>Forget to log out before rushing to the next lecture</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <X className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
+                  <span><strong>Next student who sits down has full access to your personal photos, emails, and cloud drive</strong></span>
                 </li>
               </ul>
             </div>
 
             {/* The CloudVault Way */}
-            <div className={`p-6 rounded-2xl backdrop-blur-xl border space-y-4 shadow-lg ${
+            <div className={`p-6 sm:p-7 rounded-2xl backdrop-blur-xl border space-y-4 shadow-lg ${
               isDark 
                 ? 'bg-emerald-950/25 border-emerald-900/50 shadow-emerald-950/20 text-slate-300' 
                 : 'bg-emerald-50/90 border-emerald-200 text-slate-700 shadow-emerald-100'
             }`}>
-              <div className="flex items-center gap-2.5 text-emerald-600 dark:text-emerald-400 font-bold text-base">
-                <CheckCircle2 className="w-5 h-5 shrink-0" />
-                <h3>The CloudVault Way: Zero-Trace Academic Storage</h3>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5 text-emerald-600 dark:text-emerald-400 font-bold text-base">
+                  <CheckCircle2 className="w-5 h-5 shrink-0" />
+                  <h3>CloudVault Workflow</h3>
+                </div>
+                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+                  Protected &amp; Safe
+                </span>
               </div>
               <ul className="space-y-3 text-xs sm:text-sm">
-                <li className="flex items-start gap-2">
+                <li className="flex items-start gap-2.5">
                   <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                  <span><strong>Zero Personal Identifiers:</strong> Only a Username and Password. No personal Gmail, phone number, or social media profile touched.</span>
+                  <span>Log in with just username + password in under 5 seconds</span>
                 </li>
-                <li className="flex items-start gap-2">
+                <li className="flex items-start gap-2.5">
                   <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                  <span><strong>Tokenless Session Security:</strong> State is protected with server-issued HTTP-only cookies. No tokens in <code className="text-xs bg-emerald-100 dark:bg-emerald-900/60 px-1 py-0.5 rounded">localStorage</code>.</span>
+                  <span>No personal email, phone number, or Google identity touched</span>
                 </li>
-                <li className="flex items-start gap-2">
+                <li className="flex items-start gap-2.5">
                   <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                  <span><strong>Mandatory Anti-Cache Headers:</strong> Strict <code className="text-xs bg-emerald-100 dark:bg-emerald-900/60 px-1 py-0.5 rounded">Cache-Control: no-store</code> stops shared PCs from storing your files.</span>
+                  <span>Preview PDFs, lab code, and experiment results directly in-browser</span>
                 </li>
-                <li className="flex items-start gap-2">
+                <li className="flex items-start gap-2.5">
                   <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                  <span><strong>Signout Hygiene Checklist:</strong> Automatic reminder modal upon signing out prompts you to purge the local <code className="text-xs bg-emerald-100 dark:bg-emerald-900/60 px-1 py-0.5 rounded">Downloads</code> folder.</span>
+                  <span>Download only the exact coursework file needed for your lab submission</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                  <span>Click &ldquo;Sign Out&rdquo; &mdash; HTTP-only session cookie is instantly destroyed and browser cache is purged</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                  <span><strong>Next student sees absolutely nothing &mdash; zero history, zero tokens, zero trace</strong></span>
                 </li>
               </ul>
             </div>

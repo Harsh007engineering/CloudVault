@@ -11,6 +11,7 @@ import SignupPage from './pages/SignupPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import DashboardPage from './pages/DashboardPage';
 import SettingsPage from './pages/SettingsPage';
+import SecurityCenterPage from './pages/SecurityCenterPage';
 import AdminPage from './pages/AdminPage';
 
 // Route Guard: Requires Active Authentication
@@ -127,6 +128,14 @@ export default function App() {
               element={
                 <RequireAuth>
                   <SettingsPage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/security"
+              element={
+                <RequireAuth>
+                  <SecurityCenterPage />
                 </RequireAuth>
               }
             />

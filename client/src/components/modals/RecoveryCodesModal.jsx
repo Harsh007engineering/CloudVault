@@ -44,10 +44,15 @@ export default function RecoveryCodesModal({ codes = [], onClose, isRegeneration
             <KeyRound className="w-6 h-6" />
           </div>
           <div>
+            <div className="flex items-center gap-1.5 mb-0.5">
+              <span className="text-emerald-500 font-bold text-xs">
+                {isRegeneration ? 'Regenerated ✓' : 'Account created ✓'}
+              </span>
+            </div>
             <h3 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
-              {isRegeneration ? 'New Recovery Codes' : 'Save Your Recovery Codes'}
+              Save your recovery codes
             </h3>
-            <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Essential for resetting your account password</p>
+            <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Your cryptographic backup key for password resets</p>
           </div>
         </div>
 
@@ -57,7 +62,8 @@ export default function RecoveryCodesModal({ codes = [], onClose, isRegeneration
         }`}>
           <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
           <div className={`text-xs leading-relaxed ${isDark ? 'text-amber-200' : 'text-amber-900'}`}>
-            <span className="font-semibold">These codes will only be shown once.</span> CloudVault never asks for email or phone. These 5 cryptographic codes are the <span className="underline font-semibold">only way</span> to reset your password if forgotten.
+            <span className="font-semibold block mb-0.5">Your recovery codes are your backup key.</span>
+            CloudVault does not require an email address. Recovery codes are therefore the only way to recover your account if you forget your password. <span className="underline font-semibold">You won't be able to view these codes again.</span>
           </div>
         </div>
 

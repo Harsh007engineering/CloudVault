@@ -14,7 +14,23 @@ const SUPPORTED_TYPES = {
   '.jpg': ['image/jpeg'],
   '.jpeg': ['image/jpeg'],
   '.png': ['image/png'],
-  '.zip': ['application/zip', 'application/x-zip-compressed', 'multipart/x-zip']
+  '.zip': ['application/zip', 'application/x-zip-compressed', 'multipart/x-zip'],
+  // Code & Laboratory Assignment Formats
+  '.py': ['text/plain', 'text/x-python', 'application/octet-stream'],
+  '.java': ['text/plain', 'text/x-java-source', 'application/octet-stream'],
+  '.cpp': ['text/plain', 'text/x-c', 'application/octet-stream'],
+  '.c': ['text/plain', 'text/x-c', 'application/octet-stream'],
+  '.cs': ['text/plain', 'application/octet-stream'],
+  '.js': ['text/plain', 'application/javascript', 'text/javascript', 'application/octet-stream'],
+  '.jsx': ['text/plain', 'application/javascript', 'text/javascript', 'application/octet-stream'],
+  '.ts': ['text/plain', 'application/x-typescript', 'application/octet-stream'],
+  '.tsx': ['text/plain', 'application/x-typescript', 'application/octet-stream'],
+  '.html': ['text/plain', 'text/html', 'application/octet-stream'],
+  '.css': ['text/plain', 'text/css', 'application/octet-stream'],
+  '.json': ['text/plain', 'application/json', 'application/octet-stream'],
+  '.sql': ['text/plain', 'application/sql', 'application/octet-stream'],
+  '.sh': ['text/plain', 'application/x-sh', 'application/octet-stream'],
+  '.md': ['text/plain', 'text/markdown', 'application/octet-stream']
 };
 
 /**

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   UploadCloud, 
   Search, 
@@ -19,10 +20,15 @@ import {
   Square,
   Sparkles,
   Command,
-  X
+  X,
+  MoreVertical,
+  Info,
+  FileCode,
+  Folder
 } from 'lucide-react';
 import api, { getFileDownloadUrl } from '../services/api';
 import Navbar from '../components/layout/Navbar';
+import Sidebar from '../components/layout/Sidebar';
 import LabReminderBanner from '../components/layout/LabReminderBanner';
 import FileUploadModal from '../components/modals/FileUploadModal';
 import RenameModal from '../components/modals/RenameModal';
@@ -42,6 +48,7 @@ export default function DashboardPage() {
   const { user, updateStorage } = useAuth();
   const { success, error: toastError } = useToast();
   const { isDark } = useTheme();
+  const navigate = useNavigate();
 
   const [files, setFiles] = useState([]);
   const [stats, setStats] = useState(null);
@@ -50,8 +57,18 @@ export default function DashboardPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [sortOption, setSortOption] = useState('date_desc');
-  const [selectedCategory, setSelectedCategory] = useState('all'); // 'all', 'starred', 'document', 'image', 'spreadsheet', 'presentation', 'archive'
+  const [selectedCategory, setSelectedCategory] = useState('all'); // 'all', 'starred', 'document', 'image', 'spreadsheet', 'presentation', 'code', 'archive'
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'grid'
+
+  // Sidebar mobile drawer & row dropdown states
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [activeMenuFileId, setActiveMenuFileId] = useState(null);
+
+  useEffect(() => {
+    const handleCloseMenu = () => setActiveMenuFileId(null);
+    window.addEventListener('click', handleCloseMenu);
+    return () => window.removeEventListener('click', handleCloseMenu);
+  }, []);
 
   // Debounce search query to prevent rapid-fire requests
   useEffect(() => {
@@ -260,7 +277,7 @@ export default function DashboardPage() {
       <LabReminderBanner />
 
       {/* Modern Top Navbar */}
-      <Navbar />
+      <Navbar onToggleMobileSidebar={() => setMobileSidebarOpen((prev) => !prev)} />
 
       {/* Mandatory password change modal if flagged by admin */}
       <ForcePasswordModal isOpen={!!user?.forcePasswordChange} />
@@ -303,8 +320,24 @@ export default function DashboardPage() {
         onClearSelection={() => setSelectedFileIds([])}
       />
 
-      {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
+      {/* Main Layout Container with Sidebar and Content */}
+      <div className="flex-1 flex w-full max-w-7xl mx-auto">
+        {/* Desktop Sidebar & Mobile Drawer */}
+        <Sidebar
+          selectedCategory={selectedCategory}
+          onSelectCategory={(cat) => setSelectedCategory(cat)}
+          onSelectRecent={() => {
+            setSelectedCategory('all');
+            setSortOption('date_desc');
+          }}
+          onOpenUpload={() => setIsUploadOpen(true)}
+          onOpenRecoveryCodes={() => navigate('/security')}
+          isOpen={mobileSidebarOpen}
+          onClose={() => setMobileSidebarOpen(false)}
+        />
+
+        {/* Main Content Viewport */}
+        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-8 relative z-10 min-w-0">
         {/* Header Action Bar */}
         <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b ${
           isDark ? 'border-slate-800' : 'border-slate-200/90'
@@ -369,6 +402,7 @@ export default function DashboardPage() {
               { id: 'image', label: 'Images' },
               { id: 'spreadsheet', label: 'Sheets' },
               { id: 'presentation', label: 'Slides' },
+              { id: 'code', label: 'Code', icon: FileCode },
               { id: 'archive', label: 'Archives' }
             ].map((tab) => {
               const TabIcon = tab.icon;
@@ -511,10 +545,12 @@ export default function DashboardPage() {
                   ? 'bg-slate-800 border-slate-700/80 text-slate-500' 
                   : 'bg-slate-50 border-slate-200 text-slate-400'
               }`}>
-                {selectedCategory === 'starred' ? (
+                {searchQuery ? (
+                  <Search className="w-8 h-8 text-slate-400" />
+                ) : selectedCategory === 'starred' ? (
                   <Star className="w-8 h-8 text-amber-400 fill-amber-400" />
                 ) : (
-                  <FolderPlus className="w-8 h-8 text-brand-500" />
+                  <UploadCloud className="w-8 h-8 text-brand-500" />
                 )}
               </div>
               <h3 className={`text-base font-bold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
@@ -522,7 +558,7 @@ export default function DashboardPage() {
                   ? 'No matching files found'
                   : selectedCategory === 'starred'
                   ? 'No starred files yet'
-                  : 'Your academic vault is empty'}
+                  : 'Your vault is empty'}
               </h3>
               <p className={`text-xs max-w-sm mx-auto mt-1 leading-relaxed ${
                 isDark ? 'text-slate-400' : 'text-slate-600'
@@ -531,16 +567,21 @@ export default function DashboardPage() {
                   ? `No files matched "${searchQuery}". Press Esc to clear search.`
                   : selectedCategory === 'starred'
                   ? 'Click the star icon on any document or assignment to keep it pinned here for quick access.'
-                  : 'Drag & drop your files anywhere onto this page or click below to upload.'}
+                  : 'Upload your first assignment, project, or lab file.'}
               </p>
               {!searchQuery && selectedCategory !== 'starred' && (
-                <button
-                  onClick={() => setIsUploadOpen(true)}
-                  className="mt-5 inline-flex items-center gap-2 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-md transition-all active:translate-y-0.5"
-                >
-                  <UploadCloud className="w-4 h-4" />
-                  Upload First File
-                </button>
+                <div className="mt-5 space-y-3">
+                  <button
+                    onClick={() => setIsUploadOpen(true)}
+                    className="inline-flex items-center gap-2 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white text-xs font-semibold px-5 py-2.5 rounded-xl shadow-md transition-all active:translate-y-0.5"
+                  >
+                    <UploadCloud className="w-4 h-4" />
+                    <span>+ Upload Files</span>
+                  </button>
+                  <p className={`text-[11px] ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+                    Your files are stored privately and are not associated with an email account.
+                  </p>
+                </div>
               )}
             </div>
           ) : viewMode === 'list' ? (
@@ -582,6 +623,7 @@ export default function DashboardPage() {
                       const meta = getFileTypeMeta(file.originalName, file.mimeType);
                       const Icon = meta.icon;
                       const isSelected = selectedFileIds.includes(file._id);
+                      const isMenuOpen = activeMenuFileId === file._id;
 
                       return (
                         <tr
@@ -609,7 +651,7 @@ export default function DashboardPage() {
                             <div className="flex items-center gap-3">
                               <button
                                 onClick={() => handleToggleStar(file)}
-                                className="p-1 text-slate-300 hover:text-amber-400 transition-colors"
+                                className="p-1 text-slate-300 hover:text-amber-400 transition-colors shrink-0"
                                 title={file.isStarred ? 'Unstar file' : 'Star file'}
                               >
                                 <Star
@@ -622,15 +664,20 @@ export default function DashboardPage() {
                               <div className={`p-2 rounded-xl border ${meta.color} shrink-0`}>
                                 <Icon className="w-4 h-4" />
                               </div>
-                              <span
-                                className={`font-semibold hover:text-brand-600 truncate max-w-xs sm:max-w-md cursor-pointer select-none ${
-                                  isDark ? 'text-slate-200' : 'text-slate-800'
-                                }`}
-                                onClick={() => setFileToPreview(file)}
-                                title={file.originalName}
-                              >
-                                {file.originalName}
-                              </span>
+                              <div className="min-w-0">
+                                <span
+                                  className={`font-semibold hover:text-brand-600 truncate block cursor-pointer select-none ${
+                                    isDark ? 'text-slate-200' : 'text-slate-800'
+                                  }`}
+                                  onClick={() => setFileToPreview(file)}
+                                  title={file.originalName}
+                                >
+                                  {file.originalName}
+                                </span>
+                                <span className={`text-[11px] block mt-0.5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                                  {meta.type} &bull; {formatBytes(file.size)} &bull; {formatDate(file.createdAt)}
+                                </span>
+                              </div>
                             </div>
                           </td>
                           <td className="py-3 px-4">
@@ -645,13 +692,14 @@ export default function DashboardPage() {
                             {formatDate(file.createdAt)}
                           </td>
                           <td className="py-3 px-4 text-right">
-                            <div className="flex items-center justify-end gap-1">
+                            <div className="flex items-center justify-end gap-1 relative">
                               <button
                                 onClick={() => setFileToPreview(file)}
                                 className={`p-1.5 rounded-lg transition-colors ${
                                   isDark ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
                                 }`}
                                 title="Quick Preview"
+                                aria-label="Preview"
                               >
                                 <Eye className="w-4 h-4" />
                               </button>
@@ -661,27 +709,112 @@ export default function DashboardPage() {
                                   isDark ? 'text-slate-400 hover:text-brand-400 hover:bg-brand-950/40' : 'text-slate-500 hover:text-brand-600 hover:bg-brand-50'
                                 }`}
                                 title="Download"
+                                aria-label="Download"
                               >
                                 <Download className="w-4 h-4" />
                               </button>
-                              <button
-                                onClick={() => setFileToRename(file)}
-                                className={`p-1.5 rounded-lg transition-colors ${
-                                  isDark ? 'text-slate-400 hover:text-amber-400 hover:bg-amber-950/40' : 'text-slate-500 hover:text-amber-600 hover:bg-amber-50'
-                                }`}
-                                title="Rename"
-                              >
-                                <Edit3 className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => setFileToDelete(file)}
-                                className={`p-1.5 rounded-lg transition-colors ${
-                                  isDark ? 'text-slate-400 hover:text-rose-400 hover:bg-rose-950/40' : 'text-slate-500 hover:text-rose-600 hover:bg-rose-50'
-                                }`}
-                                title="Delete"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
+
+                              {/* More Actions Dropdown Toggle */}
+                              <div className="relative">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setActiveMenuFileId(isMenuOpen ? null : file._id);
+                                  }}
+                                  className={`p-1.5 rounded-lg transition-colors ${
+                                    isMenuOpen
+                                      ? isDark ? 'bg-slate-800 text-white' : 'bg-slate-200 text-slate-900'
+                                      : isDark ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
+                                  }`}
+                                  title="More actions"
+                                  aria-label="More actions"
+                                >
+                                  <MoreVertical className="w-4 h-4" />
+                                </button>
+
+                                {isMenuOpen && (
+                                  <div
+                                    onClick={(e) => e.stopPropagation()}
+                                    className={`absolute right-0 top-full mt-1 w-44 rounded-2xl shadow-xl z-30 border backdrop-blur-xl py-1.5 text-left text-xs ${
+                                      isDark 
+                                        ? 'bg-slate-900/95 border-slate-700/80 text-slate-200 shadow-black/60' 
+                                        : 'bg-white/95 border-slate-200/90 text-slate-700 shadow-slate-200/70'
+                                    }`}
+                                  >
+                                    <button
+                                      onClick={() => {
+                                        setFileToPreview(file);
+                                        setActiveMenuFileId(null);
+                                      }}
+                                      className={`w-full px-3 py-2 flex items-center gap-2.5 transition-colors ${
+                                        isDark ? 'hover:bg-slate-800 text-slate-200' : 'hover:bg-slate-100 text-slate-700'
+                                      }`}
+                                    >
+                                      <Eye className="w-3.5 h-3.5 text-slate-400" />
+                                      <span>Preview</span>
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        handleDownload(file);
+                                        setActiveMenuFileId(null);
+                                      }}
+                                      className={`w-full px-3 py-2 flex items-center gap-2.5 transition-colors ${
+                                        isDark ? 'hover:bg-slate-800 text-slate-200' : 'hover:bg-slate-100 text-slate-700'
+                                      }`}
+                                    >
+                                      <Download className="w-3.5 h-3.5 text-slate-400" />
+                                      <span>Download</span>
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        setFileToRename(file);
+                                        setActiveMenuFileId(null);
+                                      }}
+                                      className={`w-full px-3 py-2 flex items-center gap-2.5 transition-colors ${
+                                        isDark ? 'hover:bg-slate-800 text-slate-200' : 'hover:bg-slate-100 text-slate-700'
+                                      }`}
+                                    >
+                                      <Edit3 className="w-3.5 h-3.5 text-slate-400" />
+                                      <span>Rename</span>
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        handleToggleStar(file);
+                                        setActiveMenuFileId(null);
+                                      }}
+                                      className={`w-full px-3 py-2 flex items-center gap-2.5 transition-colors ${
+                                        isDark ? 'hover:bg-slate-800 text-slate-200' : 'hover:bg-slate-100 text-slate-700'
+                                      }`}
+                                    >
+                                      <Star className={`w-3.5 h-3.5 ${file.isStarred ? 'fill-amber-400 text-amber-400' : 'text-slate-400'}`} />
+                                      <span>{file.isStarred ? 'Unstar' : 'Star'}</span>
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        setFileToPreview(file);
+                                        setActiveMenuFileId(null);
+                                      }}
+                                      className={`w-full px-3 py-2 flex items-center gap-2.5 transition-colors ${
+                                        isDark ? 'hover:bg-slate-800 text-slate-200' : 'hover:bg-slate-100 text-slate-700'
+                                      }`}
+                                    >
+                                      <Info className="w-3.5 h-3.5 text-slate-400" />
+                                      <span>File details</span>
+                                    </button>
+                                    <div className={`my-1 border-t ${isDark ? 'border-slate-800' : 'border-slate-100'}`} />
+                                    <button
+                                      onClick={() => {
+                                        setFileToDelete(file);
+                                        setActiveMenuFileId(null);
+                                      }}
+                                      className="w-full px-3 py-2 flex items-center gap-2.5 text-rose-600 hover:bg-rose-500/10 transition-colors"
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5 text-rose-500" />
+                                      <span>Delete</span>
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           </td>
                         </tr>
@@ -698,11 +831,12 @@ export default function DashboardPage() {
                 const meta = getFileTypeMeta(file.originalName, file.mimeType);
                 const Icon = meta.icon;
                 const isSelected = selectedFileIds.includes(file._id);
+                const isMenuOpen = activeMenuFileId === file._id;
 
                 return (
                   <div
                     key={file._id}
-                    className={`rounded-3xl p-4 backdrop-blur-xl transition-all flex flex-col justify-between group border ${
+                    className={`rounded-3xl p-4 backdrop-blur-xl transition-all flex flex-col justify-between group border relative ${
                       isSelected 
                         ? 'border-brand-500 ring-2 ring-brand-500/20' 
                         : isDark
@@ -757,11 +891,11 @@ export default function DashboardPage() {
                         {file.originalName}
                       </h4>
                       <p className={`text-[11px] mt-1 font-mono ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                        {formatBytes(file.size)} &bull; {formatDate(file.createdAt)}
+                        {meta.type} &bull; {formatBytes(file.size)} &bull; {formatDate(file.createdAt)}
                       </p>
                     </div>
 
-                    <div className={`mt-4 pt-3 border-t flex items-center justify-between ${
+                    <div className={`mt-4 pt-3 border-t flex items-center justify-between relative ${
                       isDark ? 'border-slate-800' : 'border-slate-100'
                     }`}>
                       <button
@@ -779,27 +913,111 @@ export default function DashboardPage() {
                             isDark ? 'text-slate-400 hover:text-brand-400' : 'text-slate-500 hover:text-brand-600'
                           }`}
                           title="Download"
+                          aria-label="Download"
                         >
                           <Download className="w-3.5 h-3.5" />
                         </button>
-                        <button
-                          onClick={() => setFileToRename(file)}
-                          className={`p-1 rounded transition-colors ${
-                            isDark ? 'text-slate-400 hover:text-amber-400' : 'text-slate-500 hover:text-amber-600'
-                          }`}
-                          title="Rename"
-                        >
-                          <Edit3 className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                          onClick={() => setFileToDelete(file)}
-                          className={`p-1 rounded transition-colors ${
-                            isDark ? 'text-slate-400 hover:text-rose-400' : 'text-slate-500 hover:text-rose-600'
-                          }`}
-                          title="Delete"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+
+                        <div className="relative">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setActiveMenuFileId(isMenuOpen ? null : file._id);
+                            }}
+                            className={`p-1 rounded transition-colors ${
+                              isMenuOpen
+                                ? isDark ? 'bg-slate-800 text-white' : 'bg-slate-200 text-slate-900'
+                                : isDark ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
+                            }`}
+                            title="More actions"
+                            aria-label="More actions"
+                          >
+                            <MoreVertical className="w-3.5 h-3.5" />
+                          </button>
+
+                          {isMenuOpen && (
+                            <div
+                              onClick={(e) => e.stopPropagation()}
+                              className={`absolute right-0 bottom-full mb-1 w-44 rounded-2xl shadow-xl z-30 border backdrop-blur-xl py-1.5 text-left text-xs ${
+                                isDark 
+                                  ? 'bg-slate-900/95 border-slate-700/80 text-slate-200 shadow-black/60' 
+                                  : 'bg-white/95 border-slate-200/90 text-slate-700 shadow-slate-200/70'
+                              }`}
+                            >
+                              <button
+                                onClick={() => {
+                                  setFileToPreview(file);
+                                  setActiveMenuFileId(null);
+                                }}
+                                className={`w-full px-3 py-2 flex items-center gap-2.5 transition-colors ${
+                                  isDark ? 'hover:bg-slate-800 text-slate-200' : 'hover:bg-slate-100 text-slate-700'
+                                }`}
+                              >
+                                <Eye className="w-3.5 h-3.5 text-slate-400" />
+                                <span>Preview</span>
+                              </button>
+                              <button
+                                onClick={() => {
+                                  handleDownload(file);
+                                  setActiveMenuFileId(null);
+                                }}
+                                className={`w-full px-3 py-2 flex items-center gap-2.5 transition-colors ${
+                                  isDark ? 'hover:bg-slate-800 text-slate-200' : 'hover:bg-slate-100 text-slate-700'
+                                }`}
+                              >
+                                <Download className="w-3.5 h-3.5 text-slate-400" />
+                                <span>Download</span>
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setFileToRename(file);
+                                  setActiveMenuFileId(null);
+                                }}
+                                className={`w-full px-3 py-2 flex items-center gap-2.5 transition-colors ${
+                                  isDark ? 'hover:bg-slate-800 text-slate-200' : 'hover:bg-slate-100 text-slate-700'
+                                }`}
+                              >
+                                <Edit3 className="w-3.5 h-3.5 text-slate-400" />
+                                <span>Rename</span>
+                              </button>
+                              <button
+                                onClick={() => {
+                                  handleToggleStar(file);
+                                  setActiveMenuFileId(null);
+                                }}
+                                className={`w-full px-3 py-2 flex items-center gap-2.5 transition-colors ${
+                                  isDark ? 'hover:bg-slate-800 text-slate-200' : 'hover:bg-slate-100 text-slate-700'
+                                }`}
+                              >
+                                <Star className={`w-3.5 h-3.5 ${file.isStarred ? 'fill-amber-400 text-amber-400' : 'text-slate-400'}`} />
+                                <span>{file.isStarred ? 'Unstar' : 'Star'}</span>
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setFileToPreview(file);
+                                  setActiveMenuFileId(null);
+                                }}
+                                className={`w-full px-3 py-2 flex items-center gap-2.5 transition-colors ${
+                                  isDark ? 'hover:bg-slate-800 text-slate-200' : 'hover:bg-slate-100 text-slate-700'
+                                }`}
+                              >
+                                <Info className="w-3.5 h-3.5 text-slate-400" />
+                                <span>File details</span>
+                              </button>
+                              <div className={`my-1 border-t ${isDark ? 'border-slate-800' : 'border-slate-100'}`} />
+                              <button
+                                onClick={() => {
+                                  setFileToDelete(file);
+                                  setActiveMenuFileId(null);
+                                }}
+                                className="w-full px-3 py-2 flex items-center gap-2.5 text-rose-600 hover:bg-rose-500/10 transition-colors"
+                              >
+                                <Trash2 className="w-3.5 h-3.5 text-rose-500" />
+                                <span>Delete</span>
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -809,6 +1027,7 @@ export default function DashboardPage() {
           )}
         </div>
       </main>
+      </div>
     </div>
   );
 }

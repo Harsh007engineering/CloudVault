@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Cloud, LogOut, Settings, ShieldCheck, HardDrive, User as UserIcon } from 'lucide-react';
+import { Cloud, LogOut, Settings, ShieldCheck, HardDrive, User as UserIcon, Menu } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/useTheme';
 import { formatBytes } from '../../utils/formatters';
 import LabHygieneModal from './LabHygieneModal';
 import ThemeToggle from '../common/ThemeToggle';
 
-export default function Navbar() {
+export default function Navbar({ onToggleMobileSidebar }) {
   const { user, logout, isAdmin } = useAuth();
   const { isDark } = useTheme();
   const navigate = useNavigate();
@@ -39,31 +39,63 @@ export default function Navbar() {
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <Link to="/dashboard" className="flex items-center gap-2.5 group">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-600 flex items-center justify-center shadow-md shadow-brand-500/20 text-white transition-all duration-300 group-hover:scale-105 group-hover:shadow-brand-500/30">
-                <Cloud className="w-5 h-5" />
-              </div>
-              <div>
-                <span className={`text-lg font-bold tracking-tight transition-colors ${
-                  isDark ? 'text-white' : 'text-slate-900'
-                }`}>
-                  Cloud<span className="text-brand-500">Vault</span>
-                </span>
-                <span className={`hidden sm:inline-block ml-2 text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded border ${
-                  isDark 
-                    ? 'bg-slate-800/90 text-slate-400 border-slate-700/60' 
-                    : 'bg-slate-100 text-slate-600 border-slate-200 shadow-sm'
-                }`}>
-                  Student Cloud
-                </span>
-              </div>
-            </Link>
+            {/* Left Brand + Mobile Menu Button */}
+            <div className="flex items-center gap-3">
+              {onToggleMobileSidebar && (
+                <button
+                  onClick={onToggleMobileSidebar}
+                  className={`lg:hidden p-2 rounded-xl border transition-colors ${
+                    isDark 
+                      ? 'border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800' 
+                      : 'border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-100'
+                  }`}
+                  aria-label="Toggle navigation menu"
+                >
+                  <Menu className="w-4 h-4" />
+                </button>
+              )}
+
+              {/* Logo */}
+              <Link to="/dashboard" className="flex items-center gap-2.5 group">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-600 flex items-center justify-center shadow-md shadow-brand-500/20 text-white transition-all duration-300 group-hover:scale-105 group-hover:shadow-brand-500/30">
+                  <Cloud className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className={`text-lg font-bold tracking-tight transition-colors ${
+                    isDark ? 'text-white' : 'text-slate-900'
+                  }`}>
+                    Cloud<span className="text-brand-500">Vault</span>
+                  </span>
+                  <span className={`hidden sm:inline-block ml-2 text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded border ${
+                    isDark 
+                      ? 'bg-slate-800/90 text-slate-400 border-slate-700/60' 
+                      : 'bg-slate-100 text-slate-600 border-slate-200 shadow-sm'
+                  }`}>
+                    Student Cloud
+                  </span>
+                </div>
+              </Link>
+            </div>
 
             {/* User Controls & Actions */}
             <div className="flex items-center gap-2 sm:gap-3.5">
+              {/* Lab PC Safe Mode Status Indicator */}
+              <Link
+                to="/security"
+                className={`hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold backdrop-blur-sm transition-all group ${
+                  isDark 
+                    ? 'bg-emerald-950/40 border-emerald-800/60 text-emerald-300 hover:bg-emerald-900/40' 
+                    : 'bg-emerald-50 border-emerald-200 text-emerald-800 hover:bg-emerald-100 shadow-sm'
+                }`}
+                title="Lab PC Safe Mode Active: Session stored in HTTP-only cookies, browser cache disabled"
+              >
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="hidden xl:inline">🛡 Lab PC Safe Mode:</span>
+                <span className="font-bold">Protected</span>
+              </Link>
+
               {/* Storage quick status pill */}
-              <div className={`hidden md:flex items-center gap-2 px-3 py-1.5 border rounded-xl text-xs backdrop-blur-sm transition-colors ${
+              <div className={`hidden lg:flex items-center gap-2 px-3 py-1.5 border rounded-xl text-xs backdrop-blur-sm transition-colors ${
                 isDark 
                   ? 'bg-slate-900/60 border-slate-700/60 text-slate-300' 
                   : 'bg-slate-100/90 border-slate-200 text-slate-800 shadow-sm'

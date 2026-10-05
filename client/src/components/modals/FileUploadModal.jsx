@@ -36,7 +36,7 @@ export default function FileUploadModal({ isOpen, onClose, onUploadSuccess }) {
 
       // Check quota
       if (currentTotal + file.size > remainingQuota) {
-        toastError(`Adding "${file.name}" would exceed your remaining storage limit (${formatBytes(remainingQuota)})`);
+        toastError(`Upload exceeds your remaining ${formatBytes(remainingQuota)} storage.`);
         break;
       }
 
@@ -169,11 +169,11 @@ export default function FileUploadModal({ isOpen, onClose, onUploadSuccess }) {
           }`}>
             <UploadCloud className="w-6 h-6" />
           </div>
-          <h4 className={`text-sm font-semibold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
-            Drag &amp; drop files here, or <span className="text-brand-600 underline">Browse</span>
+          <h4 className={`text-sm font-bold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
+            Drop files here to upload <span className="text-brand-600 font-semibold underline">or Browse Files</span>
           </h4>
           <p className={`text-xs mt-1.5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-            PDF, DOCX, TXT, PPT, XLS, Images, ZIP
+            PDF, DOCX, Code (.py, .java, .cpp, .js), PPT, XLS, Images, ZIP
           </p>
           <div className={`mt-2 inline-flex items-center gap-1.5 text-[11px] font-medium px-3 py-1 rounded-full border ${
             isDark ? 'text-slate-400 bg-slate-800 border-slate-700' : 'text-slate-600 bg-white border-slate-200 shadow-sm'

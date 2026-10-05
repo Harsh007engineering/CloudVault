@@ -35,11 +35,14 @@ export default function FilePreviewModal({
   const [textLoading, setTextLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
+  const ext = file?.originalName ? file.originalName.slice(file.originalName.lastIndexOf('.')).toLowerCase() : '';
   const meta = file ? getFileTypeMeta(file.originalName, file.mimeType) : null;
   const isImage = meta?.category === 'image';
-  const isPdf = meta?.type === 'PDF';
-  const isText = meta?.type === 'TXT' || file?.mimeType?.includes('text') || file?.mimeType?.includes('json');
+  const isPdf = meta?.type === 'PDF' || ext === '.pdf';
+  const isCode = meta?.category === 'code' || ['.py', '.java', '.cpp', '.c', '.cs', '.js', '.jsx', '.ts', '.tsx', '.html', '.css', '.json', '.sql', '.sh', '.md'].includes(ext);
+  const isText = meta?.type === 'TXT' || file?.mimeType?.includes('text') || file?.mimeType?.includes('json') || isCode;
 
   const fileUrl = file ? getFileDownloadUrl(file._id, true) : '';
 
@@ -59,6 +62,7 @@ export default function FilePreviewModal({
     } else {
       setTextContent(null);
       setZoomLevel(1);
+      setIsFullscreen(false);
     }
   }, [isOpen, file, isText, fileUrl]);
 
@@ -77,37 +81,47 @@ export default function FilePreviewModal({
     window.location.href = getFileDownloadUrl(file._id);
   };
 
+  const textLines = textContent ? textContent.split('\n') : [];
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/70 backdrop-blur-md animate-fade-in">
-      <div className={`rounded-3xl shadow-2xl max-w-5xl w-full h-[85vh] border flex flex-col md:flex-row overflow-hidden animate-scale-in backdrop-blur-2xl ${
-        isDark ? 'bg-slate-900/90 border-slate-800' : 'bg-white border-slate-200 shadow-slate-300/50'
-      }`}>
+    <div className={`fixed inset-0 z-50 flex items-center justify-center ${isFullscreen ? 'p-0' : 'p-3 sm:p-6'} bg-slate-950/80 backdrop-blur-md animate-fade-in`}>
+      <div className={`shadow-2xl border flex flex-col md:flex-row overflow-hidden transition-all backdrop-blur-2xl ${
+        isFullscreen ? 'w-screen h-screen rounded-none border-0' : 'rounded-3xl max-w-5xl w-full h-[85vh] animate-scale-in'
+      } ${isDark ? 'bg-slate-900/95 border-slate-800' : 'bg-white border-slate-200 shadow-slate-300/50'}`}>
+        
         {/* Main Preview Container */}
-        <div className="flex-1 bg-slate-900 flex flex-col min-h-0 relative">
+        <div className="flex-1 bg-slate-950 flex flex-col min-h-0 relative">
           {/* Preview Header Controls */}
-          <div className="p-3 bg-slate-950/80 border-b border-slate-800 flex items-center justify-between text-white text-xs">
+          <div className="p-3 bg-slate-950 border-b border-slate-800 flex items-center justify-between text-white text-xs">
             <div className="flex items-center gap-2 truncate pr-2">
               <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${meta.badge}`}>
                 {meta.type}
               </span>
-              <span className="font-medium truncate text-slate-200">{file.originalName}</span>
+              <span className="font-semibold truncate text-slate-200">{file.originalName}</span>
+              <span className="hidden sm:inline-block text-[11px] text-slate-500 font-mono">
+                ({formatBytes(file.size)})
+              </span>
             </div>
 
             <div className="flex items-center gap-1.5 shrink-0">
               {isImage && (
                 <>
                   <button
-                    onClick={() => setZoomLevel((z) => Math.max(0.5, z - 0.25))}
+                    onClick={() => setZoomLevel((z) => Math.max(0.5, +(z - 0.25).toFixed(2)))}
                     className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
                     title="Zoom Out"
                   >
                     <ZoomOut className="w-4 h-4" />
                   </button>
-                  <span className="text-[11px] font-mono text-slate-400 px-1">
-                    {Math.round(zoomLevel * 100)}%
-                  </span>
                   <button
-                    onClick={() => setZoomLevel((z) => Math.min(3, z + 0.25))}
+                    onClick={() => setZoomLevel(1)}
+                    className="text-[11px] font-mono text-slate-400 hover:text-white px-1.5 py-0.5 rounded hover:bg-slate-800"
+                    title="Reset Zoom to 100%"
+                  >
+                    {Math.round(zoomLevel * 100)}%
+                  </button>
+                  <button
+                    onClick={() => setZoomLevel((z) => Math.min(3, +(z + 0.25).toFixed(2)))}
                     className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
                     title="Zoom In"
                   >
@@ -119,12 +133,29 @@ export default function FilePreviewModal({
               {isText && textContent && (
                 <button
                   onClick={handleCopyText}
-                  className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700"
+                  className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 transition-colors"
                 >
-                  {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                   <span>{copied ? 'Copied' : 'Copy'}</span>
                 </button>
               )}
+
+              <button
+                onClick={handleDownload}
+                className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 transition-colors"
+                title="Download file"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Download</span>
+              </button>
+
+              <button
+                onClick={() => setIsFullscreen((prev) => !prev)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
+                title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+              >
+                <Maximize2 className="w-4 h-4" />
+              </button>
 
               <button
                 onClick={onClose}
@@ -136,19 +167,19 @@ export default function FilePreviewModal({
           </div>
 
           {/* Preview Viewport */}
-          <div className="flex-1 overflow-auto flex items-center justify-center p-4 relative select-none">
+          <div className="flex-1 overflow-auto flex items-center justify-center p-3 sm:p-4 relative">
             {isImage ? (
-              <div className="max-w-full max-h-full flex items-center justify-center overflow-auto">
+              <div className="max-w-full max-h-full flex items-center justify-center overflow-auto select-none">
                 <img
                   src={fileUrl}
                   alt={file.originalName}
                   style={{ transform: `scale(${zoomLevel})`, transformOrigin: 'center center' }}
-                  className="max-h-[70vh] object-contain rounded-lg transition-transform duration-150 shadow-2xl"
+                  className="max-h-[72vh] object-contain rounded-lg transition-transform duration-150 shadow-2xl"
                 />
               </div>
             ) : isPdf ? (
               <iframe
-                src={`${fileUrl}#toolbar=0`}
+                src={`${fileUrl}#toolbar=1`}
                 title={file.originalName}
                 className="w-full h-full rounded-lg bg-white border-0"
               />
@@ -156,12 +187,21 @@ export default function FilePreviewModal({
               textLoading ? (
                 <div className="flex items-center gap-2 text-slate-400 text-xs">
                   <div className="w-2 h-2 rounded-full bg-brand-500 animate-ping" />
-                  Loading text preview...
+                  Loading code preview...
                 </div>
               ) : (
-                <pre className="w-full h-full p-4 overflow-auto font-mono text-xs text-slate-200 bg-slate-950/80 rounded-xl leading-relaxed whitespace-pre-wrap select-text">
-                  {textContent}
-                </pre>
+                <div className="w-full h-full flex overflow-auto font-mono text-xs bg-slate-950 rounded-xl border border-slate-800">
+                  {/* Line Numbers Column */}
+                  <div className="select-none py-3 px-3 text-right text-slate-600 bg-slate-950/80 border-r border-slate-800/80 font-mono text-[11px] leading-relaxed">
+                    {textLines.map((_, i) => (
+                      <div key={i} className="h-5">{i + 1}</div>
+                    ))}
+                  </div>
+                  {/* Code / Text Contents */}
+                  <pre className="flex-1 p-3 overflow-auto text-slate-200 leading-relaxed whitespace-pre font-mono text-xs select-text">
+                    {textContent}
+                  </pre>
+                </div>
               )
             ) : (
               /* Non-previewable fallback */

@@ -113,12 +113,12 @@ export default function SignupPage() {
         <h2 className={`mt-2 text-center text-2xl sm:text-3xl font-extrabold tracking-tight ${
           isDark ? 'text-white' : 'text-slate-900'
         }`}>
-          Create Your CloudVault
+          Create your CloudVault
         </h2>
         <p className={`mt-1 text-center text-xs ${
           isDark ? 'text-slate-400' : 'text-slate-600 font-medium'
         }`}>
-          500 MiB free academic storage &bull; No email, phone, or OAuth needed
+          500 MiB private academic storage &bull; No email &bull; No phone &bull; No OAuth
         </p>
       </div>
 
@@ -128,6 +128,19 @@ export default function SignupPage() {
             ? 'bg-slate-900/70 border-slate-800/80 shadow-2xl shadow-black/50 ring-1 ring-white/5' 
             : 'bg-white/90 border-slate-200/90 shadow-2xl shadow-indigo-500/5 ring-1 ring-slate-900/5'
         }`}>
+          {/* Recovery Code Explainer Banner Before Signup */}
+          <div className={`mb-5 p-3.5 rounded-2xl flex items-start gap-2.5 text-xs border ${
+            isDark 
+              ? 'bg-brand-950/40 border-brand-800/60 text-brand-200' 
+              : 'bg-brand-50 border-brand-200 text-brand-800'
+          }`}>
+            <KeyRound className="w-4 h-4 text-brand-500 shrink-0 mt-0.5" />
+            <div className="leading-relaxed">
+              <span className="font-semibold block mb-0.5">Your recovery codes are your backup key.</span>
+              Because CloudVault requires no email, you will be given 5 cryptographic recovery codes immediately after signup.
+            </div>
+          </div>
+
           {errorMsg && (
             <div className={`mb-5 p-3.5 rounded-2xl flex items-center gap-2.5 text-xs border ${
               isDark 
