@@ -3,9 +3,9 @@ const MongoStore = require('connect-mongo');
 const config = require('./env');
 
 const configureSession = () => {
-  // In production across different domains (e.g. Vercel frontend + Render backend),
+  // In production across different domains (e.g. Vercel frontend + Render/Railway backend),
   // cookies must be sameSite: 'none' and secure: true to be sent cross-site with credentials.
-  const isCrossSite = config.isProduction && config.clientUrl && !config.clientUrl.includes('localhost');
+  const isCrossSite = config.isProduction && (!config.clientUrl || !config.clientUrl.includes('localhost'));
 
   return session({
     name: 'cv.sid', // Custom cookie name to obscure tech stack
