@@ -1,10 +1,18 @@
 {
   "framework": "vite",
-  "installCommand": "npm install --prefix client",
+  "installCommand": "npm install",
   "buildCommand": "npm run build --prefix client",
   "outputDirectory": "client/dist",
   "cleanUrls": true,
   "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/api",
+      "destination": "/api/index.js"
+    },
     {
       "source": "/(.*)",
       "destination": "/index.html"
