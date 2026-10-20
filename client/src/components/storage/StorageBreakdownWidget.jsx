@@ -38,7 +38,7 @@ export default function StorageBreakdownWidget({ stats, user }) {
   const isNearQuota = remaining < 52428800; // Less than 50 MiB remaining
 
   return (
-    <div className={`rounded-3xl p-5 backdrop-blur-xl border transition-all ${
+    <div className={`rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 backdrop-blur-xl border transition-all ${
       isDark 
         ? 'bg-slate-900/70 border-slate-800/80 shadow-2xl shadow-black/40 ring-1 ring-white/5' 
         : 'bg-white/90 border-slate-200/90 shadow-xl shadow-slate-200/50 ring-1 ring-slate-900/5'
@@ -87,15 +87,15 @@ export default function StorageBreakdownWidget({ stats, user }) {
       )}
 
       {/* Legend & Details */}
-      <div className={`mt-4 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5 pt-3 border-t text-xs ${
+      <div className={`mt-4 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-1.5 sm:gap-2.5 pt-3 border-t text-xs ${
         isDark ? 'border-slate-800' : 'border-slate-100'
       }`}>
         {categories.map((cat) => (
-          <div key={cat.key} className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-slate-500/5 transition-colors">
+          <div key={cat.key} className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-slate-500/5 transition-colors min-w-0">
             <span className={`w-2.5 h-2.5 rounded-full ${cat.dot} shrink-0`} />
             <div className="truncate min-w-0">
               <div className="flex items-center gap-1">
-                <span className={`text-[11px] block truncate font-medium ${
+                <span className={`text-[10px] sm:text-[11px] block truncate font-medium ${
                   isDark ? 'text-slate-400' : 'text-slate-500'
                 }`}>{cat.label}</span>
                 {cat.count > 0 && (
@@ -106,7 +106,7 @@ export default function StorageBreakdownWidget({ stats, user }) {
                   </span>
                 )}
               </div>
-              <span className={`font-bold font-mono text-[11px] block ${
+              <span className={`font-bold font-mono text-[10px] sm:text-[11px] block ${
                 isDark ? 'text-slate-200' : 'text-slate-800'
               }`}>{formatBytes(cat.bytes)}</span>
             </div>

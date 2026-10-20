@@ -444,19 +444,19 @@ export default function SettingsPage() {
         />
       )}
 
-      <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-8 relative z-10">
-        <h1 className={`text-2xl font-extrabold tracking-tight mb-2 ${
+      <main className="flex-1 max-w-4xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-8 relative z-10">
+        <h1 className={`text-xl sm:text-2xl font-extrabold tracking-tight mb-1.5 sm:mb-2 ${
           isDark ? 'text-white' : 'text-slate-900'
         }`}>
           Account &amp; Security Settings
         </h1>
-        <p className={`text-xs mb-8 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+        <p className={`text-xs mb-6 sm:mb-8 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
           Manage your student credentials, recovery codes, and quota details
         </p>
 
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {/* Account Overview Card */}
-          <div className={`rounded-3xl p-6 backdrop-blur-xl border transition-all ${
+          <div className={`rounded-2xl sm:rounded-3xl p-4 sm:p-6 backdrop-blur-xl border transition-all ${
             isDark 
               ? 'bg-slate-900/70 border-slate-800/80 shadow-2xl shadow-black/40 ring-1 ring-white/5' 
               : 'bg-white/90 border-slate-200/90 shadow-xl shadow-slate-200/50 ring-1 ring-slate-900/5'
@@ -539,7 +539,7 @@ export default function SettingsPage() {
           </div>
 
           {/* Change Password Card */}
-          <div className={`rounded-3xl p-6 backdrop-blur-xl border transition-all ${
+          <div className={`rounded-2xl sm:rounded-3xl p-4 sm:p-6 backdrop-blur-xl border transition-all ${
             isDark 
               ? 'bg-slate-900/70 border-slate-800/80 shadow-2xl shadow-black/40 ring-1 ring-white/5' 
               : 'bg-white/90 border-slate-200/90 shadow-xl shadow-slate-200/50 ring-1 ring-slate-900/5'

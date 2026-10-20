@@ -717,14 +717,14 @@ export default function DashboardPage() {
         />
 
         {/* Main Content Viewport */}
-        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-8 relative z-10 min-w-0">
+        <main className="flex-1 px-3 sm:px-6 lg:px-8 py-4 sm:py-8 relative z-10 min-w-0">
         {/* Header Action Bar */}
-        <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b ${
+        <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 pb-5 sm:pb-6 border-b ${
           isDark ? 'border-slate-800' : 'border-slate-200/90'
         }`}>
           <div>
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className={`text-2xl font-extrabold tracking-tight ${
+            <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
+              <h1 className={`text-xl sm:text-2xl font-extrabold tracking-tight ${
                 isDark ? 'text-white' : 'text-slate-900'
               }`}>
                 {categoryHeader.title}
@@ -747,11 +747,11 @@ export default function DashboardPage() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3">
             <button
               onClick={() => fetchFiles(true)}
               disabled={isRefreshing}
-              className={`p-2.5 rounded-xl border transition-colors shadow-sm disabled:opacity-50 ${
+              className={`p-2 sm:p-2.5 rounded-xl border transition-colors shadow-sm disabled:opacity-50 ${
                 isDark 
                   ? 'bg-slate-900 border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800' 
                   : 'bg-white/90 border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-50'
@@ -764,7 +764,7 @@ export default function DashboardPage() {
 
             <button
               onClick={() => setIsUploadOpen(true)}
-              className="bg-gradient-to-r from-brand-600 via-indigo-600 to-brand-600 hover:from-brand-500 hover:to-indigo-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-lg shadow-brand-600/25 transition-all flex items-center gap-2 group active:translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-brand-500/50"
+              className="bg-gradient-to-r from-brand-600 via-indigo-600 to-brand-600 hover:from-brand-500 hover:to-indigo-500 text-white text-xs font-semibold px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl shadow-lg shadow-brand-600/25 transition-all flex items-center gap-1.5 sm:gap-2 group active:translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-brand-500/50"
               aria-label="Upload coursework"
             >
               <UploadCloud className="w-4 h-4 transition-transform group-hover:-translate-y-0.5" />
@@ -774,14 +774,14 @@ export default function DashboardPage() {
         </div>
 
         {/* Visual Storage Breakdown Analytics Widget */}
-        <div className="mt-6">
+        <div className="mt-5 sm:mt-6">
           <StorageBreakdownWidget stats={stats} user={user} />
         </div>
 
         {/* Filter Navigation, Search Bar & View Modes */}
-        <div className="mt-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="mt-6 sm:mt-8 flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
           {/* Category Tabs (Rendered on mobile & tablet where sidebar is collapsed) */}
-          <div className="flex lg:hidden items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+          <div className="flex lg:hidden items-center gap-1.5 overflow-x-auto pb-1.5 sm:pb-0 scrollbar-none">
             {[
               { id: 'all', label: 'All Files' },
               { id: 'starred', label: 'Starred', icon: Star },
@@ -798,7 +798,7 @@ export default function DashboardPage() {
                 <button
                   key={tab.id}
                   onClick={() => setSelectedCategory(tab.id)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 ${
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0 ${
                     isSelected
                       ? 'bg-brand-600 text-white shadow-md shadow-brand-600/25'
                       : isDark
@@ -817,7 +817,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Search and Sort Toolbar */}
-          <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap w-full md:w-auto">
+          <div className="flex items-center gap-2 w-full md:w-auto">
             {/* Search Input with Hotkey Tooltip and Instant Clear button */}
             <div className="relative flex-1 sm:w-64">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -863,11 +863,11 @@ export default function DashboardPage() {
             </div>
 
             {/* Sort Dropdown */}
-            <div className="relative">
+            <div className="relative shrink-0">
               <select
                 value={sortOption}
                 onChange={(e) => setSortOption(e.target.value)}
-                className={`appearance-none rounded-xl px-3 py-1.5 pr-8 text-xs font-medium focus:outline-none shadow-sm cursor-pointer border ${
+                className={`appearance-none rounded-xl px-2.5 sm:px-3 py-1.5 pr-7 sm:pr-8 text-xs font-medium focus:outline-none shadow-sm cursor-pointer border ${
                   isDark 
                     ? 'bg-slate-900/90 border-slate-800 text-slate-200 focus:ring-2 focus:ring-brand-500/50' 
                     : 'bg-white/95 border-slate-300/90 text-slate-800 focus:ring-4 focus:ring-brand-500/15'
@@ -1007,7 +1007,7 @@ export default function DashboardPage() {
                     isDark ? 'bg-slate-950/60 text-slate-400 divide-slate-800' : 'bg-slate-50/90 text-slate-600 divide-slate-200'
                   }`}>
                     <tr>
-                      <th className="py-3 px-4 w-10">
+                      <th className="py-2.5 sm:py-3 px-2 sm:px-4 w-9 sm:w-10">
                         <button
                           type="button"
                           onClick={handleSelectAll}
@@ -1022,11 +1022,11 @@ export default function DashboardPage() {
                           )}
                         </button>
                       </th>
-                      <th className="py-3 px-4">Name</th>
-                      <th className="hidden sm:table-cell py-3 px-4">Category</th>
-                      <th className="hidden md:table-cell py-3 px-4">Size</th>
-                      <th className="hidden lg:table-cell py-3 px-4">Uploaded</th>
-                      <th className="py-3 px-4 text-right">Actions</th>
+                      <th className="py-2.5 sm:py-3 px-2 sm:px-4">Name</th>
+                      <th className="hidden sm:table-cell py-2.5 sm:py-3 px-4">Category</th>
+                      <th className="hidden md:table-cell py-2.5 sm:py-3 px-4">Size</th>
+                      <th className="hidden lg:table-cell py-2.5 sm:py-3 px-4">Uploaded</th>
+                      <th className="py-2.5 sm:py-3 px-2 sm:px-4 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className={`divide-y ${isDark ? 'divide-slate-800/80' : 'divide-slate-100'}`}>
@@ -1046,7 +1046,7 @@ export default function DashboardPage() {
                               : isDark ? 'hover:bg-slate-800/50' : 'hover:bg-slate-50/80'
                           }`}
                         >
-                          <td className="py-3 px-4">
+                          <td className="py-2.5 sm:py-3 px-2 sm:px-4">
                             <button
                               type="button"
                               onClick={() => handleSelectToggle(file._id)}
@@ -1060,8 +1060,8 @@ export default function DashboardPage() {
                               )}
                             </button>
                           </td>
-                          <td className="py-3 px-4">
-                            <div className="flex items-center gap-3">
+                          <td className="py-2.5 sm:py-3 px-2 sm:px-4 min-w-0">
+                            <div className="flex items-center gap-2 sm:gap-3">
                               <button
                                 onClick={() => handleToggleStar(file)}
                                 className="p-1 text-slate-300 hover:text-amber-400 transition-colors shrink-0 focus:outline-none"
@@ -1075,12 +1075,12 @@ export default function DashboardPage() {
                                 />
                               </button>
 
-                              <div className={`p-2 rounded-xl border ${meta.color} shrink-0`}>
-                                <Icon className="w-4 h-4" />
+                              <div className={`p-1.5 sm:p-2 rounded-xl border ${meta.color} shrink-0`}>
+                                <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                               </div>
-                              <div className="min-w-0">
+                              <div className="min-w-0 max-w-[130px] xs:max-w-[190px] sm:max-w-xs md:max-w-none">
                                 <span
-                                  className={`font-semibold hover:text-brand-600 truncate block cursor-pointer select-none ${
+                                  className={`font-semibold hover:text-brand-600 truncate block cursor-pointer select-none text-xs sm:text-sm ${
                                     isDark ? 'text-slate-200' : 'text-slate-800'
                                   }`}
                                   onClick={() => setFileToPreview(file)}
@@ -1089,8 +1089,8 @@ export default function DashboardPage() {
                                   {file.originalName}
                                 </span>
                                 {/* Responsive subtitle: on mobile (<sm) shows Type • Size • Date. On tablet (<md) shows Size • Date. On laptop (<lg) shows Date. */}
-                                <span className={`text-[11px] block mt-0.5 sm:hidden ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                                  {meta.type} &bull; {formatBytes(file.size)} &bull; {formatDate(file.createdAt)}
+                                <span className={`text-[10px] sm:text-[11px] block mt-0.5 sm:hidden truncate ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                                  {meta.type} &bull; {formatBytes(file.size)}
                                 </span>
                                 <span className={`text-[11px] mt-0.5 hidden sm:block md:hidden ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                                   {formatBytes(file.size)} &bull; {formatDate(file.createdAt)}
@@ -1101,38 +1101,38 @@ export default function DashboardPage() {
                               </div>
                             </div>
                           </td>
-                          <td className="hidden sm:table-cell py-3 px-4">
+                          <td className="hidden sm:table-cell py-2.5 sm:py-3 px-4">
                             <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${meta.badge}`}>
                               {meta.type}
                             </span>
                           </td>
-                          <td className={`hidden md:table-cell py-3 px-4 font-mono ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                          <td className={`hidden md:table-cell py-2.5 sm:py-3 px-4 font-mono ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                             {formatBytes(file.size)}
                           </td>
-                          <td className={`hidden lg:table-cell py-3 px-4 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                          <td className={`hidden lg:table-cell py-2.5 sm:py-3 px-4 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                             {formatDate(file.createdAt)}
                           </td>
-                          <td className="py-3 px-4 text-right">
-                            <div className="flex items-center justify-end gap-1 relative">
+                          <td className="py-2.5 sm:py-3 px-2 sm:px-4 text-right">
+                            <div className="flex items-center justify-end gap-0.5 sm:gap-1 relative">
                               <button
                                 onClick={() => setFileToPreview(file)}
-                                className={`p-1.5 rounded-lg transition-colors ${
+                                className={`p-1 sm:p-1.5 rounded-lg transition-colors ${
                                   isDark ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
                                 }`}
                                 title="Quick Preview"
                                 aria-label="Preview"
                               >
-                                <Eye className="w-4 h-4" />
+                                <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                               </button>
                               <button
                                 onClick={() => handleDownload(file)}
-                                className={`p-1.5 rounded-lg transition-colors ${
+                                className={`p-1 sm:p-1.5 rounded-lg transition-colors hidden xs:flex ${
                                   isDark ? 'text-slate-400 hover:text-brand-400 hover:bg-brand-950/40' : 'text-slate-500 hover:text-brand-600 hover:bg-brand-50'
                                 }`}
                                 title="Download"
                                 aria-label="Download"
                               >
-                                <Download className="w-4 h-4" />
+                                <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                               </button>
 
                               {/* More Actions Dropdown Toggle */}
@@ -1142,7 +1142,7 @@ export default function DashboardPage() {
                                     e.stopPropagation();
                                     setActiveMenuFileId(isMenuOpen ? null : file._id);
                                   }}
-                                  className={`p-1.5 rounded-lg transition-colors ${
+                                  className={`p-1 sm:p-1.5 rounded-lg transition-colors ${
                                     isMenuOpen
                                       ? isDark ? 'bg-slate-800 text-white' : 'bg-slate-200 text-slate-900'
                                       : isDark ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
@@ -1152,7 +1152,7 @@ export default function DashboardPage() {
                                   aria-haspopup="true"
                                   aria-expanded={isMenuOpen}
                                 >
-                                  <MoreVertical className="w-4 h-4" />
+                                  <MoreVertical className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                                 </button>
 
                                 {isMenuOpen && (

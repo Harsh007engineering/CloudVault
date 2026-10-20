@@ -21,7 +21,7 @@ export default function ThemeToggle({ className = '', compact = false }) {
       <button
         type="button"
         onClick={() => setTheme('light')}
-        className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full transition-all duration-200 focus:outline-none ${
+        className={`inline-flex items-center gap-1.5 px-2 sm:px-3 py-1 rounded-full transition-all duration-200 focus:outline-none ${
           isXP ? 'rounded-sm py-0.5' : ''
         } ${
           theme === 'light'
@@ -35,14 +35,14 @@ export default function ThemeToggle({ className = '', compact = false }) {
         title="Switch to Light Theme"
       >
         <Sun className={`w-3.5 h-3.5 transition-colors ${theme === 'light' ? 'text-amber-500 fill-amber-500/20' : 'text-slate-400'}`} />
-        {!compact && <span className="text-[11px]">Light</span>}
+        {!compact && <span className="hidden sm:inline text-[11px]">Light</span>}
       </button>
 
       {/* Dark Option Button */}
       <button
         type="button"
         onClick={() => setTheme('dark')}
-        className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full transition-all duration-200 focus:outline-none ${
+        className={`inline-flex items-center gap-1.5 px-2 sm:px-3 py-1 rounded-full transition-all duration-200 focus:outline-none ${
           isXP ? 'rounded-sm py-0.5' : ''
         } ${
           theme === 'dark'
@@ -56,14 +56,14 @@ export default function ThemeToggle({ className = '', compact = false }) {
         title="Switch to Dark Theme"
       >
         <Moon className={`w-3.5 h-3.5 transition-colors ${theme === 'dark' ? 'text-cyan-400 fill-cyan-400/20' : 'text-slate-500'}`} />
-        {!compact && <span className="text-[11px]">Dark</span>}
+        {!compact && <span className="hidden sm:inline text-[11px]">Dark</span>}
       </button>
 
       {/* XP Option Button */}
       <button
         type="button"
         onClick={() => setTheme('xp')}
-        className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 transition-all duration-200 focus:outline-none ${
+        className={`inline-flex items-center gap-1.5 px-2 sm:px-3 py-1 transition-all duration-200 focus:outline-none ${
           isXP
             ? 'bg-gradient-to-b from-[#225ad7] to-[#1242ab] text-white font-bold shadow-sm rounded-sm border border-[#0a2f85]'
             : isDark
@@ -73,7 +73,7 @@ export default function ThemeToggle({ className = '', compact = false }) {
         title="Switch to Windows XP Professional Theme"
       >
         <span className="text-xs">🪟</span>
-        {!compact && <span className="text-[11px]">XP</span>}
+        {!compact && <span className="hidden sm:inline text-[11px]">XP</span>}
       </button>
     </div>
   );

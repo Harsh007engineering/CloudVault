@@ -71,7 +71,7 @@ export default function LoginPage() {
           </div>
 
           {/* XP Dialog Form */}
-          <form onSubmit={handleSubmit} className="p-6 bg-[#ece9d8] text-[11px] text-slate-900 space-y-4">
+          <form onSubmit={handleSubmit} className="p-4 sm:p-6 bg-[#ece9d8] text-[11px] text-slate-900 space-y-4">
             {errorMsg && (
               <div className="p-2.5 bg-red-100 border border-red-500 text-red-900 text-[11px] flex items-center gap-2">
                 <span>❌</span>
@@ -192,14 +192,14 @@ export default function LoginPage() {
             : 'bg-white/95 border-slate-200/90 shadow-2xl shadow-indigo-500/5 ring-1 ring-slate-900/5'
         }`}>
           {/* LEFT COLUMN: Value Proposition & Security Badges */}
-          <div className={`lg:col-span-5 p-8 sm:p-10 flex flex-col justify-between border-b lg:border-b-0 lg:border-r ${
+          <div className={`lg:col-span-5 p-5 sm:p-8 lg:p-10 flex flex-col justify-between border-b lg:border-b-0 lg:border-r ${
             isDark 
               ? 'bg-gradient-to-br from-slate-900/90 to-brand-950/30 border-slate-800' 
               : 'bg-gradient-to-br from-brand-50/60 via-slate-50 to-indigo-50/40 border-slate-200/80'
           }`}>
             <div>
-              <Link to="/" className="inline-flex items-center gap-2.5 group mb-8">
-                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-brand-500/25 text-white transition-transform group-hover:scale-105">
+              <Link to="/" className="inline-flex items-center gap-2.5 group mb-4 sm:mb-8">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-tr from-brand-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-brand-500/25 text-white transition-transform group-hover:scale-105 shrink-0">
                   <Cloud className="w-5 h-5" />
                 </div>
                 <span className={`text-xl font-extrabold tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
@@ -207,7 +207,7 @@ export default function LoginPage() {
                 </span>
               </Link>
 
-              <div className="inline-block mb-3">
+              <div className="inline-block mb-2 sm:mb-3">
                 <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border backdrop-blur-sm ${
                   isDark 
                     ? 'bg-brand-950/60 text-brand-300 border-brand-800/60' 
@@ -217,16 +217,16 @@ export default function LoginPage() {
                 </span>
               </div>
 
-              <h2 className={`text-2xl font-extrabold tracking-tight leading-snug ${isDark ? 'text-white' : 'text-slate-900'}`}>
+              <h2 className={`text-xl sm:text-2xl font-extrabold tracking-tight leading-snug ${isDark ? 'text-white' : 'text-slate-900'}`}>
                 Your files. <br />Your vault.
               </h2>
-              <p className={`mt-2 text-xs leading-relaxed ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+              <p className={`mt-1.5 sm:mt-2 text-xs leading-relaxed ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                 No Gmail. No OAuth. No personal account required. Designed specifically for university computer laboratories.
               </p>
             </div>
 
             {/* Feature Badges */}
-            <div className="mt-8 space-y-3 pt-6 border-t border-slate-500/10">
+            <div className="mt-5 sm:mt-8 space-y-2.5 sm:space-y-3 pt-4 sm:pt-6 border-t border-slate-500/10">
               <div className="flex items-center gap-2.5 text-xs">
                 <div className={`p-1.5 rounded-lg ${isDark ? 'bg-slate-800 text-brand-400' : 'bg-brand-50 text-brand-600'}`}>
                   <ShieldCheck className="w-4 h-4" />
@@ -257,7 +257,7 @@ export default function LoginPage() {
           </div>
 
           {/* RIGHT COLUMN: Sign In Form */}
-          <div className="lg:col-span-7 p-8 sm:p-10 flex flex-col justify-center">
+          <div className="lg:col-span-7 p-5 sm:p-8 lg:p-10 flex flex-col justify-center">
             <div>
               <h3 className={`text-xl font-extrabold tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
                 Sign in to CloudVault

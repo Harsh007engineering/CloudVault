@@ -95,17 +95,17 @@ export default function ForgotPasswordPage() {
   // Windows XP Professional Password Reset Wizard
   if (isXP) {
     return (
-      <div className="min-h-screen bg-[#004e98] flex flex-col justify-center items-center p-4 relative font-sans select-none">
+      <div className="min-h-screen bg-[#004e98] flex flex-col justify-center items-center p-2 sm:p-4 relative font-sans select-none">
         {/* Top right theme toggle */}
-        <div className="absolute top-4 right-4 z-20">
+        <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-20">
           <ThemeToggle />
         </div>
 
         <div className="xp-window-dialog w-full max-w-xl animate-scale-in">
           {/* XP Titlebar */}
           <div className="xp-titlebar">
-            <div className="xp-titlebar-text">
-              <span>🔑 CloudVault Password Reset Wizard</span>
+            <div className="xp-titlebar-text min-w-0">
+              <span className="truncate">🔑 CloudVault Password Reset Wizard</span>
             </div>
             <div className="xp-window-controls">
               <button
@@ -295,20 +295,20 @@ export default function ForgotPasswordPage() {
   return (
     <div className={`min-h-screen ${
       isDark ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'
-    } flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative transition-colors selection:bg-brand-500 selection:text-white`}>
+    } flex flex-col justify-center py-6 sm:py-12 px-3 sm:px-6 lg:px-8 relative transition-colors selection:bg-brand-500 selection:text-white`}>
       {/* Ambient Lighting & Mesh Canvas */}
       <AmbientBackground isDark={isDark} />
 
       {/* Top right theme toggle */}
-      <div className="absolute top-4 right-4 z-20">
+      <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-20">
         <ThemeToggle />
       </div>
 
-      <div className="sm:mx-auto sm:w-full sm:max-w-md px-4 relative z-10">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md px-2 sm:px-4 relative z-10">
         <div className="flex justify-center">
           <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-brand-500/25 text-white transition-transform group-hover:scale-105">
-              <Cloud className="w-7 h-7" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-tr from-brand-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-brand-500/25 text-white transition-transform group-hover:scale-105">
+              <Cloud className="w-5 h-5 sm:w-7 sm:h-7" />
             </div>
           </Link>
         </div>
@@ -326,7 +326,7 @@ export default function ForgotPasswordPage() {
           </span>
         </div>
 
-        <h2 className={`mt-2 text-center text-2xl sm:text-3xl font-extrabold tracking-tight ${
+        <h2 className={`mt-2 text-center text-xl sm:text-3xl font-extrabold tracking-tight ${
           isDark ? 'text-white' : 'text-slate-900'
         }`}>
           Reset Password
@@ -338,8 +338,8 @@ export default function ForgotPasswordPage() {
         </p>
       </div>
 
-      <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-md px-4 relative z-10">
-        <div className={`py-8 px-6 sm:px-10 rounded-3xl border backdrop-blur-2xl transition-all ${
+      <div className="mt-5 sm:mt-6 sm:mx-auto sm:w-full sm:max-w-md px-2 sm:px-4 relative z-10">
+        <div className={`py-6 px-4 sm:py-8 sm:px-10 rounded-2xl sm:rounded-3xl border backdrop-blur-2xl transition-all ${
           isDark 
             ? 'bg-slate-900/70 border-slate-800/80 shadow-2xl shadow-black/50 ring-1 ring-white/5' 
             : 'bg-white/90 border-slate-200/90 shadow-2xl shadow-indigo-500/5 ring-1 ring-slate-900/5'

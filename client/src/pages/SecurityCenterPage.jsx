@@ -327,18 +327,18 @@ export default function SecurityCenterPage() {
         />
 
         {/* Main Content Area */}
-        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-8 relative z-10 min-w-0">
+        <main className="flex-1 px-3 sm:px-6 lg:px-8 py-4 sm:py-8 relative z-10 min-w-0">
           {/* Header */}
-          <div className={`pb-6 border-b ${isDark ? 'border-slate-800' : 'border-slate-200/90'}`}>
+          <div className={`pb-5 sm:pb-6 border-b ${isDark ? 'border-slate-800' : 'border-slate-200/90'}`}>
             <div className="flex items-center gap-2.5">
-              <div className={`p-2.5 rounded-2xl ${
+              <div className={`p-2 sm:p-2.5 rounded-2xl ${
                 isDark ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-50 text-emerald-600 border border-emerald-200'
               }`}>
-                <ShieldCheck className="w-6 h-6" />
+                <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h1 className={`text-2xl font-extrabold tracking-tight ${
+                  <h1 className={`text-xl sm:text-2xl font-extrabold tracking-tight ${
                     isDark ? 'text-white' : 'text-slate-900'
                   }`}>
                     Security Center
@@ -359,10 +359,10 @@ export default function SecurityCenterPage() {
           </div>
 
           {/* Real Security Status Grid */}
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="mt-6 sm:mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             
             {/* 1. Lab PC Safe Mode Status Card */}
-            <div className={`rounded-3xl p-6 backdrop-blur-xl border transition-all ${
+            <div className={`rounded-2xl sm:rounded-3xl p-4 sm:p-6 backdrop-blur-xl border transition-all ${
               isDark 
                 ? 'bg-slate-900/70 border-slate-800/80 shadow-2xl shadow-black/40 ring-1 ring-white/5' 
                 : 'bg-white/90 border-slate-200/90 shadow-xl shadow-slate-200/50 ring-1 ring-slate-900/5'

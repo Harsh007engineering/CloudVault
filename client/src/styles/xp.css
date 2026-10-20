@@ -424,6 +424,7 @@ body[data-theme="xp"] {
 
 .xp-table {
   width: 100%;
+  min-width: 460px;
   border-collapse: collapse;
   font-size: 11px;
   font-family: var(--xp-font);
@@ -616,6 +617,13 @@ body[data-theme="xp"] {
   padding: 0 4px;
   border-bottom: 1px solid #919b9c;
   background-color: #ece9d8;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.xp-tabs-header::-webkit-scrollbar {
+  display: none;
 }
 
 .xp-tab {
@@ -629,6 +637,8 @@ body[data-theme="xp"] {
   color: #444444;
   cursor: pointer;
   margin-bottom: -1px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .xp-tab.active {

@@ -33,7 +33,7 @@ export default function DeleteModal({ file, isOpen, onClose, onDeleted }) {
 
   if (isXP) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/40">
         <div 
           role="dialog"
           aria-modal="true"
@@ -90,8 +90,8 @@ export default function DeleteModal({ file, isOpen, onClose, onDeleted }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-fade-in">
-      <div className={`rounded-3xl shadow-2xl max-w-md w-full p-6 border transition-all animate-scale-in backdrop-blur-2xl ${
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-md animate-fade-in">
+      <div className={`rounded-2xl sm:rounded-3xl shadow-2xl max-w-md w-full p-4 sm:p-6 border transition-all animate-scale-in backdrop-blur-2xl ${
         isDark ? 'bg-slate-900/90 border-slate-800' : 'bg-white/95 border-slate-200 shadow-slate-300/50'
       }`}>
         <div className={`flex items-center justify-between pb-3 border-b ${

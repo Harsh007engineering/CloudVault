@@ -618,8 +618,8 @@ export default function AdminPage() {
 
       {/* Temporary Password Display Modal */}
       {tempPasswordModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-fade-in">
-          <div className={`rounded-3xl shadow-2xl max-w-md w-full p-6 border transition-all animate-scale-in backdrop-blur-2xl ${
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-md animate-fade-in">
+          <div className={`rounded-2xl sm:rounded-3xl shadow-2xl max-w-md w-full p-4 sm:p-6 border transition-all animate-scale-in backdrop-blur-2xl ${
             isDark ? 'bg-slate-900/90 border-slate-800' : 'bg-white/95 border-slate-200 shadow-slate-300/50'
           }`}>
             <div className={`flex items-center justify-between pb-3 border-b ${
@@ -672,8 +672,8 @@ export default function AdminPage() {
 
       {/* Quota Adjustment Modal */}
       {editingQuotaUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-fade-in">
-          <div className={`rounded-3xl shadow-2xl max-w-md w-full p-6 border transition-all animate-scale-in backdrop-blur-2xl ${
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-md animate-fade-in">
+          <div className={`rounded-2xl sm:rounded-3xl shadow-2xl max-w-md w-full p-4 sm:p-6 border transition-all animate-scale-in backdrop-blur-2xl ${
             isDark ? 'bg-slate-900/90 border-slate-800' : 'bg-white/95 border-slate-200 shadow-slate-300/50'
           }`}>
             <div className={`flex items-center justify-between pb-3 border-b ${
@@ -747,18 +747,18 @@ export default function AdminPage() {
       )}
 
       {/* Main Admin Content */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
-        <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b ${
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 relative z-10">
+        <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 pb-5 sm:pb-6 border-b ${
           isDark ? 'border-slate-800' : 'border-slate-200/90'
         }`}>
-          <div className="flex items-center gap-3">
-            <div className={`p-3 rounded-2xl ${
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className={`p-2.5 sm:p-3 rounded-2xl ${
               isDark ? 'bg-purple-500/20 text-purple-400' : 'bg-purple-50 text-purple-600 border border-purple-200 shadow-sm'
             }`}>
-              <ShieldCheck className="w-6 h-6" />
+              <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div>
-              <h1 className={`text-2xl font-extrabold tracking-tight ${
+              <h1 className={`text-xl sm:text-2xl font-extrabold tracking-tight ${
                 isDark ? 'text-white' : 'text-slate-900'
               }`}>
                 Lab Administrator Portal

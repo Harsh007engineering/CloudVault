@@ -177,21 +177,23 @@ export default function LandingPage() {
         )}
 
         {/* Top Bar with Brand & Theme Toggle */}
-        <div className="flex items-center justify-between pb-2">
-          <div className="flex items-center gap-2 text-white text-xs font-bold">
-            <span className="text-base">☁️</span>
-            <span>CloudVault Professional — Academic Cloud Storage</span>
+        <div className="flex items-center justify-between pb-2 gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 text-white text-xs font-bold min-w-0">
+            <span className="text-base shrink-0">☁️</span>
+            <span className="truncate">CloudVault Professional <span className="hidden sm:inline">— Academic Cloud Storage</span></span>
           </div>
-          <ThemeToggle />
+          <div className="shrink-0">
+            <ThemeToggle />
+          </div>
         </div>
 
         {/* Main Welcome Window */}
         <div className="xp-window flex-1 flex flex-col shadow-2xl overflow-hidden max-w-6xl w-full mx-auto">
           {/* XP Titlebar */}
           <div className="xp-titlebar">
-            <div className="xp-titlebar-text">
-              <span className="text-sm">☁️</span>
-              <span>Welcome to CloudVault Professional - [Tour and Overview]</span>
+            <div className="xp-titlebar-text min-w-0">
+              <span className="text-sm shrink-0">☁️</span>
+              <span className="truncate">Welcome to CloudVault Professional - [Tour and Overview]</span>
             </div>
             <div className="xp-window-controls">
               <button
@@ -451,41 +453,41 @@ export default function LandingPage() {
 
                 {/* Filter and Search Bar */}
                 <div className="p-1.5 bg-[#ece9d8] border border-[#7f9db9] flex flex-wrap items-center justify-between gap-2 text-xs mb-2">
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0 scrollbar-none w-full sm:w-auto">
                     <button
                       onClick={() => setDemoFilter('all')}
-                      className={`xp-button px-2 py-0.5 text-xs ${demoFilter === 'all' ? 'font-bold bg-[#d4d0c8]' : ''}`}
+                      className={`xp-button px-2 py-0.5 text-xs shrink-0 ${demoFilter === 'all' ? 'font-bold bg-[#d4d0c8]' : ''}`}
                     >
                       All Files
                     </button>
                     <button
                       onClick={() => setDemoFilter('starred')}
-                      className={`xp-button px-2 py-0.5 text-xs ${demoFilter === 'starred' ? 'font-bold bg-[#d4d0c8]' : ''}`}
+                      className={`xp-button px-2 py-0.5 text-xs shrink-0 ${demoFilter === 'starred' ? 'font-bold bg-[#d4d0c8]' : ''}`}
                     >
                       ★ Starred
                     </button>
                     <button
                       onClick={() => setDemoFilter('documents')}
-                      className={`xp-button px-2 py-0.5 text-xs ${demoFilter === 'documents' ? 'font-bold bg-[#d4d0c8]' : ''}`}
+                      className={`xp-button px-2 py-0.5 text-xs shrink-0 ${demoFilter === 'documents' ? 'font-bold bg-[#d4d0c8]' : ''}`}
                     >
-                      📄 Documents
+                      📄 Docs
                     </button>
                     <button
                       onClick={() => setDemoFilter('code')}
-                      className={`xp-button px-2 py-0.5 text-xs ${demoFilter === 'code' ? 'font-bold bg-[#d4d0c8]' : ''}`}
+                      className={`xp-button px-2 py-0.5 text-xs shrink-0 ${demoFilter === 'code' ? 'font-bold bg-[#d4d0c8]' : ''}`}
                     >
                       💻 Code
                     </button>
                   </div>
 
-                  <div className="flex items-center gap-1">
-                    <span className="text-slate-600 font-bold">Search:</span>
+                  <div className="flex items-center gap-1 w-full sm:w-auto">
+                    <span className="text-slate-600 font-bold shrink-0">Search:</span>
                     <input
                       type="text"
                       value={demoSearch}
                       onChange={(e) => setDemoSearch(e.target.value)}
                       placeholder="Filter files..."
-                      className="xp-input px-2 py-0.5 text-xs w-36 sm:w-48"
+                      className="xp-input px-2 py-0.5 text-xs flex-1 sm:w-48"
                     />
                   </div>
                 </div>
@@ -776,18 +778,18 @@ export default function LandingPage() {
           ? 'bg-slate-950/75 border-slate-800/80 text-white' 
           : 'bg-white/85 border-slate-200/80 text-slate-900'
       }`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 h-14 sm:h-16 flex items-center justify-between">
           {/* Logo & Brand */}
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-600 flex items-center justify-center shadow-md shadow-brand-500/25 text-white transition-transform group-hover:scale-105">
-              <Cloud className="w-5 h-5" />
+          <Link to="/" className="flex items-center gap-2 sm:gap-3 group">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-600 flex items-center justify-center shadow-md shadow-brand-500/25 text-white transition-transform group-hover:scale-105 shrink-0">
+              <Cloud className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className={`font-bold text-lg tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                <span className={`font-bold text-base sm:text-lg tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
                   CloudVault
                 </span>
-                <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold border backdrop-blur-sm ${
+                <span className={`hidden sm:inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold border backdrop-blur-sm ${
                   isDark 
                     ? 'bg-brand-950/60 text-brand-400 border-brand-900/60' 
                     : 'bg-brand-50 text-brand-600 border-brand-200'
@@ -817,23 +819,23 @@ export default function LandingPage() {
           </nav>
 
           {/* Controls: Segmented Theme Switcher & Auth CTA */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3">
             {/* Tactile Segmented Theme Toggle with Explicit Light/Dark Buttons */}
             <ThemeToggle />
 
             {isAuthenticated ? (
               <Link
                 to="/dashboard"
-                className="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs sm:text-sm font-semibold transition-all shadow-sm hover:shadow flex items-center gap-1.5"
+                className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs sm:text-sm font-semibold transition-all shadow-sm hover:shadow flex items-center gap-1.5"
               >
                 <span>Open Vault</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </Link>
             ) : (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 sm:gap-2">
                 <Link
                   to="/login"
-                  className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium transition-colors backdrop-blur-sm ${
+                  className={`px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium transition-colors backdrop-blur-sm ${
                     isDark 
                       ? 'text-slate-300 hover:text-white hover:bg-slate-900/80' 
                       : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100/80'
@@ -843,7 +845,7 @@ export default function LandingPage() {
                 </Link>
                 <Link
                   to="/signup"
-                  className="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs sm:text-sm font-semibold transition-all shadow-md shadow-brand-500/20 hover:shadow-lg hover:shadow-brand-500/30 flex items-center gap-1.5"
+                  className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs sm:text-sm font-semibold transition-all shadow-md shadow-brand-500/20 hover:shadow-lg hover:shadow-brand-500/30 flex items-center gap-1.5"
                 >
                   <span>Create Vault</span>
                   <ArrowRight className="w-3.5 h-3.5 hidden sm:inline" />
@@ -870,7 +872,7 @@ export default function LandingPage() {
           </div>
 
           {/* Main Title */}
-          <h1 className={`text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.15] ${
+          <h1 className={`text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.15] ${
             isDark ? 'text-white' : 'text-slate-900'
           }`}>
             Private academic cloud storage for{' '}
@@ -880,24 +882,24 @@ export default function LandingPage() {
           </h1>
 
           {/* Subtitle */}
-          <p className={`text-base sm:text-lg max-w-2xl mx-auto leading-relaxed ${
+          <p className={`text-sm sm:text-base md:text-lg max-w-2xl mx-auto leading-relaxed ${
             isDark ? 'text-slate-300' : 'text-slate-600'
           }`}>
             Store, retrieve, and submit coursework from any laboratory computer without ever logging into personal Gmail, Google Drive, or Microsoft accounts on public workstations.
           </p>
 
           {/* CTAs */}
-          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3.5">
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link
               to="/signup"
-              className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold transition-all shadow-lg shadow-brand-500/25 hover:shadow-xl hover:shadow-brand-500/35 flex items-center justify-center gap-2 text-sm"
+              className="w-full sm:w-auto px-4 sm:px-6 py-3 sm:py-3.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold transition-all shadow-lg shadow-brand-500/25 hover:shadow-xl hover:shadow-brand-500/35 flex items-center justify-center gap-2 text-xs sm:text-sm"
             >
               <span>Create Free Vault (No Email Needed)</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
               to="/login"
-              className={`w-full sm:w-auto px-6 py-3.5 rounded-xl backdrop-blur-md border font-semibold transition-all shadow-sm flex items-center justify-center gap-2 text-sm ${
+              className={`w-full sm:w-auto px-4 sm:px-6 py-3 sm:py-3.5 rounded-xl backdrop-blur-md border font-semibold transition-all shadow-sm flex items-center justify-center gap-2 text-xs sm:text-sm ${
                 isDark 
                   ? 'bg-slate-900/80 border-slate-800 text-slate-200 hover:bg-slate-800 hover:text-white' 
                   : 'bg-white border-slate-300 text-slate-800 hover:bg-slate-50 hover:text-slate-950'
@@ -970,27 +972,27 @@ export default function LandingPage() {
               : 'bg-white/90 border-slate-200/90 shadow-slate-200/70'
           }`}>
             {/* Window Header */}
-            <div className={`px-4 py-3 backdrop-blur-md border-b flex flex-wrap items-center justify-between gap-3 ${
+            <div className={`px-3 sm:px-4 py-2.5 sm:py-3 backdrop-blur-md border-b flex flex-wrap items-center justify-between gap-2.5 sm:gap-3 ${
               isDark 
                 ? 'bg-slate-950/70 border-slate-800/70' 
                 : 'bg-slate-100/90 border-slate-200/80'
             }`}>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2.5 sm:gap-3">
                 <div className="flex items-center gap-1.5">
-                  <span className="w-3 h-3 rounded-full bg-rose-500/80 inline-block" />
-                  <span className="w-3 h-3 rounded-full bg-amber-500/80 inline-block" />
-                  <span className="w-3 h-3 rounded-full bg-emerald-500/80 inline-block" />
+                  <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-rose-500/80 inline-block" />
+                  <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-amber-500/80 inline-block" />
+                  <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-emerald-500/80 inline-block" />
                 </div>
-                <div className={`text-xs font-medium font-mono ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+                <div className={`text-xs font-medium font-mono truncate ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
                   CloudVault Session &bull; <span className="text-brand-600 dark:text-brand-400 font-semibold">harsh_student</span>
                 </div>
               </div>
 
               {/* Status & Quota */}
-              <div className="flex items-center gap-4 text-xs">
+              <div className="flex items-center gap-3 sm:gap-4 text-xs">
                 <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-medium">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span>🛡 Lab PC Safe Mode: Protected</span>
+                  <span>🛡 <span className="hidden xs:inline">Lab PC Safe Mode: </span>Protected</span>
                 </div>
                 <div className="hidden sm:flex items-center gap-2">
                   <span className={`font-mono text-xs ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
@@ -1063,43 +1065,43 @@ export default function LandingPage() {
                   return (
                     <div 
                       key={file.id}
-                      className={`p-3.5 sm:px-5 flex items-center justify-between gap-4 transition-colors ${
+                      className={`p-3 sm:p-3.5 sm:px-5 flex items-center justify-between gap-2.5 sm:gap-4 transition-colors ${
                         isDark ? 'hover:bg-slate-800/40' : 'hover:bg-slate-50/80'
                       }`}
                     >
-                      <div className="flex items-center gap-3 min-w-0">
+                      <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                         <button
                           onClick={() => toggleDemoStar(file.id)}
                           className="text-slate-300 dark:text-slate-600 hover:text-amber-400 transition-colors shrink-0"
                           title="Toggle Star"
                         >
-                          <Star className={`w-4 h-4 ${file.starred ? 'text-amber-400 fill-amber-400' : ''}`} />
+                          <Star className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${file.starred ? 'text-amber-400 fill-amber-400' : ''}`} />
                         </button>
-                        <div className={`p-2 rounded-lg shrink-0 border ${
+                        <div className={`p-1.5 sm:p-2 rounded-lg shrink-0 border ${
                           isDark 
                             ? 'bg-slate-800/70 text-slate-300 border-slate-700/50' 
                             : 'bg-slate-100 text-slate-700 border-slate-200'
                         }`}>
-                          <Icon className="w-4 h-4" />
+                          <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         </div>
-                        <div className="min-w-0">
+                        <div className="min-w-0 max-w-[130px] xs:max-w-[200px] sm:max-w-none">
                           <div className={`text-xs sm:text-sm font-semibold truncate ${
                             isDark ? 'text-slate-100' : 'text-slate-900'
                           }`}>
                             {file.name}
                           </div>
-                          <div className="flex items-center gap-2 text-[11px] text-slate-400 mt-0.5">
-                            <span className={`px-1.5 py-0.2 rounded text-[9px] font-bold border ${file.badgeColor}`}>
+                          <div className="flex items-center gap-1.5 xs:gap-2 text-[10px] xs:text-[11px] text-slate-400 mt-0.5 truncate">
+                            <span className={`px-1.5 py-0.2 rounded text-[9px] font-bold border shrink-0 ${file.badgeColor}`}>
                               {file.type}
                             </span>
                             <span>{file.size}</span>
-                            <span>&bull;</span>
-                            <span>{file.date}</span>
+                            <span className="hidden xs:inline">&bull;</span>
+                            <span className="hidden xs:inline">{file.date}</span>
                           </div>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-1.5 shrink-0">
+                      <div className="flex items-center gap-1 shrink-0">
                         <button
                           type="button"
                           className={`p-1.5 rounded-lg text-slate-400 transition-colors ${
@@ -1109,18 +1111,18 @@ export default function LandingPage() {
                           }`}
                           title="In-Browser Preview"
                         >
-                          <Eye className="w-4 h-4" />
+                          <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         </button>
                         <button
                           type="button"
-                          className={`p-1.5 rounded-lg text-slate-400 hover:text-brand-600 transition-colors ${
+                          className={`p-1.5 rounded-lg text-slate-400 hover:text-brand-600 transition-colors hidden xs:flex ${
                             isDark 
                               ? 'hover:bg-brand-950/40' 
                               : 'hover:bg-brand-50'
                           }`}
                           title="Download to PC"
                         >
-                          <Download className="w-4 h-4" />
+                          <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         </button>
                       </div>
                     </div>

@@ -31,8 +31,8 @@ export default function RecoveryCodesModal({ codes = [], onClose, isRegeneration
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
-      <div className={`rounded-3xl shadow-2xl max-w-md w-full p-6 sm:p-7 border transition-all backdrop-blur-2xl ${
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
+      <div className={`rounded-2xl sm:rounded-3xl shadow-2xl max-w-md w-full p-4 sm:p-7 border transition-all backdrop-blur-2xl max-h-[92dvh] overflow-y-auto ${
         isDark ? 'bg-slate-900/95 border-slate-800' : 'bg-white/95 border-slate-200 shadow-slate-300/50'
       }`}>
         <div className={`flex items-center gap-3 pb-4 border-b ${

@@ -33,42 +33,45 @@ export default function Navbar({ onToggleMobileSidebar }) {
           onClose={() => setShowHygieneModal(false)}
           onConfirmLogout={handleConfirmedLogout}
         />
-        <nav className="bg-[#ece9d8] border-b-2 border-[#0055ea] text-black font-sans text-xs px-3 py-1.5 flex items-center justify-between select-none shadow-md sticky top-0 z-30">
-          <div className="flex items-center gap-2 sm:gap-3">
+        <nav className="bg-[#ece9d8] border-b-2 border-[#0055ea] text-black font-sans text-xs px-2 sm:px-3 py-1.5 flex items-center justify-between select-none shadow-md sticky top-0 z-30">
+          <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
             {/* Start Button */}
             <Link
               to="/dashboard"
-              className="flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-[#388e3c] to-[#4caf50] hover:from-[#2e7d32] hover:to-[#388e3c] text-white font-bold rounded-r-xl shadow-inner border border-[#1b5e20] active:scale-95 transition-transform"
+              className="flex items-center gap-1 px-2 sm:px-3 py-1 bg-gradient-to-r from-[#388e3c] to-[#4caf50] hover:from-[#2e7d32] hover:to-[#388e3c] text-white font-bold rounded-r-xl shadow-inner border border-[#1b5e20] active:scale-95 transition-transform shrink-0"
             >
               <span className="text-sm">☁️</span>
               <span className="tracking-wide text-xs">start</span>
             </Link>
 
             {/* Quick Navigation Buttons */}
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 shrink-0">
               <Link
                 to="/dashboard"
-                className={`xp-button px-2.5 py-1 text-xs flex items-center gap-1 ${
+                className={`xp-button px-2 py-1 text-xs flex items-center gap-1 ${
                   location.pathname === '/dashboard' ? 'font-bold bg-[#d4d0c8]' : ''
                 }`}
+                title="My Vault"
               >
                 <span>📁</span>
                 <span className="hidden sm:inline">My Vault</span>
               </Link>
               <Link
                 to="/security"
-                className={`xp-button px-2.5 py-1 text-xs flex items-center gap-1 ${
+                className={`xp-button px-2 py-1 text-xs flex items-center gap-1 ${
                   location.pathname === '/security' ? 'font-bold bg-[#d4d0c8]' : ''
                 }`}
+                title="Security"
               >
                 <span>🛡️</span>
                 <span className="hidden sm:inline">Security</span>
               </Link>
               <Link
                 to="/settings"
-                className={`xp-button px-2.5 py-1 text-xs flex items-center gap-1 ${
+                className={`xp-button px-2 py-1 text-xs flex items-center gap-1 ${
                   location.pathname === '/settings' ? 'font-bold bg-[#d4d0c8]' : ''
                 }`}
+                title="Settings"
               >
                 <span>⚙️</span>
                 <span className="hidden sm:inline">Settings</span>
@@ -76,9 +79,10 @@ export default function Navbar({ onToggleMobileSidebar }) {
               {isAdmin && (
                 <Link
                   to="/admin"
-                  className={`xp-button px-2.5 py-1 text-xs flex items-center gap-1 ${
+                  className={`xp-button px-2 py-1 text-xs flex items-center gap-1 ${
                     location.pathname === '/admin' ? 'font-bold bg-[#d4d0c8]' : ''
                   }`}
+                  title="Management"
                 >
                   <span>🖥️</span>
                   <span className="hidden sm:inline">Management</span>
@@ -88,7 +92,7 @@ export default function Navbar({ onToggleMobileSidebar }) {
           </div>
 
           {/* Right controls */}
-          <div className="flex items-center gap-1.5 sm:gap-2">
+          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
             {/* Lab PC Safe Indicator */}
             <div
               className="hidden md:flex items-center gap-1 px-2 py-0.5 border border-[#7f9db9] bg-white text-[11px] font-sans"
@@ -105,18 +109,18 @@ export default function Navbar({ onToggleMobileSidebar }) {
             </div>
 
             {/* User Badge */}
-            <div className="flex items-center gap-1 px-2 py-0.5 border border-[#7f9db9] bg-white text-[11px]">
+            <div className="hidden xs:flex items-center gap-1 px-2 py-0.5 border border-[#7f9db9] bg-white text-[11px]">
               <span>👤</span>
-              <span className="font-bold">{user?.username || 'User'}</span>
+              <span className="font-bold max-w-[70px] truncate">{user?.username || 'User'}</span>
             </div>
 
             {/* Theme Toggle */}
-            <ThemeToggle />
+            <ThemeToggle compact />
 
             {/* Log Off Button */}
             <button
               onClick={() => setShowHygieneModal(true)}
-              className="xp-button px-2.5 py-1 text-xs font-bold text-red-900 flex items-center gap-1 hover:bg-red-50"
+              className="xp-button px-2 sm:px-2.5 py-1 text-xs font-bold text-red-900 flex items-center gap-1 hover:bg-red-50"
               title="Log Off CloudVault"
             >
               <span>⏻</span>
@@ -182,11 +186,11 @@ export default function Navbar({ onToggleMobileSidebar }) {
             </div>
 
             {/* User Controls & Actions */}
-            <div className="flex items-center gap-1.5 sm:gap-3.5">
+            <div className="flex items-center gap-1.5 sm:gap-3">
               {/* Lab PC Safe Mode Status Indicator (Responsive on all screen widths) */}
               <Link
                 to="/security"
-                className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl border text-xs font-semibold backdrop-blur-sm transition-all group ${
+                className={`flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-xl border text-xs font-semibold backdrop-blur-sm transition-all group ${
                   isDark 
                     ? 'bg-emerald-950/40 border-emerald-800/60 text-emerald-300 hover:bg-emerald-900/40' 
                     : 'bg-emerald-50 border-emerald-200 text-emerald-800 hover:bg-emerald-100 shadow-sm'
@@ -196,7 +200,7 @@ export default function Navbar({ onToggleMobileSidebar }) {
               >
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
                 <span className="hidden xl:inline">🛡 Lab PC Safe Mode:</span>
-                <span className="font-bold text-[11px] sm:text-xs">Protected</span>
+                <span className="hidden xs:inline font-bold text-[11px] sm:text-xs">Protected</span>
               </Link>
 
               {/* Storage quick status pill */}
@@ -225,7 +229,7 @@ export default function Navbar({ onToggleMobileSidebar }) {
               {isAdmin && (
                 <Link
                   to="/admin"
-                  className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl transition-all shadow-sm ${
+                  className={`flex items-center gap-1.5 text-xs font-semibold px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl transition-all shadow-sm ${
                     location.pathname === '/admin'
                       ? 'bg-purple-600 text-white shadow-purple-600/20'
                       : isDark
@@ -241,7 +245,7 @@ export default function Navbar({ onToggleMobileSidebar }) {
               {/* Settings Link */}
               <Link
                 to="/settings"
-                className={`p-2 rounded-xl border transition-colors ${
+                className={`p-1.5 sm:p-2 rounded-xl border transition-colors ${
                   location.pathname === '/settings' 
                     ? isDark 
                       ? 'bg-slate-800 text-brand-400 border-slate-700' 
@@ -259,10 +263,10 @@ export default function Navbar({ onToggleMobileSidebar }) {
               <ThemeToggle />
 
               {/* Current user badge */}
-              <div className={`flex items-center gap-2 pl-2 sm:border-l ${
+              <div className={`flex items-center gap-1.5 sm:gap-2 pl-1 sm:pl-2 sm:border-l ${
                 isDark ? 'sm:border-slate-800' : 'sm:border-slate-200'
               }`}>
-                <div className={`w-8 h-8 rounded-xl border flex items-center justify-center text-xs font-bold uppercase shadow-sm ${
+                <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-xl border flex items-center justify-center text-[11px] sm:text-xs font-bold uppercase shadow-sm ${
                   isDark 
                     ? 'bg-brand-900/40 border-brand-500/30 text-brand-300' 
                     : 'bg-brand-50 border-brand-200 text-brand-700'
@@ -286,7 +290,7 @@ export default function Navbar({ onToggleMobileSidebar }) {
               {/* Logout Button */}
               <button
                 onClick={() => setShowHygieneModal(true)}
-                className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl border transition-all shadow-sm group ${
+                className={`flex items-center gap-1.5 text-xs font-semibold px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl border transition-all shadow-sm group ${
                   isDark 
                     ? 'text-rose-400 hover:text-white bg-rose-950/40 hover:bg-rose-600 border-rose-900/50' 
                     : 'text-rose-700 hover:text-white bg-rose-50 hover:bg-rose-600 border-rose-200'
